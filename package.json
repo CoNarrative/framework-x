@@ -1,10 +1,10 @@
 {
   "name": "framework-x",
-  "version": "1.0.0",
+  "version": "0.1.7",
   "description": "",
   "author": "mikegai",
   "license": "MIT",
-  "repository": "mikegai/framework-x",
+  "repository": "conarrative/framework-x",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "jsnext:main": "dist/index.es.js",
@@ -19,9 +19,8 @@
   },
   "dependencies": {},
   "peerDependencies": {
-    "prop-types": "^15.5.4",
-    "react": "^15.0.0 || ^16.0.0",
-    "react-dom": "^15.0.0 || ^16.0.0"
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
@@ -36,8 +35,8 @@
     "eslint-plugin-react": "^7.7.0",
     "eslint-plugin-standard": "^3.0.1",
     "gh-pages": "^1.1.0",
-    "react": "^16.2.0",
-    "react-dom": "^16.2.0",
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2",
     "react-scripts": "^1.1.1",
     "rollup": "^0.54.0",
     "rollup-plugin-babel": "^3.0.3",
