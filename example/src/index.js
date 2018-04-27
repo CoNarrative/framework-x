@@ -1,7 +1,17 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-
 import './index.css'
-import App from './App'
+import App from './views/App'
 
-ReactDOM.render(<App />, document.getElementById('root'))
+import './events' //self-registers
+
+// import registerServiceWorker from './registerServiceWorker';
+
+import { Provider } from './store'
+
+ReactDOM.render(
+  <Provider>
+    <App />
+  </Provider>,
+  document.getElementById('root'))
+// registerServiceWorker()
