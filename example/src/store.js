@@ -1,4 +1,4 @@
-import { initStore } from './framework'
+import { initStore } from 'framework-x'
 import devtools from 'react-waterfall-redux-devtools-middleware'
 
 const prod = process.env.NODE_ENV === 'production'
