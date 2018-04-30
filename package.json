@@ -17,8 +17,12 @@
     "predeploy": "cd example && yarn install && yarn run build",
     "deploy": "gh-pages -d example/build"
   },
-  "dependencies": {},
+  "dependencies": {
+    "path-to-regexp": "^2.2.1",
+    "query-string": "^6.0.0"
+  },
   "peerDependencies": {
+    "history": "^4.7.2",
     "react": "^16.3.2",
     "react-dom": "^16.3.2"
   },

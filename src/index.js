@@ -16,9 +16,10 @@ export const initStore = (store, ...middlewares) => {
   const Context = createContext()
 
   const getState = () => (self ? self.state : err())
-  const setState = (action, state, args) => {
+  const setState = (state, [type, payload]) => {
     // subscriptions.forEach(fn => fn(action, state, args))
-    self.setState(state, () => initializedMiddlewares.forEach(m => m(action, args)))
+    console.log(`    set db from event (${type})  before:`, getState(), 'will be:', state)
+    self.setState(state, () => initializedMiddlewares.forEach(m => m(type, payload)))
   }
 
   const eventFx = {}
@@ -28,47 +29,82 @@ export const initStore = (store, ...middlewares) => {
   const regFx = (type, fn) => fx[type] = fn
 
   let eventQueue = []
-  const dispatch = (...args) => {
-    eventQueue.push(args)
+  const dispatchDrainSync = (type, payload) => {
+    eventQueue.push([type, payload])
     if (eventQueue.length > 1) {
       //recursing so just let it pile up in the queue...
       return
     }
-    // if (eventQueue.length > MAX_DEPTH) {
-    //   throw new Error('Too many recursive calls to dispatch. Did you accidentally call it on render? Example: <button onClick={dispatch(\'increment\', 5)}>Inc</button>')
-    // }
-
     //drain the actions. Children that dispatch more actions will be drained in this same cycle
     while (eventQueue.length > 0) {
       const event = eventQueue[0]
-      const [type] = eventQueue[0]
+      const [type, args] = event
       /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
       const eventHandlers = eventFx[type]
       if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
       eventHandlers.forEach(handler => {
         const coeffects = { db: getState() }
-        console.log('calling handler with', coeffects, event)
+        console.log(`event handler (${type})`, 'current db:', coeffects.db, 'args:', args)
         const effects = handler(coeffects, event)
+        if (!effects) return
         Object.entries(effects).forEach(([key, value]) => {
           const effect = fx [key]
-          console.log('processing effect', key, value)
+          console.log(`  effect handler (${key}) for event (${type})`, value)
           if (!effect) throw new Error(`No fx handler for effect "${type}". Try registering a handler using "regFx('${type}', ({ effect }) => ({...some side-effect})"`)
-          effect(value, event) // event passed just for redux middleware
-          // no need really to handle result of effect for now - we're not doing anything with promises for instance
+          // NOTE: no need really to handle result of effect for now - we're not doing anything with promises for instance
+          effect(value, event) // event passed just for redux dev tools
         })
       })
       eventQueue.shift()
     }
   }
 
-  regFx('db', (state, event) => {
-    console.log('setting state to', state)
-    setState(event, state)
-  })
-  regFx('dispatch', dispatch)
+  const processNextDispatch = () => {
+    if (eventQueue.length === 0) return
+    const event = eventQueue[0]
+    const [type, args] = event
+    /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
+    const eventHandlers = eventFx[type]
+    if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
+    eventHandlers.forEach(handler => {
+      const coeffects = { db: getState() }
+      console.log(`event handler (${type})`, 'current db:', coeffects.db, 'args:', args)
+      const effects = handler(coeffects, event)
+      if (!effects) return
+      Object.entries(effects).forEach(([key, value]) => {
+        const effect = fx [key]
+        console.log(`  effect handler (${key}) for event (${type})`, value)
+        if (!effect) throw new Error(`No fx handler for effect "${type}". Try registering a handler using "regFx('${type}', ({ effect }) => ({...some side-effect})"`)
+        // NOTE: no need really to handle result of effect for now - we're not doing anything with promises for instance
+        effect(value, event) // event passed just for redux dev tools
+      })
+    })
+    eventQueue.shift()
+    if (eventQueue.length > 0) {
+      setTimeout(() => {
+        console.log('handling event ASYNC:')
+        processNextDispatch()
+      }, 1)
+    }
+  }
+
+  /* Handles first event in queue synchronously, subsequent ones async */
+  const dispatchDrainAsync = (type, payload) => {
+    eventQueue.push([type, payload])
+    if (eventQueue.length > 1) {
+      //recursing so just let it pile up in the queue...
+      return
+    }
+    console.log('handling event SYNC:')
+    processNextDispatch()
+  }
+
+  const dispatch = dispatchDrainAsync
+
+  regFx('db', setState)
+  regFx('dispatch', typeAndPayload => dispatch(typeAndPayload))
 
   class Subscriber extends Component {
-
     // We do this so the sCU of Prevent will ignore the children prop
     _children = () => this.props.children
 
@@ -108,6 +144,10 @@ export const initStore = (store, ...middlewares) => {
       this.value = { state: this.state }
     }
 
+    componentWillMount() {
+      dispatch('initialize')
+    }
+
     render() {
       if (this.state !== this.value.state) {
         // If state was changed then recreate `this.value` so it will have a different reference
@@ -129,8 +169,12 @@ export const initStore = (store, ...middlewares) => {
     Subscriber,
     dispatch,
     getState,
+    // setState,
     connect,
     // subscribe,
     regEventFx,
+    regFx,
   }
 }
+
+export * from './router'
