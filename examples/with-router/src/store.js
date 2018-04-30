@@ -25,8 +25,8 @@ export const { Provider, connect, dispatch, Subscriber, regEventFx, regFx } =
   initStore(store, !prod && devtools())
 
 regFx('route', pushNamedRoute)
-regEventFx('route-change', ({ db }, { _, locationAndMatch }) => {
-  console.log('running event handler for route-change')
+regEventFx('route-change', ({ db }, [_, locationAndMatch]) => {
+  console.log('running event handler for route-change', locationAndMatch)
   return ({
     db: {
       ...db,
