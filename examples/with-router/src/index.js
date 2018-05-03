@@ -5,6 +5,7 @@ import App from './views/App'
 import './events' //self-registers
 import { Provider } from './store'
 
+
 ReactDOM.render(
   <Provider>
     <App />

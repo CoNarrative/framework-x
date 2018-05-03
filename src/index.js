@@ -59,9 +59,17 @@ export const initStore = (store, ...middlewares) => {
     }
   }
 
+  let dispatchScheduled = false
+  const scheduleDispatchProcessing = () => {
+    if (dispatchScheduled) return // no need, already scheduled
+    dispatchScheduled = true
+    setTimeout(processNextDispatch, 1)
+  }
+
   const processNextDispatch = () => {
+    dispatchScheduled = false
     if (eventQueue.length === 0) return
-    const event = eventQueue[0]
+    const event = eventQueue.shift()
     const [type, args] = event
     /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
     const eventHandlers = eventFx[type]
@@ -79,30 +87,19 @@ export const initStore = (store, ...middlewares) => {
         effect(value, event) // event passed just for redux dev tools
       })
     })
-    eventQueue.shift()
     if (eventQueue.length > 0) {
-      setTimeout(() => {
-        console.log('handling event ASYNC:')
-        processNextDispatch()
-      }, 1)
+      scheduleDispatchProcessing()
     }
   }
 
-  /* Handles first event in queue synchronously, subsequent ones async */
-  const dispatchDrainAsync = (type, payload) => {
+  /* All dispatches are drained async */
+  const dispatch = (type, payload) => {
     eventQueue.push([type, payload])
-    if (eventQueue.length > 1) {
-      //recursing so just let it pile up in the queue...
-      return
-    }
-    console.log('handling event SYNC:')
-    processNextDispatch()
+    scheduleDispatchProcessing()
   }
-
-  const dispatch = dispatchDrainAsync
 
   regFx('db', setState)
-  regFx('dispatch', typeAndPayload => dispatch(typeAndPayload))
+  regFx('dispatch', dispatch)
 
   class Subscriber extends Component {
     // We do this so the sCU of Prevent will ignore the children prop

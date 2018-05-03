@@ -49,7 +49,7 @@ export const createRouter = ({ routes, history, listen }) => {
   let location = {}
 
   const pushNamedRoute = (id, params, query) => {
-    const route = this.routes.find(({ id: tid }) => tid === id)
+    const route = routes.find(({ id: tid }) => tid === id)
     if (!route) throw new Error(`No route named "${id}"`)
     const { path } = route
     const url = compile(path)(params)
@@ -60,10 +60,6 @@ export const createRouter = ({ routes, history, listen }) => {
     })
   }
   return ({
-    routes: routes.slice().reverse(),
-    get query() {
-      return querystring.parse(this.location.search)
-    },
     pushNamedRoute,
     listen(cb) {
       if (!cb) throw new Error('You must provide a callback for the router.')
