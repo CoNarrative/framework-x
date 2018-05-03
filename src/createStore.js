@@ -1,27 +1,5 @@
 import React, { Component, PureComponent, createContext } from 'react'
 
-const err = () => console.error('Provider is not initialized yet')
-
-class Prevent extends PureComponent {
-  render() {
-    const { _children, ...rest } = this.props;
-    return _children()(rest)
-  }
-}
-
-class Pure extends PureComponent {
-  constructor(props) {
-    super(props)
-    this.renderFn = props.renderFn.bind(this)
-  }
-
-  render() {
-    return this.renderFn()
-  }
-
-}
-
-const MAX_DEPTH = 30
 export const initStore = (store, ...middlewares) => {
   let self
   let appState = null
@@ -138,6 +116,45 @@ export const initStore = (store, ...middlewares) => {
   regFx('db', setState)
   regFx('dispatch', dispatchAsync)
 
+  class Provider extends Component {
+    constructor() {
+      super()
+      self = this
+      // by making appState a child of state, we make sure the full state gets overwritten
+      // instead of the weird setState merge effect
+      this.state = { appState }
+      this.value = { state: this.getAppState() }
+    }
+
+    getAppState() {
+      return this.state.appState
+    }
+
+    render() {
+      if (this.getAppState() !== this.value.state) {
+        // If state was changed then recreate `this.value` so it will have a different reference
+        // Explained here: https://reactjs.org/docs/context.html#caveats
+        this.value = { state: this.getAppState() }
+      }
+      return (
+        <Context.Provider
+          value={this.value}
+        >
+          {this.props.children}
+        </Context.Provider>
+      )
+    }
+  }
+
+  /* SET UP COMPONENT FUNCTIONS */
+
+  class Prevent extends PureComponent {
+    render() {
+      const { _children, ...rest } = this.props;
+      return _children()(rest)
+    }
+  }
+
   class Subscribe extends Component {
     // We do this so the sCU of Prevent will ignore the children prop
     _children = () => this.props.children
@@ -169,37 +186,6 @@ export const initStore = (store, ...middlewares) => {
     return ConnectComponent
   }
 
-  class Provider extends Component {
-    constructor() {
-      super()
-      self = this
-      // by making appState a child of state, we make sure the full state gets overwritten
-      // instead of the weird setState merge effect
-      console.log('initializing appState with', appState)
-      this.state = { appState }
-      this.value = { state: this.getAppState() }
-    }
-
-    getAppState() {
-      return this.state.appState
-    }
-
-    render() {
-      if (this.getAppState() !== this.value.state) {
-        // If state was changed then recreate `this.value` so it will have a different reference
-        // Explained here: https://reactjs.org/docs/context.html#caveats
-        this.value = { state: this.getAppState() }
-      }
-      return (
-        <Context.Provider
-          value={this.value}
-        >
-          {this.props.children}
-        </Context.Provider>
-      )
-    }
-  }
-
   const component = (name, mapStateOrConfigBag, renderFn) => {
     if (renderFn == null) {
       renderFn = mapStateOrConfigBag
@@ -214,7 +200,7 @@ export const initStore = (store, ...middlewares) => {
     // connected component
     console.log({ subscribe, name, renderFn })
     if (subscribe) return connect(subscribe)(renderFn)
-    
+
     // Not connected so make just pure-render (which uses a shallow compare)
     return class Pure extends React.PureComponent {
       static displayName = name
