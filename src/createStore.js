@@ -9,6 +9,18 @@ class Prevent extends PureComponent {
   }
 }
 
+class Pure extends PureComponent {
+  constructor(props) {
+    super(props)
+    this.renderFn = props.renderFn.bind(this)
+  }
+
+  render() {
+    return this.renderFn()
+  }
+
+}
+
 const MAX_DEPTH = 30
 export const initStore = (store, ...middlewares) => {
   let self
@@ -34,7 +46,7 @@ export const initStore = (store, ...middlewares) => {
   }
 
   initializedMiddlewares = middlewares.map(m => m(store, {
-    setState(){
+    setState() {
       throw new Error('Not supported.')
     },
     get state() {
@@ -126,7 +138,7 @@ export const initStore = (store, ...middlewares) => {
   regFx('db', setState)
   regFx('dispatch', dispatchAsync)
 
-  class Subscriber extends Component {
+  class Subscribe extends Component {
     // We do this so the sCU of Prevent will ignore the children prop
     _children = () => this.props.children
 
@@ -149,9 +161,9 @@ export const initStore = (store, ...middlewares) => {
 
   const connect = selector => WrappedComponent => {
     const ConnectComponent = (props) =>
-      <Subscriber selector={selector}>
+      <Subscribe selector={selector}>
         {injectedProps => <WrappedComponent {...props} {...injectedProps} />}
-      </Subscriber>
+      </Subscribe>
     ConnectComponent.displayName = `Connect(${WrappedComponent.displayName
                                               || WrappedComponent.name || 'Unknown'})`
     return ConnectComponent
@@ -188,12 +200,38 @@ export const initStore = (store, ...middlewares) => {
     }
   }
 
+  const component = (name, mapStateOrConfigBag, renderFn) => {
+    if (renderFn == null) {
+      renderFn = mapStateOrConfigBag
+      mapStateOrConfigBag = {}
+    }
+    const config = typeof(mapStateOrConfigBag) === 'function'
+      ? { subscribe: mapStateOrConfigBag }
+      : mapStateOrConfigBag
+
+    const { subscribe, propsHash, compareProps } = config
+
+    // connected component
+    console.log({ subscribe, name, renderFn })
+    if (subscribe) return connect(subscribe)(renderFn)
+    
+    // Not connected so make just pure-render (which uses a shallow compare)
+    return class Pure extends React.PureComponent {
+      static displayName = name
+
+      render() {
+        return renderFn(this.props)
+      }
+    }
+
+  }
+
   return {
     Provider,
-    Subscriber,
+    Subscribe,
     dispatch,
     getState,
-    connect,
+    component,
     regEventFx,
     regFx,
   }

@@ -4,5 +4,5 @@ const store = {
   initialState: {},
 }
 const prod = process.env.NODE_ENV === 'production'
-export const { Provider, connect, dispatch, Subscriber, regEventFx, regFx } =
+export const { Provider, connect, dispatch, component, regEventFx, regFx } =
   initStore(store, !prod && devtools())
