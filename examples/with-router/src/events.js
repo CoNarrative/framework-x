@@ -1,6 +1,6 @@
 import { dispatch, regEventFx } from './store'
 
-regEventFx('initialize', () => ({
+regEventFx('initialize-db', () => ({
   db: {
     count: 5,
   },

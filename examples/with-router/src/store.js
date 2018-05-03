@@ -1,5 +1,4 @@
-import { initStore, createRouter } from 'framework-x'
-import devtools from 'react-waterfall-redux-devtools-middleware'
+import { initStore, createRouter, devtools } from 'framework-x'
 
 const store = {
   initialState: {},

@@ -6,10 +6,11 @@ import './events'
 import { dispatch, Provider } from './store'
 import { startRouter } from './routing'
 
+dispatch('initialize-db')
 startRouter(locationAndMatch => {
-  console.log('router started. dispatching initial route-change event')
   dispatch('route-change', locationAndMatch)
 })
+
 ReactDOM.render(
   <Provider>
     <App />
