@@ -1,13 +1,4 @@
-import {  startRouter } from './routing'
 import { dispatch, regEventFx } from './store'
-
-regEventFx('initialize', () => {
-  startRouter(locationAndMatch => {
-    console.log('router started. dispatching initial route-change event')
-    dispatch('route-change', locationAndMatch)
-  })
-  return {}
-})
 
 regEventFx('initialize', () => ({
   db: {

@@ -11,15 +11,30 @@ class Prevent extends PureComponent {
 
 const MAX_DEPTH = 30
 export const initStore = (store, ...middlewares) => {
-  let self, initializedMiddlewares
+  let self
+  let appState = null
+  let initializedMiddlewares = middlewares.map(m => m(store, {
+    get state() {
+      return appState
+    }
+  }, {}))
   // let subscriptions = []
   const Context = createContext()
 
-  const getState = () => (self ? self.state : err())
+  // if the provider is not yet rendered, app state comes from the store objection
+  const getState = () => (self ? self.state.appState : appState)
   const setState = (state, [type, payload]) => {
     // subscriptions.forEach(fn => fn(action, state, args))
     console.log(`    set db from event (${type})  before:`, getState(), 'will be:', state)
-    self.setState(state, () => initializedMiddlewares.forEach(m => m(type, payload)))
+    if (self) {
+      // Provider is ready
+      self.setState({ appState: state },
+        () => initializedMiddlewares.forEach(m => m(type, payload)))
+    } else {
+      // Provider not yet ready
+      appState = state
+      initializedMiddlewares.forEach(m => m(type, payload))
+    }
   }
 
   const eventFx = {}
@@ -95,11 +110,16 @@ export const initStore = (store, ...middlewares) => {
   /* All dispatches are drained async */
   const dispatch = (type, payload) => {
     eventQueue.push([type, payload])
+    processNextDispatch()
+  }
+
+  const dispatchAsync = (type, payload) => {
+    eventQueue.push([type, payload])
     scheduleDispatchProcessing()
   }
 
   regFx('db', setState)
-  regFx('dispatch', dispatch)
+  regFx('dispatch', dispatchAsync)
 
   class Subscriber extends Component {
     // We do this so the sCU of Prevent will ignore the children prop
@@ -136,9 +156,22 @@ export const initStore = (store, ...middlewares) => {
     constructor() {
       super()
       self = this
-      this.state = store.initialState
-      initializedMiddlewares = middlewares.map(m => m(store, self, {}))
-      this.value = { state: this.state }
+      // by making appState a child of state, we make sure the full state gets overwritten
+      // instead of the weird setState merge effect
+      console.log('initializing appState with', appState)
+      this.state = { appState }
+      const getAppState = this.getAppState.bind(this)
+      const reducedSelf = {
+        get state(){
+          return getAppState()
+        }
+      }
+      initializedMiddlewares = middlewares.map(m => m(store, reducedSelf, {}))
+      this.value = { state: this.getAppState() }
+    }
+
+    getAppState() {
+      return this.state.appState
     }
 
     componentWillMount() {
@@ -146,10 +179,10 @@ export const initStore = (store, ...middlewares) => {
     }
 
     render() {
-      if (this.state !== this.value.state) {
+      if (this.getAppState() !== this.value.state) {
         // If state was changed then recreate `this.value` so it will have a different reference
         // Explained here: https://reactjs.org/docs/context.html#caveats
-        this.value = { state: this.state }
+        this.value = { state: this.getAppState() }
       }
       return (
         <Context.Provider
@@ -166,9 +199,7 @@ export const initStore = (store, ...middlewares) => {
     Subscriber,
     dispatch,
     getState,
-    // setState,
     connect,
-    // subscribe,
     regEventFx,
     regFx,
   }

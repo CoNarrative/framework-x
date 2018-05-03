@@ -66,7 +66,7 @@ export const createRouter = ({ routes, history, listen }) => {
       const respondToHistory = loc => {
         location = loc
         const match = matchFirst(routes, location.pathname)
-        console.log({ routes, location, match })
+        // console.log({ routes, location, match })
         if (match && match.route.action) match.route.action({ match, pushNamedRoute })
         cb({ location, match: match || { id: 'not-found' } })
       }
