@@ -121,7 +121,25 @@ const reduxDevTools = ({ instanceId = 1, maxAge = 50 } = {}) => !extension
     mockReduxDevToolsAction('@@INIT', store.initialState);
 
     return (action, args) => {
-      mockReduxDevToolsAction(action, args, JSON.stringify(self.state));
+      const formattedSubs = Object
+      .entries(self.subs)
+      .reduce((acc, [name, subs]) => {
+        const { display, counters } = acc
+        subs.forEach(sub => {
+          let key = sub.merged.id
+          if (!key) {
+            counters[key] = counters[key] || 0
+            counters[key]++
+          }
+          display[`${name}-${key}`] = sub.merged
+        })
+        return acc
+      }, { display: {}, counters: {} })
+      mockReduxDevToolsAction(action, args, JSON.stringify(
+        {
+          STATE: self.state,
+          SUBS: formattedSubs.display,
+        }));
     };
   };
 

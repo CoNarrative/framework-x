@@ -6,6 +6,7 @@ export const initStore = (store, ...middlewares) => {
   let self
   let appState = null
   let initializedMiddlewares
+  const subs = {}
   // let subscriptions = []
   const Context = createContext()
 
@@ -25,9 +26,13 @@ export const initStore = (store, ...middlewares) => {
     }
   }
 
+  /* Hacked a bit to support redux devtools -- the only middlware we care about */
   initializedMiddlewares = middlewares.map(m => m(store, {
     setState() {
       throw new Error('Not supported.')
+    },
+    get subs() {
+      return subs || []
     },
     get state() {
       return getState()
@@ -220,12 +225,24 @@ export const initStore = (store, ...middlewares) => {
         v: 0,
       }
 
+      componentDidMount() {
+        if (!debug) return
+        subs[name] = subs[name] || []
+        subs[name].push(this._sub)
+      }
+
+      componentWillUnmount() {
+        if (!debug) return
+        const i = subs[name].indexOf(this._sub)
+        subs.splice(i, 1)
+      }
+
+      /* TODO: we may have to handle props changes more efficiently using willReceiveProps
+       * if the innerConsumerRender gets called a bunch. So far, no sign that is the case
+       */
       // componentWillReceiveProps(nextProps) {
-      //
       // }
-      //
       // shouldComponentUpdate(nextProps) {
-      //   return true
       // }
 
       innerConsumerRender = ({ appState }) => {
