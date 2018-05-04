@@ -8,7 +8,6 @@ const Item = component('Item', ({ id, name }) => (
     {id}: {name}
   </div>
 ))
-console.log({ Item })
 
 
 const App = component('App', {
@@ -22,6 +21,11 @@ const App = component('App', {
         onClick={() => dispatch('increment', 5)}
       >
         Increment
+      </button>
+      <button
+        onClick={() => dispatch('otherwise')}
+      >
+        Otherwise
       </button>
       <Item id={0} name="Hello" />
     </div>

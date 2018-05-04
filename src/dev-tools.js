@@ -31,7 +31,7 @@ const reduxDevTools = ({ instanceId = 1, maxAge = 50 } = {}) => !extension
     window.addEventListener('message', message => {
       if (message.data && message.data.source !== extensionSource) return;
       const { type, payload } = message.data;
-      console.log('<-', type, message.data)
+      // console.log('<-', type, message.data)
       DEBUG && console.log(type, message.data);
       switch (type) {
         case 'START': {
@@ -93,7 +93,7 @@ const reduxDevTools = ({ instanceId = 1, maxAge = 50 } = {}) => !extension
         mwState.queuedActions.push([type, args, payload]);
         return;
       }
-      console.log('->', type, args, payload)
+      // console.log('->', type, args, payload)
       window.postMessage({
         type: 'ACTION',
         action: JSON.stringify({

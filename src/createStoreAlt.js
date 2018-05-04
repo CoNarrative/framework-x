@@ -125,7 +125,7 @@ export const initStore = (store, ...middlewares) => {
       // by making appState a child of state, we make sure the full state gets overwritten
       // instead of the weird setState merge effect
       this.state = { appState }
-      this.value = { appState: this.getAppState() }
+      this.value = { state: this.getAppState() }
     }
 
     getAppState() {
@@ -148,7 +148,7 @@ export const initStore = (store, ...middlewares) => {
     }
   }
 
-  /* SET UP COMPONENT FUNCTIONS - original */
+  /* SET UP COMPONENT FUNCTIONS */
 
   class Prevent extends PureComponent {
     render() {
@@ -188,7 +188,7 @@ export const initStore = (store, ...middlewares) => {
     return ConnectedComponent
   }
 
-  /* ---NEW SCHOOL--- */
+  /* -------------- */
   /* Separate, less nested version for use with component wrapper (pure render functions only)*/
   const connectFn = (name, config, renderFn) => {
     const { skipProps, subscribe: selector } = config
@@ -196,15 +196,37 @@ export const initStore = (store, ...middlewares) => {
     class Synthetic extends Component {
       static displayName = name
 
-      shouldComponentUpdate(newProps) {
-        // new props are only received if shallow equality already failed
-        console.log('sCU', this.props._v, newProps._v, 'shouldComponentUpdate=', this.props._v !== newProps._v)
-        return this.props._v !== newProps._v
+      constructor(props) {
+        super(props)
+        const { ownProps, appState } = props
+        const extractedState = selector(appState)
+        this._sub = {
+          appState,
+          ownProps,
+          extractedState,
+          mergedProps:
+            Object.assign({}, ownProps, extractedState),
+        }
+      }
+
+      shouldComponentUpdate(nextProps) {
+        const nextAppState = nextProps.appState
+        const nextOwnProps = nextProps.ownProps
+        const propsChanged = shallowEqual(this.props, nextOwnProps)
+        const appStateChanged = this._sub.appState !== nextAppState
+        if (appStateChanged) {
+          this._sub.appState = nextAppState
+          this._sub.extractedState = selector(nextAppState)
+        }
+        if (propsChanged || appStateChanged) {
+          this._sub.mergedProps = Object.assign({}, nextOwnProps, this._sub.extractedState)
+          return true
+        }
+        return false
       }
 
       render() {
-        console.log('RERENDERING', name)
-        return renderFn(this.props)
+        return renderFn(this._sub.mergedProps)
       }
     }
 
@@ -212,46 +234,20 @@ export const initStore = (store, ...middlewares) => {
 
       static displayName = `ConnectedComponent(${name})`
       _sub = {
-        ownProps: null,
-        extractedProps: null,
-        appState: null,
-        merged: null,
-        v: 0,
+
       }
 
       shouldComponentUpdate(nextProps) {
-        return true
+        const appStateChanged = this._sub.appState !== nextAppState
       }
 
-      innerConsumerRender = ({ appState }) => {
-        const didAppStateChange = appState !== this._sub.appState
-        let didOwnPropsChange = !shallowEqual(this.props, this._sub.ownProps)
-        let didExtractedPropsChange = false
-        if (didOwnPropsChange) {
-          this._sub.ownProps = this.props
-        }
-        if (didAppStateChange) {
-          const newExtractedProps = selector(appState)
-          didExtractedPropsChange = !shallowEqual(this._sub.extractedProps, newExtractedProps)
-          this._sub.extractedProps = newExtractedProps
-        }
-        if (didOwnPropsChange || didExtractedPropsChange) {
-          console.log('NEW PROPS.....')
-          this._sub.v++
-          this._sub.merged = Object.assign({}, this.props, this._sub.extractedProps, { _v: this._sub.v })
-        }
-        console.log(`ConnectedComponent(${name})`, 'innerRender', {
-          merged: this._sub.merged,
-          didExtractedPropsChange,
-          didOwnPropsChange,
-        })
-        return <Synthetic {...this._sub.merged} />
-      }
-
+      innerRender = ({appState}) => (
+        <Synthetic appState={appState} ownProps={this.props}/>
+      )
       render() {
         return (
           <Context.Consumer>
-            {this.innerConsumerRender}
+            {this.innerRender}
           </Context.Consumer>
         )
       }
