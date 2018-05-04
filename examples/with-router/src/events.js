@@ -7,11 +7,11 @@ regEventFx('initialize-db', () => ({
   },
 }))
 
-regEventFx('increment', ({ db }, [_, incrementBy]) => ({
+regEventFx('increment', ({ db }, _, incrementBy) => ({
   db: { ...db, count: db.count + incrementBy },
 }))
 
-regEventFx('otherwise', ({ db }, [_, incrementBy]) => ({
+regEventFx('otherwise', ({ db }, _, incrementBy) => ({
   db: { ...db, otherwise: !db.otherwise },
 }))
 

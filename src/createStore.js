@@ -62,7 +62,7 @@ export const initStore = (store, ...middlewares) => {
       eventHandlers.forEach(handler => {
         const coeffects = { db: getState() }
         // console.log(`event handler (${type})`, 'current db:', coeffects.db, 'args:', args)
-        const effects = handler(coeffects, event)
+        const effects = handler(coeffects, type, args)
         if (!effects) return
         Object.entries(effects).forEach(([key, value]) => {
           const effect = fx [key]
@@ -94,7 +94,7 @@ export const initStore = (store, ...middlewares) => {
     eventHandlers.forEach(handler => {
       const coeffects = { db: getState() }
       // console.log(`event handler (${type})`, 'current db:', coeffects.db, 'args:', args)
-      const effects = handler(coeffects, event)
+      const effects = handler(coeffects, type, args)
       if (!effects) return
       Object.entries(effects).forEach(([key, value]) => {
         const effect = fx [key]
