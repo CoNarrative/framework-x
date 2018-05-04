@@ -11,7 +11,8 @@ regEventFx('increment', ({ db }, _, incrementBy) => ({
   db: { ...db, count: db.count + incrementBy },
 }))
 
-regEventFx('otherwise', ({ db }, _, incrementBy) => ({
-  db: { ...db, otherwise: !db.otherwise },
+// an example of doing it with a "reducer function"
+regEventFx('otherwise', () => ({
+  db: db => ({ ...db, otherwise: !db.otherwise }),
 }))
 

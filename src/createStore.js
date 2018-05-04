@@ -120,11 +120,12 @@ export const initStore = (store, ...middlewares) => {
     scheduleDispatchProcessing()
   }
 
-  regFx('db', (newStateOrStateFn) => {
+  regFx('db', (newStateOrStateFn, action) => {
+    console.log('----', newStateOrStateFn)
     if (typeof(newStateOrStateFn) === 'function') {
-      setState(newStateOrStateFn(getState()))
+      setState(newStateOrStateFn(getState()), action)
     } else {
-      setState(newStateOrStateFn)
+      setState(newStateOrStateFn, action)
     }
   })
   regFx('dispatch', dispatchAsync)
