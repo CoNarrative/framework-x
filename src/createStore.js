@@ -198,12 +198,13 @@ export const initStore = (store, ...middlewares) => {
 
       shouldComponentUpdate(newProps) {
         // new props are only received if shallow equality already failed
-        console.log('sCU', this.props._v, newProps._v, 'shouldComponentUpdate=', this.props._v !== newProps._v)
+        // console.log('sCU', this.props._v, newProps._v,
+        //   'shouldComponentUpdate=', this.props._v !== newProps._v)
         return this.props._v !== newProps._v
       }
 
       render() {
-        console.log('RERENDERING', name)
+        console.log('connectFn render', name, this.props.id)
         return renderFn(this.props)
       }
     }
@@ -219,9 +220,13 @@ export const initStore = (store, ...middlewares) => {
         v: 0,
       }
 
-      shouldComponentUpdate(nextProps) {
-        return true
-      }
+      // componentWillReceiveProps(nextProps) {
+      //
+      // }
+      //
+      // shouldComponentUpdate(nextProps) {
+      //   return true
+      // }
 
       innerConsumerRender = ({ appState }) => {
         const didAppStateChange = appState !== this._sub.appState
@@ -236,7 +241,6 @@ export const initStore = (store, ...middlewares) => {
           this._sub.extractedProps = newExtractedProps
         }
         if (didOwnPropsChange || didExtractedPropsChange) {
-          console.log('NEW PROPS.....')
           this._sub.v++
           this._sub.merged = Object.assign({}, this.props, this._sub.extractedProps, { _v: this._sub.v })
         }

@@ -13,7 +13,7 @@ startRouter(locationAndMatch => {
 
 ReactDOM.render(
   <Provider>
-    <App someOwnProp={47}/>
+    <App/>
   </Provider>,
   document.getElementById('root'))
 // registerServiceWorker()

@@ -1,5 +1,5 @@
 import React from 'react';
-import { mainSub } from '../subs'
+import { mainSub, appSub } from '../subs'
 import './App.css';
 import { component, dispatch } from '../store'
 
@@ -9,10 +9,13 @@ const Item = component('Item', ({ id, name }) => (
   </div>
 ))
 
+const Main = component('Main', mainSub,
+  ({ otherwise }) => (
+    <div>Otherwise: {otherwise}</div>
+  ))
 
 const App = component('App', {
-    subscribe: mainSub,
-    propsHash: ({ formattedCount }) => `${formattedCount}`,
+    subscribe: appSub,
   },
   ({ formattedCount }) => (
     <div>
@@ -28,6 +31,8 @@ const App = component('App', {
         Otherwise
       </button>
       <Item id={0} name="Hello" />
+      <Main id={1} formattedCount={formattedCount} />
+      <Main id={2} />
     </div>
   ),
 )

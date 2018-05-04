@@ -18,7 +18,7 @@ const { pushNamedRoute, listen: startRouter } = createRouter({ history, routes }
 
 regFx('route', pushNamedRoute)
 regEventFx('route-change', ({ db }, [_, locationAndMatch]) => {
-  console.log('running event handler for route-change', locationAndMatch)
+  // console.log('running event handler for route-change', locationAndMatch)
   return ({
     db: {
       ...db,
