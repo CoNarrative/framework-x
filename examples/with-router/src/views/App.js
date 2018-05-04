@@ -9,9 +9,12 @@ const Item = component('Item', ({ id, name }) => (
   </div>
 ))
 
-const Main = component('Main', mainSub,
-  ({ otherwise }) => (
-    <div>Otherwise: {otherwise}</div>
+const Main = component('Main', {
+    debug: true,
+    subscribe: mainSub,
+  },
+  ({ otherwise, formattedCount }) => (
+    <div>Otherwise: {otherwise ? 'true' : 'false'} {formattedCount}</div>
   ))
 
 const App = component('App', {

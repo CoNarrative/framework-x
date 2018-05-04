@@ -13,7 +13,7 @@ export const initStore = (store, ...middlewares) => {
   const getState = () => (self ? self.state.appState : appState)
   const setState = (state, [type, payload]) => {
     // subscriptions.forEach(fn => fn(action, state, args))
-    console.log(`    set db from event (${type})  before:`, getState(), 'will be:', state)
+    // console.log(`    set db from event (${type})  before:`, getState(), 'will be:', state)
     if (self) {
       // Provider is ready
       self.setState({ appState: state },
@@ -56,12 +56,12 @@ export const initStore = (store, ...middlewares) => {
       if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
       eventHandlers.forEach(handler => {
         const coeffects = { db: getState() }
-        console.log(`event handler (${type})`, 'current db:', coeffects.db, 'args:', args)
+        // console.log(`event handler (${type})`, 'current db:', coeffects.db, 'args:', args)
         const effects = handler(coeffects, event)
         if (!effects) return
         Object.entries(effects).forEach(([key, value]) => {
           const effect = fx [key]
-          console.log(`  effect handler (${key}) for event (${type})`, value)
+          // console.log(`  effect handler (${key}) for event (${type})`, value)
           if (!effect) throw new Error(`No fx handler for effect "${type}". Try registering a handler using "regFx('${type}', ({ effect }) => ({...some side-effect})"`)
           // NOTE: no need really to handle result of effect for now - we're not doing anything with promises for instance
           effect(value, event) // event passed just for redux dev tools
@@ -88,12 +88,12 @@ export const initStore = (store, ...middlewares) => {
     if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
     eventHandlers.forEach(handler => {
       const coeffects = { db: getState() }
-      console.log(`event handler (${type})`, 'current db:', coeffects.db, 'args:', args)
+      // console.log(`event handler (${type})`, 'current db:', coeffects.db, 'args:', args)
       const effects = handler(coeffects, event)
       if (!effects) return
       Object.entries(effects).forEach(([key, value]) => {
         const effect = fx [key]
-        console.log(`  effect handler (${key}) for event (${type})`, value)
+        // console.log(`  effect handler (${key}) for event (${type})`, value)
         if (!effect) throw new Error(`No fx handler for effect "${type}". Try registering a handler using "regFx('${type}', ({ effect }) => ({...some side-effect})"`)
         // NOTE: no need really to handle result of effect for now - we're not doing anything with promises for instance
         effect(value, event) // event passed just for redux dev tools
@@ -191,7 +191,7 @@ export const initStore = (store, ...middlewares) => {
   /* ---NEW SCHOOL--- */
   /* Separate, less nested version for use with component wrapper (pure render functions only)*/
   const connectFn = (name, config, renderFn) => {
-    const { skipProps, subscribe: selector } = config
+    const { debug, skipProps, subscribe: selector } = config
 
     class Synthetic extends Component {
       static displayName = name
@@ -204,7 +204,7 @@ export const initStore = (store, ...middlewares) => {
       }
 
       render() {
-        console.log('connectFn render', name, this.props.id)
+        debug && console.log('connectFn: render', name, this.props.id, this.props)
         return renderFn(this.props)
       }
     }
@@ -244,11 +244,15 @@ export const initStore = (store, ...middlewares) => {
           this._sub.v++
           this._sub.merged = Object.assign({}, this.props, this._sub.extractedProps, { _v: this._sub.v })
         }
-        console.log(`ConnectedComponent(${name})`, 'innerRender', {
-          merged: this._sub.merged,
-          didExtractedPropsChange,
+        debug && console.log('connectFn: change check', name, this.props.id, {
           didOwnPropsChange,
+          didExtractedPropsChange,
         })
+        // console.log(`ConnectedComponent(${name})`, 'innerRender', {
+        //   merged: this._sub.merged,
+        //   didExtractedPropsChange,
+        //   didOwnPropsChange,
+        // })
         return <Synthetic {...this._sub.merged} />
       }
 
