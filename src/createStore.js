@@ -120,7 +120,13 @@ export const initStore = (store, ...middlewares) => {
     scheduleDispatchProcessing()
   }
 
-  regFx('db', setState)
+  regFx('db', (newStateOrStateFn) => {
+    if (typeof(newStateOrStateFn) === 'function') {
+      setState(newStateOrStateFn(getState()))
+    } else {
+      setState(newStateOrStateFn)
+    }
+  })
   regFx('dispatch', dispatchAsync)
 
   class Provider extends Component {
