@@ -61,7 +61,7 @@ export const initStore = (store, ...middlewares) => {
     if (eventQueue.length === 0) return
     const event = eventQueue.shift()
     const [type, args] = event
-    console.log('H:', type, args)
+    // console.log('H:', type, args)
     /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
     const eventHandlers = eventFx[type]
     if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
@@ -95,7 +95,7 @@ export const initStore = (store, ...middlewares) => {
   }
 
   regFx('db', (newStateOrStateFn, action) => {
-    console.log('---db-', newStateOrStateFn)
+    // console.log('---db-', newStateOrStateFn)
     if (typeof(newStateOrStateFn) === 'function') {
       setState(newStateOrStateFn(getState()), action)
     } else {
@@ -177,7 +177,7 @@ export const initStore = (store, ...middlewares) => {
   /* ---NEW SCHOOL--- */
   /* Separate, less nested version for use with component wrapper (pure render functions only)*/
   const connectFn = (name, config, renderFn) => {
-    const { debug, skipProps, subscribe: selector } = config
+    const { devTools, debug, skipProps, subscribe: selector } = config
 
     class Synthetic extends Component {
       static displayName = name
@@ -207,13 +207,13 @@ export const initStore = (store, ...middlewares) => {
       }
 
       componentDidMount() {
-        if (!debug) return
+        if (!debug && !devTools) return
         subs[name] = subs[name] || []
         subs[name].push(this._sub)
       }
 
       componentWillUnmount() {
-        if (!debug) return
+        if (!debug && !devTools) return
         const i = subs[name].indexOf(this._sub)
         subs.splice(i, 1)
       }

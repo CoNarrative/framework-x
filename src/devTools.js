@@ -121,7 +121,6 @@ const reduxDevTools = ({ instanceId = 1, maxAge = 50 } = {}) => !extension
     mockReduxDevToolsAction('@@INIT', store.initialState);
 
     return (action, args) => {
-      console.log('DEBUG->', action, args)
       const formattedSubs = Object
       .entries(self.subs)
       .reduce((acc, [name, subs]) => {
@@ -129,8 +128,9 @@ const reduxDevTools = ({ instanceId = 1, maxAge = 50 } = {}) => !extension
         subs.forEach(sub => {
           let key = sub.merged.id
           if (!key) {
-            counters[key] = counters[key] || 0
-            counters[key]++
+            counters[name] = counters[name] || 0
+            counters[name]++
+            key = counters[name]
           }
           display[`${name}-${key}`] = sub.merged
         })

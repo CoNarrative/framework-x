@@ -70,7 +70,6 @@ export const createRouter = ({ routes, history, listen }) => {
       if (!onRouteChanged) throw new Error('You must provide a callback for the router.')
       const respondToHistory = (location, type) => {
         const match = matchFirst(routes, location.pathname)
-        console.log('calling onRouteChanged', type)
         onRouteChanged({ location, match: match || { id: 'not-found' }, type })
       }
       history.listen(respondToHistory)

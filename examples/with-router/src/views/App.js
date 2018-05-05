@@ -18,6 +18,7 @@ const Main = component('Main', {
 
 const App = component('App', {
     subscribe: appSub,
+    devTools: true,
   },
   ({ formattedCount }) => (
     <div>
