@@ -12,7 +12,7 @@ export const initStore = (store, ...middlewares) => {
 
   // if the provider is not yet rendered, app state comes from the store objection
   const getState = () => (self ? self.state.appState : appState)
-  const setState = (state, [type, payload]) => {
+  const setState = (state) => {
     // subscriptions.forEach(fn => fn(action, state, args))
     // console.log(`    set db from event (${type})  before:`, getState(), 'will be:', state)
     if (self) {
@@ -20,11 +20,9 @@ export const initStore = (store, ...middlewares) => {
       // self.setState({ appState: state },
       //   () => initializedMiddlewares.forEach(m => m(type, payload)))
       self.setState({ appState: state })
-      initializedMiddlewares.forEach(m => m(type, payload))
     } else {
       // Provider not yet ready
       appState = state
-      initializedMiddlewares.forEach(m => m(type, payload))
     }
   }
 
@@ -56,6 +54,8 @@ export const initStore = (store, ...middlewares) => {
     setTimeout(processNextDispatch, 1)
   }
 
+  const notifyMiddlewares = (type, payload, effects) => initializedMiddlewares.forEach(m => m(type, payload, effects))
+
   const processNextDispatch = () => {
     dispatchScheduled = false
     if (eventQueue.length === 0) return
@@ -75,8 +75,9 @@ export const initStore = (store, ...middlewares) => {
         // console.log(`  effect handler (${key}) for event (${type})`, value)
         if (!effect) throw new Error(`No fx handler for effect "${key}". Try registering a handler using "regFx('${key}', ({ effect }) => ({...some side-effect})"`)
         // NOTE: no need really to handle result of effect for now - we're not doing anything with promises for instance
-        effect(value, event) // event passed just for redux dev tools
+        effect(value)
       })
+      notifyMiddlewares(type, args, effects)
     })
     if (eventQueue.length > 0) {
       scheduleDispatchProcessing()
@@ -94,12 +95,12 @@ export const initStore = (store, ...middlewares) => {
     scheduleDispatchProcessing()
   }
 
-  regFx('db', (newStateOrStateFn, action) => {
+  regFx('db', (newStateOrStateFn) => {
     // console.log('---db-', newStateOrStateFn)
     if (typeof(newStateOrStateFn) === 'function') {
-      setState(newStateOrStateFn(getState()), action)
+      setState(newStateOrStateFn(getState()))
     } else {
-      setState(newStateOrStateFn, action)
+      setState(newStateOrStateFn)
     }
   })
   regFx('dispatch', dispatchAsync)

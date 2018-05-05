@@ -88,9 +88,9 @@ const reduxDevTools = ({ instanceId = 1, maxAge = 50 } = {}) => !extension
 
     let actionId = 0;
     const getNextActionId = () => ++actionId;
-    const mockReduxDevToolsAction = (type, args, payload) => {
+    const mockReduxDevToolsAction = (type, args, nextState) => {
       if (!mwState.started) {
-        mwState.queuedActions.push([type, args, payload]);
+        mwState.queuedActions.push([type, args, nextState]);
         return;
       }
       // console.log('->', type, args, payload)
@@ -100,7 +100,7 @@ const reduxDevTools = ({ instanceId = 1, maxAge = 50 } = {}) => !extension
           type: "PERFORM_ACTION",
           action: {
             type,
-            args,
+            ...args,
           },
           timestamp: Date.now(),
         }),
@@ -108,7 +108,7 @@ const reduxDevTools = ({ instanceId = 1, maxAge = 50 } = {}) => !extension
         maxAge,
         nextActionId: getNextActionId(),
         libConfig,
-        payload,
+        payload: nextState,
         source: pageSource,
       }, '*');
     };
@@ -120,7 +120,7 @@ const reduxDevTools = ({ instanceId = 1, maxAge = 50 } = {}) => !extension
     }, '*');
     mockReduxDevToolsAction('@@INIT', store.initialState);
 
-    return (action, args) => {
+    return (type, args, rawEffects) => {
       const formattedSubs = Object
       .entries(self.subs)
       .reduce((acc, [name, subs]) => {
@@ -136,7 +136,17 @@ const reduxDevTools = ({ instanceId = 1, maxAge = 50 } = {}) => !extension
         })
         return acc
       }, { display: {}, counters: {} })
-      mockReduxDevToolsAction(action, args, JSON.stringify(
+
+      //get rid of value in db effect
+      const effects = Object.entries(rawEffects || {}).reduce((acc, [key, value]) => {
+        acc[key] = key === 'db' ? '-' : value
+        return acc
+      }, {})
+      const enhArgs = Object.assign({}, args)
+      if (Object.keys(effects).length > 0) {
+        enhArgs['EFFECTS'] = effects
+      }
+      mockReduxDevToolsAction(type, enhArgs, JSON.stringify(
         {
           STATE: self.state,
           SUBS: formattedSubs.display,
