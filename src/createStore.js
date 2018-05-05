@@ -16,9 +16,11 @@ export const initStore = (store, ...middlewares) => {
     // subscriptions.forEach(fn => fn(action, state, args))
     // console.log(`    set db from event (${type})  before:`, getState(), 'will be:', state)
     if (self) {
-      // Provider is ready
-      self.setState({ appState: state },
-        () => initializedMiddlewares.forEach(m => m(type, payload)))
+      appState = state
+      // self.setState({ appState: state },
+      //   () => initializedMiddlewares.forEach(m => m(type, payload)))
+      self.setState({ appState: state })
+      initializedMiddlewares.forEach(m => m(type, payload))
     } else {
       // Provider not yet ready
       appState = state
@@ -35,7 +37,7 @@ export const initStore = (store, ...middlewares) => {
       return subs || []
     },
     get state() {
-      return getState()
+      return appState
     },
   }, {}))
 
@@ -46,35 +48,6 @@ export const initStore = (store, ...middlewares) => {
   const regFx = (type, fn) => fx[type] = fn
 
   let eventQueue = []
-  const dispatchDrainSync = (type, payload) => {
-    eventQueue.push([type, payload])
-    if (eventQueue.length > 1) {
-      //recursing so just let it pile up in the queue...
-      return
-    }
-    //drain the actions. Children that dispatch more actions will be drained in this same cycle
-    while (eventQueue.length > 0) {
-      const event = eventQueue[0]
-      const [type, args] = event
-      /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
-      const eventHandlers = eventFx[type]
-      if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
-      eventHandlers.forEach(handler => {
-        const coeffects = { db: getState() }
-        // console.log(`event handler (${type})`, 'current db:', coeffects.db, 'args:', args)
-        const effects = handler(coeffects, type, args)
-        if (!effects) return
-        Object.entries(effects).forEach(([key, value]) => {
-          const effect = fx [key]
-          // console.log(`  effect handler (${key}) for event (${type})`, value)
-          if (!effect) throw new Error(`No fx handler for effect "${type}". Try registering a handler using "regFx('${type}', ({ effect }) => ({...some side-effect})"`)
-          // NOTE: no need really to handle result of effect for now - we're not doing anything with promises for instance
-          effect(value, event) // event passed just for redux dev tools
-        })
-      })
-      eventQueue.shift()
-    }
-  }
 
   let dispatchScheduled = false
   const scheduleDispatchProcessing = () => {
@@ -88,6 +61,7 @@ export const initStore = (store, ...middlewares) => {
     if (eventQueue.length === 0) return
     const event = eventQueue.shift()
     const [type, args] = event
+    console.log('H:', type, args)
     /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
     const eventHandlers = eventFx[type]
     if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
@@ -99,7 +73,7 @@ export const initStore = (store, ...middlewares) => {
       Object.entries(effects).forEach(([key, value]) => {
         const effect = fx [key]
         // console.log(`  effect handler (${key}) for event (${type})`, value)
-        if (!effect) throw new Error(`No fx handler for effect "${type}". Try registering a handler using "regFx('${type}', ({ effect }) => ({...some side-effect})"`)
+        if (!effect) throw new Error(`No fx handler for effect "${key}". Try registering a handler using "regFx('${key}', ({ effect }) => ({...some side-effect})"`)
         // NOTE: no need really to handle result of effect for now - we're not doing anything with promises for instance
         effect(value, event) // event passed just for redux dev tools
       })
@@ -121,7 +95,7 @@ export const initStore = (store, ...middlewares) => {
   }
 
   regFx('db', (newStateOrStateFn, action) => {
-    console.log('----', newStateOrStateFn)
+    console.log('---db-', newStateOrStateFn)
     if (typeof(newStateOrStateFn) === 'function') {
       setState(newStateOrStateFn(getState()), action)
     } else {

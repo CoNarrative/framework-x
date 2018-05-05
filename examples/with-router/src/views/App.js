@@ -10,7 +10,6 @@ const Item = component('Item', ({ id, name }) => (
 ))
 
 const Main = component('Main', {
-    debug: true,
     subscribe: mainSub,
   },
   ({ otherwise, formattedCount }) => (

@@ -121,6 +121,7 @@ const reduxDevTools = ({ instanceId = 1, maxAge = 50 } = {}) => !extension
     mockReduxDevToolsAction('@@INIT', store.initialState);
 
     return (action, args) => {
+      console.log('DEBUG->', action, args)
       const formattedSubs = Object
       .entries(self.subs)
       .reduce((acc, [name, subs]) => {

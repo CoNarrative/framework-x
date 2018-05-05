@@ -48,30 +48,33 @@ export const createRouter = ({ routes, history, listen }) => {
   })
   let location = {}
 
-  const pushNamedRoute = (id, params, query) => {
+  const makeRouteMethod = verb => (id, params, query) => {
     const route = routes.find(({ id: tid }) => tid === id)
     if (!route) throw new Error(`No route named "${id}"`)
     const { path } = route
     const url = compile(path)(params)
-    history.push({
+    history[verb]({
       pathname: url,
       search: query ? querystring.stringify(query) : history.location.search,
       state: history.location.state,
     })
   }
+
+  const pushNamedRoute = makeRouteMethod('push')
+  const replaceNamedRoute = makeRouteMethod('replace')
+
   return ({
+    replaceNamedRoute,
     pushNamedRoute,
-    listen(cb) {
-      if (!cb) throw new Error('You must provide a callback for the router.')
-      const respondToHistory = loc => {
-        location = loc
+    listen(onRouteChanged) {
+      if (!onRouteChanged) throw new Error('You must provide a callback for the router.')
+      const respondToHistory = (location, type) => {
         const match = matchFirst(routes, location.pathname)
-        // console.log({ routes, location, match })
-        if (match && match.route.action) match.route.action({ match, pushNamedRoute })
-        cb({ location, match: match || { id: 'not-found' } })
+        console.log('calling onRouteChanged', type)
+        onRouteChanged({ location, match: match || { id: 'not-found' }, type })
       }
-      respondToHistory(history.location)
       history.listen(respondToHistory)
+      respondToHistory(history.location, 'INITIAL')
     },
   })
 }
