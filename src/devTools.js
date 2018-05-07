@@ -99,8 +99,8 @@ const reduxDevTools = ({ instanceId = 1, maxAge = 50 } = {}) => !extension
         action: JSON.stringify({
           type: "PERFORM_ACTION",
           action: {
-            type,
             ...args,
+            type,
           },
           timestamp: Date.now(),
         }),
@@ -143,6 +143,9 @@ const reduxDevTools = ({ instanceId = 1, maxAge = 50 } = {}) => !extension
         return acc
       }, {})
       const enhArgs = Object.assign({}, args)
+      if (enhArgs.type) {
+        enhArgs.__type = enhArgs.type
+      }
       if (Object.keys(effects).length > 0) {
         enhArgs['EFFECTS'] = effects
       }
