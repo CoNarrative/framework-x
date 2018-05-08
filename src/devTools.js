@@ -120,7 +120,7 @@ const reduxDevTools = ({ instanceId = 1, maxAge = 50 } = {}) => !extension
     }, '*');
     mockReduxDevToolsAction('@@INIT', store.initialState);
 
-    return (type, args, rawEffects) => {
+    return (type, args, rawEffects, count) => {
       const formattedSubs = Object
       .entries(self.subs)
       .reduce((acc, [name, subs]) => {
@@ -149,7 +149,8 @@ const reduxDevTools = ({ instanceId = 1, maxAge = 50 } = {}) => !extension
       if (Object.keys(effects).length > 0) {
         enhArgs['EFFECTS'] = effects
       }
-      mockReduxDevToolsAction(type, enhArgs, JSON.stringify(
+      const finalType = count === 0 ? type : `${type} [${count + 1}]`
+      mockReduxDevToolsAction(finalType, enhArgs, JSON.stringify(
         {
           STATE: self.state,
           SUBS: formattedSubs.display,

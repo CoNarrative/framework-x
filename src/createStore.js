@@ -54,7 +54,7 @@ export const initStore = (store, ...middlewares) => {
     setTimeout(processNextDispatch, 1)
   }
 
-  const notifyMiddlewares = (type, payload, effects) => initializedMiddlewares.forEach(m => m(type, payload, effects))
+  const notifyMiddlewares = (type, payload, effects, count) => initializedMiddlewares.forEach(m => m(type, payload, effects, count))
 
   const processNextDispatch = () => {
     dispatchScheduled = false
@@ -65,6 +65,7 @@ export const initStore = (store, ...middlewares) => {
     /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
     const eventHandlers = eventFx[type]
     if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
+    let count = 0
     eventHandlers.forEach(handler => {
       const coeffects = { db: getState() }
       // console.log(`event handler (${type})`, 'current db:', coeffects.db, 'args:', args)
@@ -77,7 +78,8 @@ export const initStore = (store, ...middlewares) => {
         // NOTE: no need really to handle result of effect for now - we're not doing anything with promises for instance
         effect(value)
       })
-      notifyMiddlewares(type, args, effects)
+      notifyMiddlewares(type, args, effects, count)
+      count++
     })
     if (eventQueue.length > 0) {
       scheduleDispatchProcessing()
