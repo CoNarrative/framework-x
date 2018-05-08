@@ -1,4 +1,4 @@
-const toolName = '[react-waterfall-redux-devtools-middleware]';
+const toolName = '[framework-x-redux-devtools-middleware]';
 const DEBUG = false;
 
 const extension = typeof window !== 'undefined' && (window.__REDUX_DEVTOOLS_EXTENSION__
@@ -6,7 +6,7 @@ const extension = typeof window !== 'undefined' && (window.__REDUX_DEVTOOLS_EXTE
 const pageSource = '@devtools-page';
 const extensionSource = '@devtools-extension';
 const libConfig = {
-  name: '[react-waterfall] ' + document.title,
+  name: '[framework-x] ' + document.title,
   features: {
     jump: true,
     skip: false,
