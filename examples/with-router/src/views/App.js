@@ -1,14 +1,16 @@
 import React from 'react';
 import { mainSub, appSub } from '../subs'
 import './App.css';
-import { component, dispatch } from '../store'
+import { component, connect, dispatch } from '../store'
 
 const Item = component('Item', ({ id, name }) => (
   <div>
     {id}: {name}
   </div>
 ))
-
+const UsingConnect = connect(appSub)(
+  ({formattedCount}) => <div>FormattedCountAgain: {formattedCount}</div>
+)
 const Main = component('Main', {
     subscribe: mainSub,
   },
@@ -36,6 +38,7 @@ const App = component('App', {
       <Item id={0} name="Hello" />
       <Main id={1} formattedCount={formattedCount} />
       <Main id={2} />
+      <UsingConnect/>
     </div>
   ),
 )
