@@ -1,8 +1,8 @@
 // import hoistStatics from 'hoist-non-react-statics'
-import React, { Component, PureComponent, createContext } from 'react'
+import React, { Component, createContext, PureComponent } from 'react'
 import { shallowEqual } from './util'
 
-export const initStore = (store, ...middlewares) => {
+export const initStore = (...middlewares) => {
   let self
   let appState = null
   let initializedMiddlewares
@@ -27,7 +27,7 @@ export const initStore = (store, ...middlewares) => {
   }
 
   /* Hacked a bit to support redux devtools -- the only middlware we care about */
-  initializedMiddlewares = middlewares.map(m => m(store, {
+  initializedMiddlewares = middlewares.map(m => m({}, {
     setState() {
       throw new Error('Not supported.')
     },
@@ -54,7 +54,8 @@ export const initStore = (store, ...middlewares) => {
     setTimeout(processNextDispatch, 1)
   }
 
-  const notifyMiddlewares = (type, payload, effects, count) => initializedMiddlewares.forEach(m => m(type, payload, effects, count))
+  const notifyMiddlewares = (type, payload, effects,
+    count) => initializedMiddlewares.forEach(m => m(type, payload, effects, count))
 
   const processNextDispatch = () => {
     dispatchScheduled = false
