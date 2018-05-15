@@ -309,5 +309,6 @@ export const initStore = (store, ...middlewares) => {
     component,
     regEventFx,
     regFx,
+    connect,
   }
 }
