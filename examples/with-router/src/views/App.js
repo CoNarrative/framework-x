@@ -9,7 +9,14 @@ const Item = component('Item', ({ id, name }) => (
   </div>
 ))
 const UsingConnect = connect(appSub)(
-  ({formattedCount}) => <div>FormattedCountAgain: {formattedCount}</div>
+  class UsingConnectInner {
+    render(){
+      const {formattedCount} = this.props
+      return (
+        <div>FormattedCountAgain: {formattedCount}</div>
+      )
+    }
+  }
 )
 const Main = component('Main', {
     subscribe: mainSub,

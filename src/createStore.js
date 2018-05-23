@@ -219,7 +219,8 @@ export const initStore = (...middlewares) => {
       componentWillUnmount() {
         if (!debug && !devTools) return
         const i = subs[name].indexOf(this._sub)
-        subs.splice(i, 1)
+        // console.log('Removing sub watcher', {subs,name, i})
+        subs[name].splice(i, 1)
       }
 
       /* TODO: we may have to handle props changes more efficiently using willReceiveProps
