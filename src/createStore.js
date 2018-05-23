@@ -139,6 +139,11 @@ export const initStore = (...middlewares) => {
   }
 
   /* SET UP COMPONENT FUNCTIONS - original */
+  const getNonChildProps = props => {
+    const otherProps = Object.assign({}, props)
+    delete otherProps.children
+    return otherProps
+  }
 
   class Prevent extends PureComponent {
     render() {
@@ -150,11 +155,11 @@ export const initStore = (...middlewares) => {
   class Subscribe extends Component {
     // We do this so the shouldComponentUpdate of Prevent will ignore the children prop
     _children = () => this.props.children
-
     prevent = ({ appState }) => {
-      const { selector } = this.props
+      const { otherProps, selector } = this.props
       return (
         <Prevent {...selector(appState)}
+                 {...otherProps}
                  _children={this._children} />
       )
     }
@@ -169,10 +174,11 @@ export const initStore = (...middlewares) => {
   }
 
   const connect = selector => WrappedComponent => {
-    const ConnectedComponent = (props) =>
-      <Subscribe selector={selector}>
+    const ConnectedComponent = (props) => {
+      return <Subscribe selector={selector} otherProps={getNonChildProps(props)}>
         {injectedProps => <WrappedComponent {...props} {...injectedProps} />}
       </Subscribe>
+    }
     ConnectedComponent.displayName = `Connect(${WrappedComponent.displayName
                                                 || WrappedComponent.name || '-'})`
     return ConnectedComponent
@@ -279,8 +285,8 @@ export const initStore = (...middlewares) => {
       throw new Error('This component wrapper is for pure functional components only.')
     }
     const explicitConfig = typeof(mapStateOrConfigBag) === 'function'
-      ? { subscribe: mapStateOrConfigBag }
-      : mapStateOrConfigBag
+                           ? { subscribe: mapStateOrConfigBag }
+                           : mapStateOrConfigBag
 
     // apply defaults
     const config = Object.assign({}, {

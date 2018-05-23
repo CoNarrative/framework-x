@@ -9,15 +9,31 @@ const Item = component('Item', ({ id, name }) => (
   </div>
 ))
 const UsingConnect = connect(appSub)(
-  class UsingConnectInner {
+  class UsingConnectInner extends React.Component {
     render(){
       const {formattedCount} = this.props
       return (
+        <div>
         <div>FormattedCountAgain: {formattedCount}</div>
+        </div>
       )
     }
   }
 )
+
+const ConnectWithOuterProp = connect(()=>({}))(
+  class UsingConnectInner extends React.Component {
+    render(){
+      const {outsidePropCount} = this.props
+      return (
+        <div>
+          <div>Count from outside props: {outsidePropCount}</div>
+        </div>
+      )
+    }
+  }
+)
+
 const Main = component('Main', {
     subscribe: mainSub,
   },
@@ -45,7 +61,8 @@ const App = component('App', {
       <Item id={0} name="Hello" />
       <Main id={1} formattedCount={formattedCount} />
       <Main id={2} />
-      <UsingConnect/>
+      {/*<UsingConnect/>*/}
+      <ConnectWithOuterProp outsidePropCount={formattedCount}/>
     </div>
   ),
 )
