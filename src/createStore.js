@@ -187,7 +187,8 @@ export const initStore = (...middlewares) => {
   /* ---NEW SCHOOL--- */
   /* Separate, less nested version for use with component wrapper (pure render functions only)*/
   const connectFn = (name, config, renderFn) => {
-    const { devTools, debug, skipProps, subscribe: selector } = config
+    let { devTools, debug, skipProps, subscribe, makeSubscribe } = config
+    let selector = subscribe
 
     class Synthetic extends Component {
       static displayName = name
@@ -200,7 +201,7 @@ export const initStore = (...middlewares) => {
       }
 
       render() {
-        debug && console.log('connectFn: render', name, this.props.id, this.props)
+        debug && console.log('component RENDER:', name, this.props)
         return renderFn(this.props)
       }
     }
@@ -241,27 +242,30 @@ export const initStore = (...middlewares) => {
         const didAppStateChange = appState !== this._sub.appState
         let didOwnPropsChange = !shallowEqual(this.props, this._sub.ownProps)
         let didExtractedPropsChange = false
-        if (didOwnPropsChange) {
-          this._sub.ownProps = this.props
-        }
         if (didAppStateChange) {
+          selector = (() => {
+            if (subscribe) return subscribe
+            if (!selector) return makeSubscribe(null, this.props)
+            if (didOwnPropsChange) return makeSubscribe(this._sub.ownProps, this.props)
+            return selector
+          })()
           const newExtractedProps = selector(appState)
           didExtractedPropsChange = !shallowEqual(this._sub.extractedProps, newExtractedProps)
           this._sub.extractedProps = newExtractedProps
+        }
+        if (didOwnPropsChange) {
+          this._sub.ownProps = this.props
         }
         if (didOwnPropsChange || didExtractedPropsChange) {
           this._sub.v++
           this._sub.merged = Object.assign({}, this.props, this._sub.extractedProps, { _v: this._sub.v })
         }
-        debug && console.log('connectFn: change check', name, this.props.id, {
+        debug && console.log('component CHECK:', name, {
+          version: this._sub.v,
+          didChange: didOwnPropsChange || didExtractedPropsChange,
           didOwnPropsChange,
           didExtractedPropsChange,
         })
-        // console.log(`ConnectedComponent(${name})`, 'innerRender', {
-        //   merged: this._sub.merged,
-        //   didExtractedPropsChange,
-        //   didOwnPropsChange,
-        // })
         return <Synthetic {...this._sub.merged} />
       }
 
@@ -293,10 +297,10 @@ export const initStore = (...middlewares) => {
       skipProps: [],
     }, explicitConfig)
 
-    const { subscribe, propsHash, compareProps } = config
+    const { makeSubscribe, subscribe, propsHash, compareProps } = config
 
     // connected component
-    if (subscribe) return connectFn(name, config, renderFn)
+    if (makeSubscribe || subscribe) return connectFn(name, config, renderFn)
 
     // Not connected so make just pure-render (which uses a shallow compare)
     return class Pure extends React.PureComponent {

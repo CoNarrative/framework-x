@@ -1,38 +1,46 @@
 import React from 'react';
-import { mainSub, appSub } from '../subs'
-import './App.css';
 import { component, connect, dispatch } from '../store'
+import { appSub, mainSub } from '../subs'
+import './App.css';
 
 const Item = component('Item', ({ id, name }) => (
   <div>
     {id}: {name}
   </div>
 ))
-const UsingConnect = connect(appSub)(
+
+const ConnectedClass = connect(appSub)(
   class UsingConnectInner extends React.Component {
-    render(){
-      const {formattedCount} = this.props
+    render() {
+      const { formattedCount } = this.props
       return (
         <div>
-        <div>FormattedCountAgain: {formattedCount}</div>
+          <div>FormattedCountAgain: {formattedCount}</div>
         </div>
       )
     }
-  }
+  },
 )
 
-const ConnectWithOuterProp = connect(()=>({}))(
+const ConnectedClassWithOuterProp = connect(() => ({}))(
   class UsingConnectInner extends React.Component {
-    render(){
-      const {outsidePropCount} = this.props
+    render() {
+      const { outsidePropCount } = this.props
       return (
         <div>
           <div>Count from outside props: {outsidePropCount}</div>
         </div>
       )
     }
-  }
+  },
 )
+
+const DynamicSelector = component('AnotherThing', {
+  makeSubscribe: (oldProps, newProps) => mainSub,
+  debug: true,
+}, ({ otherwise }) => (
+  <div>Foo: {otherwise?'Yes':'No'}</div>
+))
 
 const Main = component('Main', {
     subscribe: mainSub,
@@ -62,118 +70,10 @@ const App = component('App', {
       <Main id={1} formattedCount={formattedCount} />
       <Main id={2} />
       {/*<UsingConnect/>*/}
-      <ConnectWithOuterProp outsidePropCount={formattedCount}/>
+      <ConnectedClassWithOuterProp outsidePropCount={formattedCount} />
+      <DynamicSelector />
     </div>
   ),
 )
-
-
-// const App2 = component('App', mainSub, ({ formattedCount }) => (
-//   <div>
-//     <div>{formattedCount}</div>
-//     <button
-//       onClick={() => dispatch('increment', 5)}
-//     >
-//       Increment
-//     </button>
-//     <Item id={0} name="Hello" />
-//   </div>
-// ))
-//
-// const App3 = component({
-//   name: 'App',
-//   connect: mainSub,
-// })(({ formattedCount }) => (
-//   <div>
-//     <div>{formattedCount}</div>
-//     <button
-//       onClick={() => dispatch('increment', 5)}
-//     >
-//       Increment
-//     </button>
-//     <Item id={0} name="Hello" />
-//   </div>
-// ))
-//
-// const App4A = component('App', {
-//     connect: mainSub,
-//     propsHash: ({ formattedCount }) => `${formattedCount}`,
-//   },
-//   ({ formattedCount }) => (
-//     <div>
-//       <div>{formattedCount}</div>
-//       <button
-//         onClick={() => dispatch('increment', 5)}
-//       >
-//         Increment
-//       </button>
-//       <Item id={0} name="Hello" />
-//     </div>
-//   ),
-// )
-// //unconnected shortcut/sugar for 4A
-// const App4B = component('App', mainSub,
-//   ({ formattedCount }) => (
-//     <div>
-//       <div>{formattedCount}</div>
-//       <button
-//         onClick={() => dispatch('increment', 5)}
-//       >
-//         Increment
-//       </button>
-//       <Item id={0} name="Hello" />
-//     </div>
-//   ),
-// )
-
-
-// const App4 = component({
-//     name: 'App',
-//     connect: mainSub,
-//     propsHash: ({ formattedCount }) => `${formattedCount}`,
-//   },
-//   ({ formattedCount }) => (
-//     <div>
-//       <div>{formattedCount}</div>
-//       <button
-//         onClick={() => dispatch('increment', 5)}
-//       >
-//         Increment
-//       </button>
-//       <Item id={0} name="Hello" />
-//     </div>
-//   ),
-// )
-//
-//
-// const App5 = component({
-//   name: 'App',
-//   connect: mainSub,
-//   propsHash: ({ formattedCount }) => `${formattedCount}`,
-//   render: ({ formattedCount }) => (
-//     <div>
-//       <div>{formattedCount}</div>
-//       <button
-//         onClick={() => dispatch('increment', 5)}
-//       >
-//         Increment
-//       </button>
-//       <Item id={0} name="Hello" />
-//     </div>
-//   ),
-// })
-//
-// const App7 = component(mainSub)(({ formattedCount }) =>
-//   <div>
-//     <div>{formattedCount}</div>
-//     <button
-//       onClick={() => dispatch('increment', 5)}
-//     >
-//       Increment
-//     </button>
-//     <Item id={0} name="Hello" />
-//   </div>,
-// )
-
 
 export default App;
