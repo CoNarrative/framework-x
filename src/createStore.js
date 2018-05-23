@@ -245,8 +245,8 @@ export const initStore = (...middlewares) => {
         if (didAppStateChange) {
           selector = (() => {
             if (subscribe) return subscribe
-            if (!selector) return makeSubscribe(null, this.props)
-            if (didOwnPropsChange) return makeSubscribe(this._sub.ownProps, this.props)
+            if (!selector) return makeSubscribe(null, this.props, null)
+            if (didOwnPropsChange) return makeSubscribe(this._sub.ownProps, this.props, selector)
             return selector
           })()
           const newExtractedProps = selector(appState)
