@@ -10,8 +10,8 @@ export const initStore = (...middlewares) => {
   // let subscriptions = []
   const Context = createContext()
 
-  // if the provider is not yet rendered, app state comes from the store objection
-  const getState = () => (self ? self.state.appState : appState)
+  /* State is synchronous */
+  const getState = () => (appState)
   const setState = (state) => {
     // subscriptions.forEach(fn => fn(action, state, args))
     // console.log(`    set db from event (${type})  before:`, getState(), 'will be:', state)
@@ -69,15 +69,17 @@ export const initStore = (...middlewares) => {
     let count = 0
     eventHandlers.forEach(handler => {
       const coeffects = { db: getState() }
-      // console.log(`event handler (${type})`, 'current db:', coeffects.db, 'args:', args)
+      // console.log(`event handler (${type}-${count})`, 'current db:', coeffects.db, 'args:', args)
       const effects = handler(coeffects, type, args)
       if (!effects) return
+      /* Process effects */
       Object.entries(effects).forEach(([key, value]) => {
         const effect = fx [key]
         // console.log(`  effect handler (${key}) for event (${type})`, value)
         if (!effect) throw new Error(`No fx handler for effect "${key}". Try registering a handler using "regFx('${key}', ({ effect }) => ({...some side-effect})"`)
         // NOTE: no need really to handle result of effect for now - we're not doing anything with promises for instance
         effect(value)
+        // console.log('  after state=', getState())
       })
       notifyMiddlewares(type, args, effects, count)
       count++
