@@ -320,6 +320,7 @@ export const initStore = (...middlewares) => {
     Subscribe,
     dispatch,
     getState,
+    setState, //should only be used for testing
     component,
     regEventFx,
     regFx,
