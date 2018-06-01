@@ -13,7 +13,10 @@ startRouter(locationAndMatch => {
 })
 
 ReactDOM.render(
-  <Provider getState={getState} subscribeToState={subscribeToState}>
+  <Provider
+    getState={getState}
+    subscribeToState={subscribeToState}
+  >
     <App />
   </Provider>,
   document.getElementById('root'))

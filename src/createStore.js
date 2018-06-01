@@ -1,9 +1,13 @@
 // import hoistStatics from 'hoist-non-react-statics'
 import React from 'react'
 
-export const createStore = (...middlewares) => {
+export const createStore = (initialState, ...middlewares) => {
+  if (typeof(initialState) === 'function') {
+    middlewares.unshift(initialState)
+    initialState = null
+  }
   const stateListeners = []
-  let appState = null
+  let appState = initialState
   let initializedMiddlewares
   const subs = {}
   // let subscriptions = []
