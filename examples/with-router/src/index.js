@@ -16,6 +16,7 @@ ReactDOM.render(
   <Provider
     getState={getState}
     subscribeToState={subscribeToState}
+    dispatch={dispatch}
   >
     <App />
   </Provider>,

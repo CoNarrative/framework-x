@@ -1,4 +1,8 @@
-/* for wrapping full classes AND inlining */
+/*
+ * for wrapping full classes AND inlining via subscription
+ * uses PureComponent -- but results in deep nesting
+ */
+
 
 import React, { Component, PureComponent } from 'react'
 import { Context } from './context'
@@ -19,12 +23,14 @@ class Prevent extends PureComponent {
 export class Subscribe extends Component {
   // We do this so the shouldComponentUpdate of Prevent will ignore the children prop
   _children = () => this.props.children
-  prevent = ({ appState }) => {
+  prevent = ({ appState, dispatch }) => {
     const { otherProps, selector } = this.props
     return (
-      <Prevent {...selector(appState)}
-               {...otherProps}
-               _children={this._children} />
+      <Prevent
+        dispatch={dispatch}
+        {...selector(appState)}
+        {...otherProps}
+        _children={this._children} />
     )
   }
 

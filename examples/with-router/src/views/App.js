@@ -1,6 +1,5 @@
 import { component, connect } from 'framework-x'
 import React from 'react';
-import { dispatch } from '../store'
 import { appSub, mainSub } from '../subs'
 import './App.css';
 
@@ -50,11 +49,20 @@ const Main = component('Main', {
     <div>Otherwise: {otherwise ? 'true' : 'false'} {formattedCount}</div>
   ))
 
+const UnconnectedButton = component('UnconnectedButton', { injectDispatch: true },
+  ({ dispatch }) => (
+    <button
+      onClick={() => dispatch('otherwise')}
+    >
+      Otherwise
+    </button>
+  ))
+
 const App = component('App', {
     subscribe: appSub,
     devTools: true,
   },
-  ({ formattedCount }) => (
+  ({ dispatch, formattedCount }) => (
     <div>
       <div>{formattedCount}</div>
       <button
@@ -62,11 +70,7 @@ const App = component('App', {
       >
         Increment
       </button>
-      <button
-        onClick={() => dispatch('otherwise')}
-      >
-        Otherwise
-      </button>
+      <UnconnectedButton />
       <Item id={0} name="Hello" />
       <Main id={1} formattedCount={formattedCount} />
       <Main id={2} />

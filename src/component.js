@@ -1,6 +1,9 @@
-/* Separate, less nested version for use with component wrapper (pure render functions only)*/
+/*
+ * Separate, less nested version (pure render functions only)
+ * */
+
 import React, { Component } from 'react'
-import { subs, Context } from './context'
+import { Context, subs } from './context'
 import { shallowEqual } from './util'
 
 const connectFn = (name, config, renderFn) => {
@@ -21,7 +24,7 @@ const connectFn = (name, config, renderFn) => {
     }
   }
 
-  return class QuickSubscribe extends Component {
+  return class ComponentSubscriptionWrapper extends Component {
 
     static displayName = `ConnectedComponent(${name})`
     _sub = {
@@ -48,11 +51,13 @@ const connectFn = (name, config, renderFn) => {
 
     /* END SUBSCRIPTION TRACKING */
 
-    /* TODO: we may have to handle props changes more efficiently using sCU & cWRP
-     * if the innerConsumerRender gets called a bunch. So far, no sign that is the case
+    /*
+     * The render function is called whenever it receives new props or when it receives new
+     * This goes a little counter to normal React in which a sCU checks first before hitting the render function
+     * There appears to be no problem; but if I'm wrong we may possibly have to handle props changes more efficiently using sCU & cWRP
      */
 
-    innerConsumerRender = ({ appState }) => {
+    innerConsumerRender = ({ appState, dispatch }) => {
       const didAppStateChange = appState !== this._sub.appState
       let didOwnPropsChange = !shallowEqual(this.props, this._sub.ownProps)
       let didExtractedPropsChange = false
@@ -72,7 +77,7 @@ const connectFn = (name, config, renderFn) => {
       }
       if (didOwnPropsChange || didExtractedPropsChange) {
         this._sub.v++
-        this._sub.merged = Object.assign({}, this.props, this._sub.extractedProps, { _v: this._sub.v })
+        this._sub.merged = Object.assign({ dispatch }, this.props, this._sub.extractedProps, { _v: this._sub.v })
       }
       debug && console.log('component CHECK:', name, {
         version: this._sub.v,
@@ -117,6 +122,19 @@ export const component = (name, mapStateOrConfigBag, renderFn) => {
   if (makeSubscribe || subscribe) return connectFn(name, config, renderFn)
 
   // Not connected so make just pure-render (which uses a shallow compare)
+  if (config.injectDispatch) {
+    return class Pure extends React.PureComponent {
+      static displayName = name
+
+      render() {
+        return (
+          <Context.Consumer>
+            {({ dispatch }) => renderFn(Object.assign({ dispatch }, this.props))}
+          </Context.Consumer>
+        )
+      }
+    }
+  }
   return class Pure extends React.PureComponent {
     static displayName = name
 
@@ -124,5 +142,4 @@ export const component = (name, mapStateOrConfigBag, renderFn) => {
       return renderFn(this.props)
     }
   }
-
 }
