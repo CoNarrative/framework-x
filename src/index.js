@@ -1,3 +1,6 @@
 export * from './createStore'
+export * from './Provider'
+export * from './connect'
+export * from './component'
 export * from './router'
 export {default as devtools} from './devTools'

@@ -1,10 +1,11 @@
+import { Provider } from 'framework-x'
 import React from 'react'
 import ReactDOM from 'react-dom'
-import './index.css'
-import App from './views/App'
 import './events'
-import { dispatch, Provider } from './store'
+import './index.css'
 import { startRouter } from './routing'
+import { dispatch, getState, subscribeToState } from './store'
+import App from './views/App'
 
 dispatch('initialize-db')
 startRouter(locationAndMatch => {
@@ -12,8 +13,8 @@ startRouter(locationAndMatch => {
 })
 
 ReactDOM.render(
-  <Provider>
-    <App/>
+  <Provider getState={getState} subscribeToState={subscribeToState}>
+    <App />
   </Provider>,
   document.getElementById('root'))
 // registerServiceWorker()

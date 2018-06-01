@@ -1,5 +1,6 @@
+import { component, connect } from 'framework-x'
 import React from 'react';
-import { component, connect, dispatch } from '../store'
+import { dispatch } from '../store'
 import { appSub, mainSub } from '../subs'
 import './App.css';
 
@@ -39,7 +40,7 @@ const DynamicSelector = component('AnotherThing', {
   makeSubscribe: (oldProps, newProps) => mainSub,
   debug: true,
 }, ({ otherwise }) => (
-  <div>Foo: {otherwise?'Yes':'No'}</div>
+  <div>Foo: {otherwise ? 'Yes' : 'No'}</div>
 ))
 
 const Main = component('Main', {

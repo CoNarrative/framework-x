@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "path-to-regexp": "^2.2.1",
+    "prop-types": "^15.6.1",
     "query-string": "^6.0.0"
   },
   "peerDependencies": {
