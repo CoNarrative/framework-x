@@ -120,7 +120,7 @@ const reduxDevTools = ({ instanceId = 1, maxAge = 50 } = {}) => !extension
     }, '*');
     mockReduxDevToolsAction('@@INIT', store.initialState);
 
-    return (type, args, rawEffects, count) => {
+    return (type, payload, rawEffects, count) => {
       const formattedSubs = Object
       .entries(self.subs)
       .reduce((acc, [name, subs]) => {
@@ -142,7 +142,10 @@ const reduxDevTools = ({ instanceId = 1, maxAge = 50 } = {}) => !extension
         acc[key] = key === 'db' ? '-' : value
         return acc
       }, {})
-      const enhArgs = Object.assign({}, args)
+
+      /* copy payload args -- if a non-object value, show under an _ key */
+      const enhArgs = (typeof(payload)==='object') ?
+                      Object.assign({}, payload) : {_: payload}
       if (enhArgs.type) {
         enhArgs.__type = enhArgs.type
       }
