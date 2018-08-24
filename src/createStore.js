@@ -56,7 +56,8 @@ export const createStore = (initialState, ...middlewares) => {
     dispatchScheduled = false
     if (eventQueue.length === 0) return
     const event = eventQueue.shift()
-    const [type, args] = event
+    const type = event[0]
+    const args = event.slice(1)
     // console.log('H:', type, args)
     /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
     const eventHandlers = eventFx[type]
@@ -65,7 +66,7 @@ export const createStore = (initialState, ...middlewares) => {
     eventHandlers.forEach(handler => {
       const coeffects = { db: getState() }
       // console.log(`event handler (${type}-${count})`, 'current db:', coeffects.db, 'args:', args)
-      const effects = handler(coeffects, type, args)
+      const effects = handler(coeffects, event)
       if (!effects) return
       /* Process effects */
       Object.entries(effects).forEach(([key, value]) => {
@@ -85,13 +86,13 @@ export const createStore = (initialState, ...middlewares) => {
   }
 
   /* All dispatches are drained async */
-  const dispatch = (eventVector) => {
-    eventQueue.push(eventVector)
+  const dispatch = (event) => {
+    eventQueue.push(event)
     processNextDispatch()
   }
 
-  const dispatchAsync = (eventVector) => {
-    eventQueue.push(eventVector)
+  const dispatchAsync = (event) => {
+    eventQueue.push(event)
     scheduleDispatchProcessing()
   }
 

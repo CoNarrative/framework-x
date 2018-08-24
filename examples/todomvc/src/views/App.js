@@ -28,26 +28,26 @@ const CHANGE_FILTER = 'change-filter'
 const ADD_TODO = 'add-todo'
 const MARK_DONE = 'mark-done'
 
-regEventFx(INITIALIZE_DB, ({ db }, _, __) => ({
+regEventFx(INITIALIZE_DB, ({ db }, _) => ({
   db: { todos: [], visibilityFilter: "all", newTodoText: "" },
 }))
 
-regEventFx(SET_TODO_TEXT, ({ db }, _, value) => ({
+regEventFx(SET_TODO_TEXT, ({ db }, [_, value]) => ({
   db: Object.assign({}, db, { newTodoText: value }),
 }))
 
-regEventFx(CHANGE_FILTER, ({ db }, _, value) => ({
+regEventFx(CHANGE_FILTER, ({ db }, [_, value]) => ({
   db: Object.assign({}, db, { visibilityFilter: value }),
 }))
 
-regEventFx(ADD_TODO, ({ db }, _, __) => ({
+regEventFx(ADD_TODO, ({ db }, _) => ({
   db: Object.assign({}, db, {
     todos: db.todos.concat({ text: db.newTodoText, done: false }),
   }),
   dispatch: [SET_TODO_TEXT, ""],
 }))
 
-regEventFx(MARK_DONE, ({ db }, _, doneText) => ({
+regEventFx(MARK_DONE, ({ db }, [_, doneText]) => ({
   db: Object.assign({}, db, {
     todos: db.todos.map(todo => todo.text === doneText
                                 ? Object.assign({}, todo, { done: true })
@@ -62,7 +62,9 @@ const EnterTodo = component("EnterTodo", db => ({ text: db.newTodoText }), ({ te
       onChange={e => dispatch([SET_TODO_TEXT, e.target.value])}
       onKeyDown={e => e.which === 13 && dispatch([ADD_TODO])}
     />
-    <button onClick={() => dispatch([ADD_TODO])}>Add todo</button>
+    <button onClick={() => dispatch([ADD_TODO])}>
+      Add todo
+    </button>
   </div>,
 )
 
