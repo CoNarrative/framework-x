@@ -1,8 +1,7 @@
 import React from 'react'
-import { component } from 'framework-x'
-import './App.css'
-import { createSub, derive } from 'framework-x'
-import { dispatch, regEventFx } from '../store'
+import { component } from 'dist/index.es'
+import { createSub, derive } from 'dist/index.es'
+import { dispatch, regEventFx } from './store'
 
 
 const visibilityFilter = db => db.visibilityFilter
@@ -102,10 +101,10 @@ const FilterControls = component("FilterControls",
         { key: "all", text: "Show all", event: [CHANGE_FILTER, "all"] }]
         .map(({ text, event, key }) =>
           <button
+            key={key}
             style={visibilityFilter === key
                    ? { background: 'green', color: 'white' }
                    : {}}
-            key={key}
             onClick={() => dispatch(event)}>
             {text}
           </button>,

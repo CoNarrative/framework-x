@@ -1,8 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import './index.css'
-import App, { INITIALIZE_DB } from './views/App'
-import './events'
+import App, { INITIALIZE_DB } from './App'
 import { Provider } from 'framework-x'
 import { getState, dispatch, subscribeToState } from './store'
 

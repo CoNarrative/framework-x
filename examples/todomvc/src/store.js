@@ -1,20 +1,11 @@
-import { createStore } from 'framework-x'
-import devtools from 'react-waterfall-redux-devtools-middleware'
+import { createStore, devtools } from 'framework-x'
 
 const prod = process.env.NODE_ENV === 'production'
 
-const store = {
-  initialState: {
-    count: 5,
-  },
-}
 
 export const {
-  connect,
   dispatch,
   getState,
-  setState,
   subscribeToState,
-  Subscriber,
-  regEventFx
-} = createStore(store, !prod && devtools())
+  regEventFx,
+} = createStore(!prod && devtools())
