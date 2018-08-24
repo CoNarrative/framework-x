@@ -10,7 +10,6 @@ const store = {
 }
 
 export const {
-  Provider,
   connect,
   dispatch,
   getState,

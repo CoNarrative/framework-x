@@ -9,7 +9,8 @@ const visibilityFilter = db => db.visibilityFilter
 
 const allTodos = db => db.todos
 
-const visibleTodos = derive([visibilityFilter, allTodos],
+const visibleTodos = derive(
+  [visibilityFilter, allTodos],
   (filter, todos) => {
     switch (filter) {
       case "done":
@@ -17,7 +18,7 @@ const visibleTodos = derive([visibilityFilter, allTodos],
       case "not done":
         return todos.filter(todo => !todo.done)
       default:
-        return allTodos
+        return todos
     }
   })
 
@@ -28,7 +29,7 @@ const ADD_TODO = 'add-todo'
 const MARK_DONE = 'mark-done'
 
 regEventFx(INITIALIZE_DB, ({ db }, _, __) => ({
-  db: { todos: {}, visibilityFilter: "all" },
+  db: { todos: [], visibilityFilter: "all", newTodoText: "" },
 }))
 
 regEventFx(SET_TODO_TEXT, ({ db }, _, value) => ({
@@ -49,16 +50,17 @@ regEventFx(ADD_TODO, ({ db }, _, __) => ({
 regEventFx(MARK_DONE, ({ db }, _, doneText) => ({
   db: Object.assign({}, db, {
     todos: db.todos.map(todo => todo.text === doneText
-                                ? Object.assign({}, { done: true }, todo)
+                                ? Object.assign({}, todo, { done: true })
                                 : todo),
   }),
 }))
 
-const EnterTodo = component("EnterTodo", db => db.newTodoText, (text) =>
+const EnterTodo = component("EnterTodo", db => ({ text: db.newTodoText }), ({ text }) =>
   <div>
     <input
       value={text || ""}
       onChange={e => dispatch([SET_TODO_TEXT, e.target.value])}
+      onKeyDown={e => e.which === 13 && dispatch([ADD_TODO])}
     />
     <button onClick={() => dispatch([ADD_TODO])}>Add todo</button>
   </div>,
@@ -67,12 +69,14 @@ const EnterTodo = component("EnterTodo", db => db.newTodoText, (text) =>
 const App = component('App', createSub({
     todos: visibleTodos,
   }), ({ todos }) => (
-    <div>
+    <div style={{ height: '100vh' }}>
       <EnterTodo />
 
-      <div style={{ display: "flex", flexDirecton: "column" }}>
-        {todos.map(todo =>
-          <div style={{ display: "flex" }}>
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        {todos && todos.map((todo, i) =>
+          <div
+            key={i}
+            style={{ display: "flex" }}>
             {todo.done
              ? <strike>{todo.text}</strike>
              : <div>{todo.text}</div>}
@@ -87,15 +91,18 @@ const App = component('App', createSub({
   ),
 )
 
-const FilterControls = component("FilterControls", db => db.visibilityFilter,
-  (visibilityFilter) =>
+const FilterControls = component("FilterControls",
+  db => ({ visibilityFilter: db.visibilityFilter }),
+  ({ visibilityFilter }) =>
     <div>
       {[{ key: "done", text: "Show done", event: [CHANGE_FILTER, "done"] },
         { key: "not done", text: "Show not done", event: [CHANGE_FILTER, "not done"] },
         { key: "all", text: "Show all", event: [CHANGE_FILTER, "all"] }]
         .map(({ text, event, key }) =>
           <button
-            style={{ color: visibilityFilter === key ? 'blue' : 'inherit' }}
+            style={visibilityFilter === key
+                   ? { background: 'green', color: 'white' }
+                   : {}}
             key={key}
             onClick={() => dispatch(event)}>
             {text}

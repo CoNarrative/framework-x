@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom'
 import './index.css'
 import App, { INITIALIZE_DB } from './views/App'
 import './events'
-
-import { Provider, getState, dispatch, subscribeToState } from './store'
+import { Provider } from 'framework-x'
+import { getState, dispatch, subscribeToState } from './store'
 
 dispatch([INITIALIZE_DB])
 
