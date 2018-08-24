@@ -85,13 +85,13 @@ export const createStore = (initialState, ...middlewares) => {
   }
 
   /* All dispatches are drained async */
-  const dispatch = (type, payload) => {
-    eventQueue.push([type, payload])
+  const dispatch = (eventVector) => {
+    eventQueue.push(eventVector)
     processNextDispatch()
   }
 
-  const dispatchAsync = (type, payload) => {
-    eventQueue.push([type, payload])
+  const dispatchAsync = (eventVector) => {
+    eventQueue.push(eventVector)
     scheduleDispatchProcessing()
   }
 
