@@ -1,6 +1,6 @@
-import React from 'react';
+import React from 'react'
 import { mainSub } from '../subs'
-import './App.css';
+import './App.css'
 import { Subscriber, dispatch } from '../store'
 
 const App = () => (
@@ -21,4 +21,4 @@ const App = () => (
     }}
   </Subscriber>
 )
-export default App;
+export default App

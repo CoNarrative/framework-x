@@ -1,7 +1,7 @@
 import { component, connect } from 'framework-x'
-import React from 'react';
+import React from 'react'
 import { appSub, mainSub } from '../subs'
-import './App.css';
+import './App.css'
 
 const Item = component('Item', ({ id, name }) => (
   <div>
@@ -19,7 +19,7 @@ const ConnectedClass = connect(appSub)(
         </div>
       )
     }
-  },
+  }
 )
 
 const ConnectedClassWithOuterProp = connect(() => ({}))(
@@ -32,22 +32,22 @@ const ConnectedClassWithOuterProp = connect(() => ({}))(
         </div>
       )
     }
-  },
+  }
 )
 
 const DynamicSelector = component('AnotherThing', {
   makeSubscribe: (oldProps, newProps) => mainSub,
-  debug: true,
+  debug: true
 }, ({ otherwise }) => (
   <div>Foo: {otherwise ? 'Yes' : 'No'}</div>
 ))
 
 const Main = component('Main', {
-    subscribe: mainSub,
-  },
-  ({ otherwise, formattedCount }) => (
-    <div>Otherwise: {otherwise ? 'true' : 'false'} {formattedCount}</div>
-  ))
+  subscribe: mainSub
+},
+({ otherwise, formattedCount }) => (
+  <div>Otherwise: {otherwise ? 'true' : 'false'} {formattedCount}</div>
+))
 
 const UnconnectedButton = component('UnconnectedButton', { injectDispatch: true },
   ({ dispatch }) => (
@@ -59,26 +59,26 @@ const UnconnectedButton = component('UnconnectedButton', { injectDispatch: true 
   ))
 
 const App = component('App', {
-    subscribe: appSub,
-    devTools: true,
-  },
-  ({ dispatch, formattedCount }) => (
-    <div>
-      <div>{formattedCount}</div>
-      <button
-        onClick={() => dispatch('increment', 5)}
-      >
+  subscribe: appSub,
+  devTools: true
+},
+({ dispatch, formattedCount }) => (
+  <div>
+    <div>{formattedCount}</div>
+    <button
+      onClick={() => dispatch('increment', 5)}
+    >
         Increment
-      </button>
-      <UnconnectedButton />
-      <Item id={0} name="Hello" />
-      <Main id={1} formattedCount={formattedCount} />
-      <Main id={2} />
-      {/*<UsingConnect/>*/}
-      <ConnectedClassWithOuterProp outsidePropCount={formattedCount} />
-      <DynamicSelector />
-    </div>
-  ),
+    </button>
+    <UnconnectedButton />
+    <Item id={0} name='Hello' />
+    <Main id={1} formattedCount={formattedCount} />
+    <Main id={2} />
+    {/* <UsingConnect/> */}
+    <ConnectedClassWithOuterProp outsidePropCount={formattedCount} />
+    <DynamicSelector />
+  </div>
+)
 )
 
-export default App;
+export default App

@@ -1,17 +1,16 @@
 const hasOwn = Object.prototype.hasOwnProperty
 export const memoize = (fn) => {
-  let cache = {};
+  let cache = {}
   return (...args) => {
-    let n = args[0];  // just taking one argument here
+    let n = args[0] // just taking one argument here
     if (n in cache) {
       // console.log('Fetching from cache');
-      return cache[n];
-    }
-    else {
+      return cache[n]
+    } else {
       // console.log('Calculating result');
-      let result = fn(n);
-      cache[n] = result;
-      return result;
+      let result = fn(n)
+      cache[n] = result
+      return result
     }
   }
 }
@@ -104,8 +103,8 @@ export function defaultMemoize(func) {
     const useValueHash = func.selector ? func.selector.useValueHash : null
     // const start = performance.now()
     let args = useValueHash ? hash(arguments) : arguments
-    const is = useValueHash ? (a, b) => a===b :
-               (a,b) => areArgumentsShallowlyEqual(defaultEqualityCheck, a, b)
+    const is = useValueHash ? (a, b) => a === b
+      : (a, b) => areArgumentsShallowlyEqual(defaultEqualityCheck, a, b)
     // if (logIt) {
     //   console.log(`${name} hash: ${performance.now() - start}ms`)
     // }
@@ -114,7 +113,7 @@ export function defaultMemoize(func) {
         console.log('failed equality check',
           name, {
             lastArgs,
-            args,
+            args
           })
       }
       // apply arguments instead of spreading for performance.
@@ -131,11 +130,11 @@ function getDependencies(funcs) {
 
   if (!dependencies.every(dep => typeof dep === 'function')) {
     const dependencyTypes = dependencies.map(
-      dep => typeof dep,
+      dep => typeof dep
     ).join(', ')
     throw new Error(
       'Selector creators expect all input-selectors to be functions, ' +
-      `instead received the following types: [${dependencyTypes}]`,
+      `instead received the following types: [${dependencyTypes}]`
     )
   }
 
@@ -161,7 +160,7 @@ export function createSelectorCreator(memoize, ...memoizeOptions) {
 
     const memoizedResultFunc = memoize(
       recompute,
-      ...memoizeOptions,
+      ...memoizeOptions
     )
 
     // If a selector is called with the exact same arguments we don't need to traverse our dependencies again.
@@ -196,7 +195,7 @@ export function createStructuredSelector(selectors, selectorCreator = createSele
   if (typeof selectors !== 'object') {
     throw new Error(
       'createStructuredSelector expects first argument to be an object ' +
-      `where each property is a selector, instead received a ${typeof selectors}`,
+      `where each property is a selector, instead received a ${typeof selectors}`
     )
   }
   const objectKeys = Object.keys(selectors)
@@ -207,7 +206,7 @@ export function createStructuredSelector(selectors, selectorCreator = createSele
         composition[objectKeys[index]] = value
         return composition
       }, {})
-    },
+    }
   )
 }
 
@@ -223,14 +222,14 @@ export const createSub = obj => createStructuredSelector(
   mapKeys(key => key.startsWith('get') ? caseFirst(key.substr(3)) : key, obj))
 
 export const derive = (...args) => {
-  if (typeof(args[0]) === 'string') {
+  if (typeof (args[0]) === 'string') {
     const sel = createSelector.apply(null, args.slice(1))
     sel.selectorName = args[0]
     return sel
   }
-  if (typeof(args[args.length - 1]) === 'object') {
+  if (typeof (args[args.length - 1]) === 'object') {
     const { name, useValueHash } = args[args.length - 1]
-    const sel = createSelector.apply(null, args.slice(0, args.length-1))
+    const sel = createSelector.apply(null, args.slice(0, args.length - 1))
     if (name) sel.selectorName = name
     if (useValueHash) sel.useValueHash = useValueHash
     return sel

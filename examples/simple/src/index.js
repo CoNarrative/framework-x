@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import './index.css'
 import App from './views/App'
 
-import './events' //self-registers
+import './events' // self-registers
 
 // import registerServiceWorker from './registerServiceWorker';
 

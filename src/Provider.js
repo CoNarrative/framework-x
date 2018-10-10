@@ -3,11 +3,10 @@ import React, { Component } from 'react'
 import { Context } from './context'
 
 export class Provider extends Component {
-
   static propTypes = {
     getState: PropTypes.func.isRequired,
     subscribeToState: PropTypes.func.isRequired,
-    dispatch: PropTypes.func,
+    dispatch: PropTypes.func
   }
 
   constructor(props) {
@@ -16,7 +15,7 @@ export class Provider extends Component {
     this.state = { appState: getState() }
     this.value = {
       appState: this.state.appState,
-      dispatch,
+      dispatch
     }
     subscribeToState(state => this.setState({ appState: state }))
   }
@@ -26,7 +25,7 @@ export class Provider extends Component {
       // Force a new object (required to trigger propagation)
       this.value = {
         appState: this.state.appState,
-        dispatch: this.value.dispatch,
+        dispatch: this.value.dispatch
       }
     }
     return (

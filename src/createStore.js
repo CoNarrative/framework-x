@@ -2,7 +2,7 @@
 import React from 'react'
 
 export const createStore = (initialState, ...middlewares) => {
-  if (typeof(initialState) === 'function') {
+  if (typeof (initialState) === 'function') {
     middlewares.unshift(initialState)
     initialState = null
   }
@@ -31,7 +31,7 @@ export const createStore = (initialState, ...middlewares) => {
     },
     get state() {
       return appState
-    },
+    }
   }, {}))
 
   const eventFx = {}
@@ -106,11 +106,12 @@ export const createStore = (initialState, ...middlewares) => {
 
   regFx('db', (newStateOrStateFn) => {
     // console.log('---db-', newStateOrStateFn)
-    if (typeof(newStateOrStateFn) === 'function') {
+    if (typeof (newStateOrStateFn) === 'function') {
       const nextState = newStateOrStateFn(getState())
-      if (typeof(nextState) === 'function')
+      if (typeof (nextState) === 'function') {
         throw new Error('db fx request was a reducer function that returned a function. ' +
                         'If you are using ramda, you probably didn\'t finish currying all the args')
+      }
       setState(newStateOrStateFn(getState()))
     } else {
       setState(newStateOrStateFn)

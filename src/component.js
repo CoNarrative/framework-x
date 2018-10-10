@@ -25,14 +25,13 @@ const connectFn = (name, config, renderFn) => {
   }
 
   return class ComponentSubscriptionWrapper extends Component {
-
     static displayName = `ConnectedComponent(${name})`
     _sub = {
       ownProps: null,
       extractedProps: null,
       appState: null,
       merged: null,
-      v: 0,
+      v: 0
     }
 
     /* FOR DEBUGGING INSTRUMENTATION WE CAN TRACK ACTIVE SUBSCRIPTIONS */
@@ -83,7 +82,7 @@ const connectFn = (name, config, renderFn) => {
         version: this._sub.v,
         didChange: didOwnPropsChange || didExtractedPropsChange,
         didOwnPropsChange,
-        didExtractedPropsChange,
+        didExtractedPropsChange
       })
       return <SyntheticComponentBasedOnRenderFunction {...this._sub.merged} />
     }
@@ -98,29 +97,28 @@ const connectFn = (name, config, renderFn) => {
   }
 }
 
-
 export const component = (name, mapStateOrConfigBag, renderFn) => {
   if (renderFn == null) {
     renderFn = mapStateOrConfigBag
     mapStateOrConfigBag = {}
   }
-  if (typeof(renderFn) !== 'function') {
+  if (typeof (renderFn) !== 'function') {
     throw new Error('This component wrapper is for pure functional components only.')
   }
-  const explicitConfig = typeof(mapStateOrConfigBag) === 'function'
-                         ? { subscribe: mapStateOrConfigBag }
-                         : mapStateOrConfigBag
+  const explicitConfig = typeof (mapStateOrConfigBag) === 'function'
+    ? { subscribe: mapStateOrConfigBag }
+    : mapStateOrConfigBag
 
   // apply defaults
   const config = Object.assign({}, {
-    skipProps: [],
+    skipProps: []
   }, explicitConfig)
 
   const { makeSubscribe, subscribe, propsHash, compareProps } = config
 
   // convert classes to render fns
-  renderFn = (renderFn.prototype.isReactComponent) ?
-             props => React.createElement(renderFn, props) : renderFn
+  renderFn = (renderFn.prototype.isReactComponent)
+    ? props => React.createElement(renderFn, props) : renderFn
 
   // connected component
   if (makeSubscribe || subscribe) return connectFn(name, config, renderFn)
