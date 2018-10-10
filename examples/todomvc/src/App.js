@@ -1,8 +1,6 @@
 import React from 'react'
-import { component } from 'dist/index.es'
-import { createSub, derive } from 'dist/index.es'
+import { component, createSub, derive } from 'framework-x'
 import { dispatch, regEventFx } from './store'
-
 
 const visibilityFilter = db => db.visibilityFilter
 
@@ -31,11 +29,11 @@ regEventFx(INITIALIZE_DB, ({ db }, _) => ({
   db: { todos: [], visibilityFilter: "all", newTodoText: "" },
 }))
 
-regEventFx(SET_TODO_TEXT, ({ db }, [_, value]) => ({
+regEventFx(SET_TODO_TEXT, ({ db }, _, value) => ({
   db: Object.assign({}, db, { newTodoText: value }),
 }))
 
-regEventFx(CHANGE_FILTER, ({ db }, [_, value]) => ({
+regEventFx(CHANGE_FILTER, ({ db }, _, value) => ({
   db: Object.assign({}, db, { visibilityFilter: value }),
 }))
 
@@ -46,7 +44,7 @@ regEventFx(ADD_TODO, ({ db }, _) => ({
   dispatch: [SET_TODO_TEXT, ""],
 }))
 
-regEventFx(MARK_DONE, ({ db }, [_, doneText]) => ({
+regEventFx(MARK_DONE, ({ db }, _, doneText) => ({
   db: Object.assign({}, db, {
     todos: db.todos.map(todo => todo.text === doneText
                                 ? Object.assign({}, todo, { done: true })
@@ -81,7 +79,7 @@ const App = component('App', createSub({
             {todo.done
              ? <strike>{todo.text}</strike>
              : <div>{todo.text}</div>}
-            <button onClick={() => dispatch([MARK_DONE, todo.text])}>Mark done</button>
+            <button onClick={() => dispatch(MARK_DONE, todo.text)}>Mark done</button>
           </div>,
         )}
       </div>
@@ -105,7 +103,7 @@ const FilterControls = component("FilterControls",
             style={visibilityFilter === key
                    ? { background: 'green', color: 'white' }
                    : {}}
-            onClick={() => dispatch(event)}>
+            onClick={() => dispatch(...event)}>
             {text}
           </button>,
         )}
