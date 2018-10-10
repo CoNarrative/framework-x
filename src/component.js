@@ -118,6 +118,10 @@ export const component = (name, mapStateOrConfigBag, renderFn) => {
 
   const { makeSubscribe, subscribe, propsHash, compareProps } = config
 
+  // convert classes to render fns
+  renderFn = (renderFn.prototype.isReactComponent) ?
+             props => React.createElement(renderFn, props) : renderFn
+
   // connected component
   if (makeSubscribe || subscribe) return connectFn(name, config, renderFn)
 
