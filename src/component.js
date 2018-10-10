@@ -67,7 +67,7 @@ const connectFn = (name, config, renderFn) => {
           if (didOwnPropsChange) return makeSubscribe(this._sub.ownProps, this.props, selector)
           return selector
         })()
-        const newExtractedProps = selector(appState)
+        const newExtractedProps = selector(appState, this.props)
         didExtractedPropsChange = !shallowEqual(this._sub.extractedProps, newExtractedProps)
         this._sub.extractedProps = newExtractedProps
       }

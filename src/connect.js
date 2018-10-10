@@ -27,7 +27,7 @@ export class Subscribe extends Component {
     return (
       <Prevent
         dispatch={dispatch}
-        {...selector(appState)}
+        {...selector(appState, otherProps)}
         {...otherProps}
         _children={this._children} />
     )
