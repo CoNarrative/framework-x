@@ -211,7 +211,16 @@ export function createStructuredSelector(selectors, selectorCreator = createSele
   )
 }
 
-export const createSub = createStructuredSelector
+const caseFirst = str => str[0].toLowerCase() + str.substring(1)
+const fromEntries = entries => entries.reduce((acc, [key, value]) => {
+  acc[key] = value
+  return acc
+}, {})
+const mapKeys = (keyMapper, obj) =>
+  fromEntries(Object.entries(obj).map(([key, value]) => [keyMapper(key), value]))
+/* Convert keys in the form 'getFoo' into 'foo' */
+export const createSub = obj => createStructuredSelector(
+  mapKeys(key => key.startsWith('get') ? caseFirst(key.substr(3)) : key, obj))
 
 export const derive = (...args) => {
   if (typeof(args[0]) === 'string') {
