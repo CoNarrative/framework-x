@@ -73,9 +73,9 @@ export const createStore = (initialState, ...middlewares) => {
         const effect = fx[key]
         // console.log(`  effect handler (${key}) for event (${type})`, value)
         if (!effect) throw new Error(`No fx handler for effect "${key}". Try registering a handler using "regFx('${key}', ({ effect }) => ({...some side-effect})"`)
-        // NOTE: no need really to handle result of effect for now - we're not doing anything with promises for instance
+        // NOTE: no need really to handle result of effect for now -
+        // we're not doing anything with promises for instance
         effect(value)
-        // console.log('  after state=', getState())
       })
       notifyMiddlewares(type, args, effects, count)
       count++
@@ -87,13 +87,21 @@ export const createStore = (initialState, ...middlewares) => {
 
   /* All dispatches are drained async */
   const dispatch = (...event) => {
-    eventQueue.push(event)
+    if (event[0] instanceof Array) {
+      eventQueue.push(event[0])
+    } else {
+      eventQueue.push(event)
+    }
     processNextDispatch()
   }
 
   const dispatchAsync = (...event) => {
-    eventQueue.push(event)
-    scheduleDispatchProcessing()
+    if (event[0] instanceof Array) {
+      eventQueue.push(event[0])
+    } else {
+      eventQueue.push(event)
+    }
+    processNextDispatch()
   }
 
   regFx('db', (newStateOrStateFn) => {
@@ -108,14 +116,16 @@ export const createStore = (initialState, ...middlewares) => {
       setState(newStateOrStateFn)
     }
   })
+
+  /* dispatch fx should happen next tick */
   regFx('dispatch', dispatchAsync)
 
   return {
     dispatch,
     getState,
-    setState, //should only be used for testing
+    setState, // for when you want to bypass the eventing
     regEventFx,
     regFx,
-    subscribeToState,
+    subscribeToState
   }
 }
