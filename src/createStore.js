@@ -66,11 +66,11 @@ export const createStore = (initialState, ...middlewares) => {
     eventHandlers.forEach(handler => {
       const coeffects = { db: getState() }
       // console.log(`event handler (${type}-${count})`, 'current db:', coeffects.db, 'args:', args)
-      const effects = handler(coeffects, event)
+      const effects = handler(coeffects, ...event)
       if (!effects) return
       /* Process effects */
       Object.entries(effects).forEach(([key, value]) => {
-        const effect = fx [key]
+        const effect = fx[key]
         // console.log(`  effect handler (${key}) for event (${type})`, value)
         if (!effect) throw new Error(`No fx handler for effect "${key}". Try registering a handler using "regFx('${key}', ({ effect }) => ({...some side-effect})"`)
         // NOTE: no need really to handle result of effect for now - we're not doing anything with promises for instance
@@ -86,12 +86,12 @@ export const createStore = (initialState, ...middlewares) => {
   }
 
   /* All dispatches are drained async */
-  const dispatch = (event) => {
+  const dispatch = (...event) => {
     eventQueue.push(event)
     processNextDispatch()
   }
 
-  const dispatchAsync = (event) => {
+  const dispatchAsync = (...event) => {
     eventQueue.push(event)
     scheduleDispatchProcessing()
   }
