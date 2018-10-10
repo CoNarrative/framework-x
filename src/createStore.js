@@ -101,7 +101,7 @@ export const createStore = (initialState, ...middlewares) => {
     } else {
       eventQueue.push(event)
     }
-    processNextDispatch()
+    scheduleDispatchProcessing()
   }
 
   regFx('db', (newStateOrStateFn) => {
