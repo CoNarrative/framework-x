@@ -10,7 +10,7 @@ const toRegex = memoize(
     const pattern = pathToRegexp(path, keys)
     return {
       pattern,
-      keys,
+      keys
     }
   })
 const compile = memoize(path => pathToRegexp.compile(path))
@@ -34,7 +34,7 @@ const matchAgainstPattern = ({ path }) => uri => {
 /* multi-match */
 const matches = (routes, uri) =>
   routes.map(route => ({ route, params: matchAgainstPattern(route)(uri) }))
-        .filter(({ params }) => params)
+    .filter(({ params }) => params)
 const matchFirst = (routes, uri) => matches(routes, uri)[0] // todo: implement short-circuit
 
 export const createRouter = ({ routes, history, listen }) => {
@@ -56,7 +56,7 @@ export const createRouter = ({ routes, history, listen }) => {
     history[verb]({
       pathname: url,
       search: query ? querystring.stringify(query) : history.location.search,
-      state: history.location.state,
+      state: history.location.state
     })
   }
 
@@ -74,6 +74,6 @@ export const createRouter = ({ routes, history, listen }) => {
       }
       history.listen(respondToHistory)
       respondToHistory(history.location, 'INITIAL')
-    },
+    }
   })
 }

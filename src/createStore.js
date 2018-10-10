@@ -2,7 +2,7 @@
 import React from 'react'
 
 export const createStore = (initialState, ...middlewares) => {
-  if (typeof(initialState) === 'function') {
+  if (typeof (initialState) === 'function') {
     middlewares.unshift(initialState)
     initialState = null
   }
@@ -31,7 +31,7 @@ export const createStore = (initialState, ...middlewares) => {
     },
     get state() {
       return appState
-    },
+    }
   }, {}))
 
   const eventFx = {}
@@ -56,7 +56,8 @@ export const createStore = (initialState, ...middlewares) => {
     dispatchScheduled = false
     if (eventQueue.length === 0) return
     const event = eventQueue.shift()
-    const [type, args] = event
+    const type = event[0]
+    const args = event.slice(1)
     // console.log('H:', type, args)
     /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
     const eventHandlers = eventFx[type]
@@ -65,16 +66,16 @@ export const createStore = (initialState, ...middlewares) => {
     eventHandlers.forEach(handler => {
       const coeffects = { db: getState() }
       // console.log(`event handler (${type}-${count})`, 'current db:', coeffects.db, 'args:', args)
-      const effects = handler(coeffects, type, args)
+      const effects = handler(coeffects, ...event)
       if (!effects) return
       /* Process effects */
       Object.entries(effects).forEach(([key, value]) => {
-        const effect = fx [key]
+        const effect = fx[key]
         // console.log(`  effect handler (${key}) for event (${type})`, value)
         if (!effect) throw new Error(`No fx handler for effect "${key}". Try registering a handler using "regFx('${key}', ({ effect }) => ({...some side-effect})"`)
-        // NOTE: no need really to handle result of effect for now - we're not doing anything with promises for instance
+        // NOTE: no need really to handle result of effect for now -
+        // we're not doing anything with promises for instance
         effect(value)
-        // console.log('  after state=', getState())
       })
       notifyMiddlewares(type, args, effects, count)
       count++
@@ -85,36 +86,47 @@ export const createStore = (initialState, ...middlewares) => {
   }
 
   /* All dispatches are drained async */
-  const dispatch = (type, payload) => {
-    eventQueue.push([type, payload])
+  const dispatch = (...event) => {
+    if (event[0] instanceof Array) {
+      eventQueue.push(event[0])
+    } else {
+      eventQueue.push(event)
+    }
     processNextDispatch()
   }
 
-  const dispatchAsync = (type, payload) => {
-    eventQueue.push([type, payload])
+  const dispatchAsync = (...event) => {
+    if (event[0] instanceof Array) {
+      eventQueue.push(event[0])
+    } else {
+      eventQueue.push(event)
+    }
     scheduleDispatchProcessing()
   }
 
   regFx('db', (newStateOrStateFn) => {
     // console.log('---db-', newStateOrStateFn)
-    if (typeof(newStateOrStateFn) === 'function') {
+    if (typeof (newStateOrStateFn) === 'function') {
       const nextState = newStateOrStateFn(getState())
-      if (typeof(nextState) === 'function')
+      if (typeof (nextState) === 'function') {
         throw new Error('db fx request was a reducer function that returned a function. ' +
                         'If you are using ramda, you probably didn\'t finish currying all the args')
+      }
       setState(newStateOrStateFn(getState()))
     } else {
       setState(newStateOrStateFn)
     }
   })
+
+  /* dispatch fx should happen next tick */
   regFx('dispatch', dispatchAsync)
 
   return {
     dispatch,
     getState,
-    setState, //should only be used for testing
+    setState, // for when you want to bypass the eventing
     regEventFx,
     regFx,
-    subscribeToState,
+    subscribeToState
   }
 }

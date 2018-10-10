@@ -10,16 +10,16 @@ const routes = [{
   action: () => {
     console.log('redirecting to dashboard...')
     return ({ redirect: ['dashboard', { id: '24' }] })
-  },
+  }
 }, {
   id: 'dashboard',
-  path: '/dashboard/:id',
+  path: '/dashboard/:id'
 }]
 
 const history = createHistory()
 const { pushNamedRoute, replaceNamedRoute, listen: startRouter } = createRouter({
   history,
-  routes,
+  routes
 })
 
 regFx('route', args => pushNamedRoute.apply(null, args))
@@ -28,14 +28,14 @@ regFx('redirect', args => replaceNamedRoute.apply(null, args))
 regEventFx('route-change', ({ db }, _, locationAndMatch) => {
   const { match, type } = locationAndMatch
   const effects = (match && match.route.action) ? match.route.action({
-    match,
+    match
   }) : {}
   return ({
     db: {
       ...db,
-      router: locationAndMatch,
+      router: locationAndMatch
     },
-    ...effects,
+    ...effects
   })
 })
 export { startRouter }

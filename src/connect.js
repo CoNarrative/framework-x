@@ -3,7 +3,6 @@
  * uses PureComponent -- but results in deep nesting
  */
 
-
 import React, { Component, PureComponent } from 'react'
 import { Context } from './context'
 
@@ -15,7 +14,7 @@ const getNonChildProps = props => {
 
 class Prevent extends PureComponent {
   render() {
-    const { _children, ...rest } = this.props;
+    const { _children, ...rest } = this.props
     return _children()(rest)
   }
 }
@@ -49,7 +48,7 @@ export const connect = selector => WrappedComponent => {
       {injectedProps => <WrappedComponent {...props} {...injectedProps} />}
     </Subscribe>
   }
-  ConnectedComponent.displayName = `Connect(${WrappedComponent.displayName
-                                              || WrappedComponent.name || '-'})`
+  ConnectedComponent.displayName = `Connect(${WrappedComponent.displayName ||
+                                              WrappedComponent.name || '-'})`
   return ConnectedComponent
 }
