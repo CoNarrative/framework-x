@@ -37,7 +37,7 @@ const matches = (routes, uri) =>
     .filter(({ params }) => params)
 const matchFirst = (routes, uri) => matches(routes, uri)[0] // todo: implement short-circuit
 
-export const createRouter = ({ routes, history, listen }) => {
+export const createRouter = ({ routes, history, basename }) => {
   /* force pre-compile to fail-fast */
   routes.forEach((route) => {
     if (!route) throw new Error('Empty route')
@@ -46,15 +46,15 @@ export const createRouter = ({ routes, history, listen }) => {
     if (!path) throw new Error('Route without a path')
     toRegex(path)
   })
-  let location = {}
 
   const makeRouteMethod = verb => (id, params, query) => {
     const route = routes.find(({ id: tid }) => tid === id)
     if (!route) throw new Error(`No route named "${id}"`)
     const { path } = route
     const url = compile(path)(params)
+    const pathname = basename ? `${basename}${url}` : url
     history[verb]({
-      pathname: url,
+      pathname,
       search: query ? querystring.stringify(query) : history.location.search,
       state: history.location.state
     })
@@ -69,7 +69,14 @@ export const createRouter = ({ routes, history, listen }) => {
     listen(onRouteChanged) {
       if (!onRouteChanged) throw new Error('You must provide a callback for the router.')
       const respondToHistory = (location, type) => {
-        const match = matchFirst(routes, location.pathname)
+        let pathname = location.pathname
+        if (basename) {
+          if (!location.pathname.startsWith(basename)) {
+            return // nothing to do on routes outside of basename
+          }
+          pathname = pathname.substring(basename.length)
+        }
+        const match = matchFirst(routes, pathname)
         onRouteChanged({ location, match: match || { id: 'not-found' }, type })
       }
       history.listen(respondToHistory)
