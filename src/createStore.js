@@ -1,5 +1,4 @@
 // import hoistStatics from 'hoist-non-react-statics'
-import React from 'react'
 
 export const createStore = (initialState, ...middlewares) => {
   if (typeof (initialState) === 'function') {
@@ -35,10 +34,20 @@ export const createStore = (initialState, ...middlewares) => {
   }, {}))
 
   const eventFx = {}
-  const regEventFx = (type, fn) => eventFx[type] = [...eventFx[type] || [], fn]
+  const checkType = (op, type) => {
+    if (typeof (type) !== 'string') throw new Error(`${op} requires a string as the fx key`)
+    if (type.length === 0) throw new Error(`${op} fx key cannot be a zero-length string`)
+  }
+  const regEventFx = (type, fn) => {
+    checkType('regEventFx', type)
+    eventFx[type] = [...eventFx[type] || [], fn]
+  }
 
   const fx = {}
-  const regFx = (type, fn) => fx[type] = fn
+  const regFx = (type, fn) => {
+    checkType('regEventFx', type)
+    fx[type] = fn
+  }
 
   let eventQueue = []
 
@@ -68,8 +77,9 @@ export const createStore = (initialState, ...middlewares) => {
       // console.log(`event handler (${type}-${count})`, 'current db:', coeffects.db, 'args:', args)
       const effects = handler(coeffects, ...event)
       if (!effects) return
+      const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
       /* Process effects */
-      Object.entries(effects).forEach(([key, value]) => {
+      effectsList.forEach(([key, value]) => {
         const effect = fx[key]
         // console.log(`  effect handler (${key}) for event (${type})`, value)
         if (!effect) throw new Error(`No fx handler for effect "${key}". Try registering a handler using "regFx('${key}', ({ effect }) => ({...some side-effect})"`)
@@ -92,6 +102,7 @@ export const createStore = (initialState, ...middlewares) => {
     } else {
       eventQueue.push(event)
     }
+    if (!eventQueue[eventQueue.length - 1][0]) throw new Error('Dispatch requires a valid event key')
     processNextDispatch()
   }
 
@@ -101,6 +112,7 @@ export const createStore = (initialState, ...middlewares) => {
     } else {
       eventQueue.push(event)
     }
+    if (!eventQueue[eventQueue.length - 1][0]) throw new Error('Dispatch requires a valid event key')
     scheduleDispatchProcessing()
   }
 

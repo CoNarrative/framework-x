@@ -12,6 +12,7 @@ export class Provider extends Component {
   constructor(props) {
     super(props)
     const { subscribeToState, dispatch, getState } = this.props
+    if (!subscribeToState || !dispatch || !getState) throw new Error('Must provide subscribeToState, dispatch, and getState')
     this.state = { appState: getState() }
     this.value = {
       appState: this.state.appState,

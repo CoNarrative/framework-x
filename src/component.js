@@ -34,7 +34,7 @@ const connectFn = (name, config, renderFn) => {
       v: 0
     }
 
-    /* FOR DEBUGGING INSTRUMENTATION WE CAN TRACK ACTIVE SUBSCRIPTIONS */
+    /* FOR DEBUGGING INSTRUMENTATION WE TRACK ACTIVE SUBSCRIPTIONS (for now) */
     componentDidMount() {
       if (!debug && !devTools) return
       subs[name] = subs[name] || []
@@ -52,11 +52,13 @@ const connectFn = (name, config, renderFn) => {
 
     /*
      * The render function is called whenever it receives new props or when it receives new
-     * This goes a little counter to normal React in which a sCU checks first before hitting the render function
+     * This goes counter to normal React in which a sCU checks first before hitting the render function
      * There appears to be no problem; but if I'm wrong we may possibly have to handle props changes more efficiently using sCU & cWRP
      */
 
-    innerConsumerRender = ({ appState, dispatch }) => {
+    innerConsumerRender = ({ appState, badMojo, dispatch } = { badMojo: true }) => {
+      if (badMojo) throw new Error('There is nothing in the provider context.')
+      if (!appState) throw new Error('App state was not initialized before rendering component.')
       const didAppStateChange = appState !== this._sub.appState
       let didOwnPropsChange = !shallowEqual(this.props, this._sub.ownProps)
       let didExtractedPropsChange = false
@@ -114,7 +116,7 @@ export const component = (name, mapStateOrConfigBag, renderFn) => {
     skipProps: []
   }, explicitConfig)
 
-  const { makeSubscribe, subscribe, propsHash, compareProps } = config
+  const { makeSubscribe, subscribe } = config
 
   // convert classes to render fns
   renderFn = (renderFn.prototype.isReactComponent)
