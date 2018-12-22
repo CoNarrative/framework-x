@@ -56,8 +56,12 @@ const connectFn = (name, config, renderFn) => {
      * There appears to be no problem; but if I'm wrong we may possibly have to handle props changes more efficiently using sCU & cWRP
      */
 
-    innerConsumerRender = ({ appState, badMojo, dispatch } = { badMojo: true }) => {
-      if (badMojo) throw new Error('There is nothing in the provider context.')
+    innerConsumerRender = (consumerValue) => {
+      if (!consumerValue) {
+        throw new Error(`Framework-x component "${name}" did not receive a store from Provider context`)
+        return null
+      }
+      const { appState, dispatch } = consumerValue
       if (!appState) throw new Error('App state was not initialized before rendering component.')
       const didAppStateChange = appState !== this._sub.appState
       let didOwnPropsChange = !shallowEqual(this.props, this._sub.ownProps)
