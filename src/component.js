@@ -31,7 +31,7 @@ const connectFn = (name, config, renderFn) => {
       extractedProps: null,
       appState: null,
       merged: null,
-      v: 0
+      v: 0,
     }
 
     /* FOR DEBUGGING INSTRUMENTATION WE TRACK ACTIVE SUBSCRIPTIONS (for now) */
@@ -57,9 +57,8 @@ const connectFn = (name, config, renderFn) => {
      */
 
     innerConsumerRender = (consumerValue) => {
-      if (!consumerValue) {
+      if (consumerValue == null) {
         throw new Error(`Framework-x component "${name}" did not receive a store from Provider context`)
-        return null
       }
       const { appState, dispatch } = consumerValue
       if (!appState) throw new Error('App state was not initialized before rendering component.')
@@ -88,7 +87,7 @@ const connectFn = (name, config, renderFn) => {
         version: this._sub.v,
         didChange: didOwnPropsChange || didExtractedPropsChange,
         didOwnPropsChange,
-        didExtractedPropsChange
+        didExtractedPropsChange,
       })
       return <SyntheticComponentBasedOnRenderFunction {...this._sub.merged} />
     }
@@ -112,19 +111,19 @@ export const component = (name, mapStateOrConfigBag, renderFn) => {
     throw new Error('This component wrapper is for pure functional components only.')
   }
   const explicitConfig = typeof (mapStateOrConfigBag) === 'function'
-    ? { subscribe: mapStateOrConfigBag }
-    : mapStateOrConfigBag
+                         ? { subscribe: mapStateOrConfigBag }
+                         : mapStateOrConfigBag
 
   // apply defaults
   const config = Object.assign({}, {
-    skipProps: []
+    skipProps: [],
   }, explicitConfig)
 
   const { makeSubscribe, subscribe } = config
 
   // convert classes to render fns
   renderFn = (renderFn.prototype.isReactComponent)
-    ? props => React.createElement(renderFn, props) : renderFn
+             ? props => React.createElement(renderFn, props) : renderFn
 
   // connected component
   if (makeSubscribe || subscribe) return connectFn(name, config, renderFn)
