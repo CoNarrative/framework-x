@@ -15,9 +15,20 @@ export const createStore = (initialState, ...middlewares) => {
 
   /* State is synchronous */
   const getState = () => (appState)
-  const setState = (state) => {
-    appState = state
-    stateListeners.forEach(fn => fn(state))
+  const nextState = (newStateOrReducer) => {
+    if (typeof (newStateOrReducer) === 'function') {
+      const myNextState = newStateOrReducer(getState())
+      if (typeof (myNextState) === 'function') {
+        throw new Error('db fx request was a reducer function that returned a function. ' +
+                        'If you are using ramda, you probably didn\'t finish currying all the args')
+      }
+      return myNextState
+    }
+    return newStateOrReducer
+  }
+  const setState = (newStateOrReducer) => {
+    appState = nextState(newStateOrReducer)
+    stateListeners.forEach(fn => fn(appState))
   }
 
   /* Hacked a bit to support redux devtools -- the only middleware we care about right now */
@@ -116,19 +127,7 @@ export const createStore = (initialState, ...middlewares) => {
     scheduleDispatchProcessing()
   }
 
-  regFx('db', (newStateOrStateFn) => {
-    // console.log('---db-', newStateOrStateFn)
-    if (typeof (newStateOrStateFn) === 'function') {
-      const nextState = newStateOrStateFn(getState())
-      if (typeof (nextState) === 'function') {
-        throw new Error('db fx request was a reducer function that returned a function. ' +
-                        'If you are using ramda, you probably didn\'t finish currying all the args')
-      }
-      setState(newStateOrStateFn(getState()))
-    } else {
-      setState(newStateOrStateFn)
-    }
-  })
+  regFx('db', setState)
 
   /* dispatch fx should happen next tick */
   regFx('dispatch', dispatchAsync)
