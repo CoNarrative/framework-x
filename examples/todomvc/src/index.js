@@ -1,11 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import './index.css'
-import App, { INITIALIZE_DB } from './App'
+import App, {evt} from './App'
 import { Provider } from 'framework-x'
 import { getState, dispatch, subscribeToState } from './store'
 
-dispatch([INITIALIZE_DB])
+dispatch([evt.INITIALIZE_DB])
 
 ReactDOM.render(
   <Provider

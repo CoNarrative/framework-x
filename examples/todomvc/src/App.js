@@ -1,112 +1,159 @@
 import React from 'react'
+import * as R from 'ramda'
 import { component, createSub, derive } from 'framework-x'
 import { dispatch, regEventFx } from './store'
 
-const visibilityFilter = db => db.visibilityFilter
+const getVisibilityFilter = R.path(['visibilityFilter'])
+const getAllTodos = R.path(['todos'])
+const getNewTodoText = R.path(['newTodoText'])
 
-const allTodos = db => db.todos
+const updateIn = R.curry((ks, f, m) => R.assocPath(ks, f(R.path(ks, m)), m))
 
 const visibleTodos = derive(
-  [visibilityFilter, allTodos],
+  [getVisibilityFilter, getAllTodos],
   (filter, todos) => {
     switch (filter) {
-      case 'done':
-        return todos.filter(todo => todo.done)
-      case 'not done':
-        return todos.filter(todo => !todo.done)
+      case visibilityFilter.DONE:
+        return R.filter(R.prop('done'), todos)
+      case visibilityFilter.NOT_DONE:
+        return R.reject(R.prop('done'), todos)
+      case visibilityFilter.ALL:
+        return todos
       default:
+        console.error('unhandled visibility filter', filter)
         return todos
     }
   })
 
-export const INITIALIZE_DB = 'initialize-db'
-const SET_TODO_TEXT = 'set-todo-text'
-const CHANGE_FILTER = 'change-filter'
-const ADD_TODO = 'add-todo'
-const MARK_DONE = 'mark-done'
+export const evt = {
+  INITIALIZE_DB: 'initialize-db',
+  SET_TODO_TEXT: 'set-todo-text',
+  CHANGE_FILTER: 'change-filter',
+  ADD_TODO: 'add-todo',
+  TOGGLE_DONE: 'toggle-done',
+}
 
-regEventFx(INITIALIZE_DB, ({ db }, _) => ({
-  db: { todos: [], visibilityFilter: 'all', newTodoText: '' }
+export const visibilityFilter = {
+  ALL: 'all',
+  DONE: 'done',
+  NOT_DONE: 'not-done'
+}
+
+
+regEventFx(evt.INITIALIZE_DB, ({ db }, _) => ({
+  db: {
+    todos: [],
+    visibilityFilter: visibilityFilter.ALL,
+    newTodoText: ''
+  }
 }))
 
-regEventFx(SET_TODO_TEXT, ({ db }, _, value) => ({
-  db: Object.assign({}, db, { newTodoText: value })
+regEventFx(evt.SET_TODO_TEXT, ({ db }, _, value) => ({
+  db: R.assoc('newTodoText', value),
 }))
 
-regEventFx(CHANGE_FILTER, ({ db }, _, value) => ({
-  db: Object.assign({}, db, { visibilityFilter: value })
+regEventFx(evt.CHANGE_FILTER, ({ db }, _, value) => ({
+  db: R.assoc('visibilityFilter', value)
 }))
 
-regEventFx(ADD_TODO, ({ db }, _) => ({
-  db: Object.assign({}, db, {
-    todos: db.todos.concat({ text: db.newTodoText, done: false })
-  }),
-  dispatch: [SET_TODO_TEXT, '']
+regEventFx(evt.ADD_TODO, ({ db }) => ({
+  db: updateIn(['todos'],
+    R.append({
+      text: getNewTodoText(db),
+      done: false
+    })),
+  dispatch: [evt.SET_TODO_TEXT, '']
 }))
 
-regEventFx(MARK_DONE, ({ db }, _, doneText) => ({
-  db: Object.assign({}, db, {
-    todos: db.todos.map(todo => todo.text === doneText
-      ? Object.assign({}, todo, { done: true })
-      : todo)
-  })
+regEventFx(evt.TOGGLE_DONE, ({ db }, _, doneText) => ({
+  db: updateIn(
+    ['todos'],
+    R.map(todo =>
+      todo.text === doneText
+      ? updateIn(['done'], R.not, todo)
+      : todo))
+
 }))
 
-const EnterTodo = component('EnterTodo', db => ({ text: db.newTodoText }), ({ text }) =>
-  <div>
-    <input
-      value={text || ''}
-      onChange={e => dispatch([SET_TODO_TEXT, e.target.value])}
-      onKeyDown={e => e.which === 13 && dispatch([ADD_TODO])}
-    />
-    <button onClick={() => dispatch([ADD_TODO])}>
-      Add todo
-    </button>
-  </div>
+const EnterTodo = component('EnterTodo',
+  createSub({ text: getNewTodoText }),
+  ({ text }) =>
+    <div>
+      <input
+        value={text || ''}
+        onChange={e => dispatch(evt.SET_TODO_TEXT, e.target.value)}
+        onKeyDown={e => e.which === 13 && dispatch([evt.ADD_TODO])}
+      />
+      <button onClick={() => dispatch(evt.ADD_TODO)}>
+        Add todo
+      </button>
+    </div>
 )
 
-const App = component('App', createSub({
-  todos: visibleTodos
-}), ({ todos }) => (
-  <div style={{ height: '100vh' }}>
-    <EnterTodo />
-
+const Todos = component('Todos',
+  createSub({
+    todos: visibleTodos
+  }),
+  ({ todos }) =>
     <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {todos && todos.map((todo, i) =>
+      {todos && todos.map(({ text, done }, i) =>
         <div
           key={i}
           style={{ display: 'flex' }}>
-          {todo.done
-            ? <strike>{todo.text}</strike>
-            : <div>{todo.text}</div>}
-          <button onClick={() => dispatch(MARK_DONE, todo.text)}>Mark done</button>
+          {done
+           ? <strike>{text}</strike>
+           : <div>{text}</div>}
+          <button onClick={() => dispatch(evt.TOGGLE_DONE, text)}>
+            Toggle done
+          </button>
         </div>
       )}
     </div>
+)
 
-    <FilterControls />
-
+const App = () => (
+  <div style={{ height: '100vh' }}>
+    <EnterTodo />
+    <Todos />
+    <VisibilityFilters />
   </div>
 )
-)
 
-const FilterControls = component('FilterControls',
-  db => ({ visibilityFilter: db.visibilityFilter }),
-  ({ visibilityFilter }) =>
+const visibilityFilters = [
+  {
+    id: visibilityFilter.DONE,
+    label: 'Show done',
+    event: [evt.CHANGE_FILTER, visibilityFilter.DONE]
+  },
+  {
+    id: visibilityFilter.NOT_DONE,
+    label: 'Show not done',
+    event: [evt.CHANGE_FILTER, visibilityFilter.NOT_DONE]
+  },
+  {
+    id: visibilityFilter.ALL,
+    label: 'Show all',
+    event: [evt.CHANGE_FILTER, visibilityFilter.ALL]
+  }
+]
+
+const visibilityButtonStyle = (isSelected) =>
+  isSelected
+  ? { background: 'green', color: 'white' }
+  : {}
+
+const VisibilityFilters = component('VisibilityFilters',
+  createSub({ selectedFilter: getVisibilityFilter }),
+  ({ selectedFilter }) =>
     <div>
-      {[{ key: 'done', text: 'Show done', event: [CHANGE_FILTER, 'done'] },
-        { key: 'not done', text: 'Show not done', event: [CHANGE_FILTER, 'not done'] },
-        { key: 'all', text: 'Show all', event: [CHANGE_FILTER, 'all'] }]
-        .map(({ text, event, key }) =>
-          <button
-            key={key}
-            style={visibilityFilter === key
-              ? { background: 'green', color: 'white' }
-              : {}}
-            onClick={() => dispatch(...event)}>
-            {text}
-          </button>
-        )}
+      {visibilityFilters.map(({ id, label, event }, i) =>
+        <button
+          key={i}
+          style={visibilityButtonStyle(id === selectedFilter)}
+          onClick={() => dispatch(event)}>
+          {label}
+        </button>
+      )}
     </div>
 )
 
