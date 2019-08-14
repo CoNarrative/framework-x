@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "framework-x": "^0.1.44",
+    "history": "^4.9.0",
     "ramda": "^0.25.0",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",

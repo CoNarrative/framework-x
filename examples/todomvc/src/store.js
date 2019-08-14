@@ -1,10 +1,13 @@
 import { createStore, devtools } from 'framework-x'
 
-const prod = process.env.NODE_ENV === 'production'
+
+export const store = createStore(process.env.NODE_ENV !== 'production' && devtools())
 
 export const {
   dispatch,
   getState,
+  setState,
   subscribeToState,
-  regEventFx
-} = createStore(!prod && devtools())
+  regFx,
+  regEventFx,
+} = store

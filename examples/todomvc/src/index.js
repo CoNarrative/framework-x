@@ -1,17 +1,31 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import './index.css'
-import App, {evt} from './App'
+import { App } from './App'
 import { Provider } from 'framework-x'
-import { getState, dispatch, subscribeToState } from './store'
+import { visibilityFilter } from './constants'
+import { evt } from './eventTypes'
+import { startRouter } from './router'
+import { getState, setState, dispatch, subscribeToState, store } from './store'
+import './events'
 
-dispatch([evt.INITIALIZE_DB])
+dispatch(evt.INITIALIZE_DB, {
+  todos: [],
+  visibilityFilter: visibilityFilter.ALL,
+  newTodoText: ''
+})
+startRouter()
 
 ReactDOM.render(
   <Provider
     getState={getState}
+    setState={setState}
     dispatch={dispatch}
     subscribeToState={subscribeToState}>
     <App />
   </Provider>,
   document.getElementById('root'))
+
+if (process.env !== 'production') {
+  window._store = store
+}
