@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "framework-x": "^0.1.44",
+    "framework-x": "^0.1.45",
     "history": "^4.9.0",
     "ramda": "^0.25.0",
     "react": "^16.3.2",

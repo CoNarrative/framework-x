@@ -2826,10 +2826,10 @@ fragment-cache@^0.2.1:
   dependencies:
     map-cache "^0.2.2"
 
-framework-x@^0.1.44:
-  version "0.1.44"
-  resolved "https://registry.yarnpkg.com/framework-x/-/framework-x-0.1.44.tgz#8cd755bdd892e07539ed64bcd2814d0d43d96287"
-  integrity sha512-4avY2ZWzvOUtjRwCoxt73ETJlMrTwxHWjPLrBx3f9Cqf/IpcDrxYFITkHiVfhSG0FJy6pU5B4cZxCHTJULuhPQ==
+framework-x@^0.1.45:
+  version "0.1.45"
+  resolved "https://registry.yarnpkg.com/framework-x/-/framework-x-0.1.45.tgz#4fb4b00d5264d0a15c4e350735739615a312bd5b"
+  integrity sha512-MaG/DeOCrEH4mx6QRqJS9FWYxXlICFzVeb3nqiroqoC1Hxk0p3zdBL4DM1ZKIXeNH8HV4Y5UzpWcdhUGjBG2Qg==
   dependencies:
     path-to-regexp "^2.2.1"
     prop-types "^15.6.1"

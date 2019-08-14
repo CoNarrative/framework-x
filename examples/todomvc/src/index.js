@@ -12,7 +12,8 @@ import './events'
 dispatch(evt.INITIALIZE_DB, {
   todos: [],
   visibilityFilter: visibilityFilter.ALL,
-  newTodoText: ''
+  newTodoText: '',
+  notifications: []
 })
 startRouter()
 

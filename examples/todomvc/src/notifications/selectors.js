@@ -1,8 +1,11 @@
-import { derive } from 'framework-x'
+import { derive, makeGetSet } from 'framework-x'
 import * as R from 'ramda'
 
-export const getNotificationsList  = R.path(['notifications'])
+const makeGetSet = (path, defaultValue = null) =>
+  [R.pathOr(defaultValue, path), R.assocPath(path)]
 
-export const getNotifications  = derive(
+export const [getNotificationsList, setNotificationsList] = makeGetSet(['notifications'])
+
+export const getNotifications = derive(
   [getNotificationsList],
   R.indexBy(R.prop('id')))

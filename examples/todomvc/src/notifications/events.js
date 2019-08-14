@@ -1,35 +1,34 @@
 import * as R from 'ramda'
 import { evt } from '../eventTypes'
-import { fx } from '../fx'
 import { dispatch, regEventFx } from '../store'
+import { updateIn } from '../util'
 
-regEventFx(evt.SHOW_NOTIFICATION, ({ db }, _, { id, type, message, duration = 3500 }) => {
+
+regEventFx(evt.SHOW_NOTIFICATION, ({ db }, _, { id, type, message, duration = 900 }) => {
   const timeout = duration
                   ? setTimeout(() => dispatch(evt.HIDE_NOTIFICATION, { id }), duration)
                   : null
 
   return {
-    db: R.assocPath(['notifications', id], { id, type, message, timeout })
+    db: updateIn(['notifications'], R.append({
+      id,
+      type,
+      message,
+      timeout
+    }))
   }
 })
 
 regEventFx(evt.HIDE_NOTIFICATION, ({ db }, _, { id }) => {
-  const alert = R.path(['notifications', id], db)
+  const notification = R.find(R.propEq('id', id), getNotifications(db))
 
-  if (!alert) {
+  if (!notification) {
     return
   }
 
-  clearTimeout(alert.timeout)
+  clearTimeout(notification.timeout)
 
-  return [
-    fx.db(R.dissocPath(['notifications', id]))
-  ]
+  return {
+    db: updateIn(['notifications'], R.reject(R.propEq('id', id)))
+  }
 })
-
-
-const makeGetSet = (path,defaultValue=null)=>
-  R.juxt([
-    R.pathOr(defaultValue,path),
-    R.assocPath(path)
-  ])
