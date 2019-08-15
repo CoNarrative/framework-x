@@ -33,7 +33,7 @@ const routeForFilter = (filterName) => {
 
     default:
       console.error('unhandled filter', filterName)
-      return { id: routeIds.ALL_TODOS }
+      return [routeIds.ALL_TODOS]
   }
 }
 
