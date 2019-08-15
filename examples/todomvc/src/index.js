@@ -16,6 +16,9 @@ dispatch(evt.INITIALIZE_DB, {
   notifications: []
 })
 startRouter()
+if (process.env !== 'production') {
+  window._store = store
+}
 
 ReactDOM.render(
   <Provider
@@ -27,6 +30,4 @@ ReactDOM.render(
   </Provider>,
   document.getElementById('root'))
 
-if (process.env !== 'production') {
-  window._store = store
-}
+

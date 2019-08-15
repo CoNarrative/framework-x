@@ -2,6 +2,7 @@ import * as R from 'ramda'
 import { evt } from '../eventTypes'
 import { dispatch, regEventFx } from '../store'
 import { updateIn } from '../util'
+import { getNotificationsMap } from './selectors'
 
 
 regEventFx(evt.SHOW_NOTIFICATION, ({ db }, _, { id, type, message, duration = 900 }) => {
@@ -20,7 +21,7 @@ regEventFx(evt.SHOW_NOTIFICATION, ({ db }, _, { id, type, message, duration = 90
 })
 
 regEventFx(evt.HIDE_NOTIFICATION, ({ db }, _, { id }) => {
-  const notification = R.find(R.propEq('id', id), getNotifications(db))
+  const notification = R.prop(id, getNotificationsMap(db))
 
   if (!notification) {
     return
