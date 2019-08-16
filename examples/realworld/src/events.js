@@ -1,0 +1,6 @@
+import './api'
+import './articles/events'
+import './auth/events'
+import './generalEvents'
+import './tags/events'
+import './router'

@@ -77,7 +77,9 @@ export const createRouter = ({ routes, history, basename }) => {
           pathname = pathname.substring(basename.length)
         }
         const match = matchFirst(routes, pathname)
-        onRouteChanged({ location, match: match || { id: 'not-found' }, type })
+        onRouteChanged({ location, match: match || { id: 'not-found' }, type,
+          search: querystring.parse(location.search)
+        })
       }
       history.listen(respondToHistory)
       respondToHistory(history.location, 'INITIAL')
