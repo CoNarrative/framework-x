@@ -1,15 +1,15 @@
+import React from 'react'
 import { component, createSub } from 'framework-x'
 import { routeIds } from './routes'
 import { getRouteId } from './routes/selectors'
 import { Header } from './components/Header'
-import React from 'react'
 import Article from './components/Article'
 import Editor from './components/Editor'
 import { Home } from './components/Home'
-import {Login} from './auth/Login'
+import { Login } from './auth/Login'
 import ProfileFavorites from './components/ProfileFavorites'
-import Register from './components/Register'
-import Settings from './components/Settings'
+import { Register } from './auth/Register'
+import { Settings } from './components/Settings'
 
 
 export const App = component('App', createSub({ getRouteId }), ({ routeId }) =>

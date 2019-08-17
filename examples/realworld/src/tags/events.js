@@ -6,21 +6,20 @@ import { regEventFx } from '../store'
 
 
 api.regResultFx(evt.GET_TAGS,
-  (_, __, { tags }) => {
+  (_, __, { json: { tags } }) => {
     return { db: R.mergeLeft({ tags }) }
   }, (_, __, res) => {
     console.log('error getting tags', res)
   })
 
-regEventFx(evt.APPLY_TAG_FILTER, (_, __, tag) => {
+regEventFx(evt.APPLY_TAG_FILTER, ({ db }, __, tag) => {
   return [
-    fx.db(R.assocPath(['articleFilters', 'selectedTag'], tag)),
-    fx.dispatch(evt.API_REQUEST, [evt.APPLY_TAG_FILTER, api.articles.byTag(tag, 0)])
+    fx.dispatch(evt.API_REQUEST, [evt.APPLY_TAG_FILTER, api.articles.byTag(tag, 0)]),
   ]
 })
 
 api.regResultFx(evt.APPLY_TAG_FILTER,
-  (_, __, { articles }) => {
+  (_, __, { json: { articles } }) => {
     return [fx.db(R.mergeLeft({ articles }))]
   }, (_, __, e) => {
     console.error('error applying tags', e)

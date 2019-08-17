@@ -1,7 +1,7 @@
 import React from 'react'
 import { isLoggedIn } from '../../auth/selectors'
 import { Banner } from './Banner'
-import MainView from './MainView'
+import { MainView } from './MainView'
 import { Tags } from '../../tags/views'
 
 

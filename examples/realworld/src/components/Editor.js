@@ -1,4 +1,4 @@
-import ListErrors from './ListErrors';
+import {ListErrors} from './ListErrors';
 import React from 'react';
 import agent from '../agent';
 import { connect } from 'react-redux';

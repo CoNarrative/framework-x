@@ -1,26 +1,11 @@
-import React from 'react';
+import React from 'react'
+import * as R from 'ramda'
 
-class ListErrors extends React.Component {
-  render() {
-    const errors = this.props.errors;
-    if (errors) {
-      return (
-        <ul className="error-messages">
-          {
-            Object.keys(errors).map(key => {
-              return (
-                <li key={key}>
-                  {key} {errors[key]}
-                </li>
-              );
-            })
-          }
-        </ul>
-      );
-    } else {
-      return null;
-    }
-  }
-}
-
-export default ListErrors;
+export const ListErrors = ({ errors }) =>
+  <ul className="error-messages">
+    {Object.entries(errors).map(([k, v]) =>
+      <li key={k}>
+        {k} {R.head(v)}
+      </li>
+    )}
+  </ul>

@@ -1,15 +1,21 @@
-import * as R from 'ramda'
 import { derive } from 'framework-x'
-import { getRouteQuery } from '../routes/selectors'
+import * as R from 'ramda'
+import { ARTICLES_PER_PAGE, tabNames } from '../constants'
+import { getUser } from '../user/selectors'
 
-const ARTICLES_PER_PAGE = 10
+
 export const getArticles = R.path(['articles'])
+
 export const getArticlesCount = R.path(['articlesCount'])
-// shouldn't this be in the route?
-export const getArticleFilters = R.pathOr({}, ['articleFilters'])
+
 export const getPageNumbers = derive([getArticlesCount],
-  articlesCount => R.range(0, Math.ceil(articlesCount / ARTICLES_PER_PAGE)))
+  articlesCount => R.range(1, R.inc(Math.ceil(articlesCount / ARTICLES_PER_PAGE))))
 
+const getSelectedTabBase = R.path(['selectedTab'])
 
-export const getCurrentPageIndex = derive([getRouteQuery], query =>
-  Math.ceil(R.propOr(0, 'offset', query) / ARTICLES_PER_PAGE))
+export const getSelectedTab = derive([getUser, getSelectedTabBase],
+  (user, selectedTab) => selectedTab || (user ? tabNames.FEED : tabNames.ALL))
+
+export const getArticleFilters = R.path(['articleFilters'])
+
+export const getPage = derive([getArticleFilters], R.propOr(1, 'page'))

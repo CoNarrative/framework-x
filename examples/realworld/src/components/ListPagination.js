@@ -2,42 +2,33 @@ import * as R from 'ramda'
 import { component, createSub } from 'framework-x'
 import React from 'react'
 import {
-  getArticlesCount,
-  getCurrentPageIndex,
+  getArticleFilters,
+  getPage,
   getPageNumbers
 } from '../articles/selectors'
-import { SET_PAGE } from '../constants/actionTypes'
 import { evt } from '../eventTypes'
-import * as api from '../api'
-import { getRouteId, getRouteQuery } from '../routes/selectors'
 import { dispatch } from '../store'
-import { Link } from './Link'
 
-const ARTICLES_PER_PAGE = 10
 
 export const ListPagination = component('ListPagination',
-  createSub({ getPageNumbers, getCurrentPageIndex, getRouteId, getRouteQuery }),
-  ({ pageNumbers, currentPageIndex, routeId, routeQuery }) => {
-    console.log('cpi',currentPageIndex)
-    if (R.isEmpty(pageNumbers)) {
-      return null
-    }
-    return (
+  createSub({ getPageNumbers, getPage, getArticleFilters }),
+  ({ pageNumbers, page, articleFilters }) => {
+    return R.isEmpty(pageNumbers) ? null : (
       <nav>
         <ul className="pagination">
           {pageNumbers.map(n => {
-            const isCurrent = n === currentPageIndex
+            const isCurrent = n === page
             return (
               <li key={n} className={isCurrent ? 'page-item active' : 'page-item'}>
-                <Link className="page-link"
-                      to={[routeId, {}, R.assoc('offset', n * ARTICLES_PER_PAGE, routeQuery)]}
+                <div className="page-link"
+                     onClick={() => dispatch([evt.UPDATE_ARTICLE_FILTERS, R.assoc('page', n, articleFilters)])}
                 >
-                  {n + 1}
-                </Link>
+                  {n}
+                </div>
               </li>
             )
           })}
-      </ul>
+        </ul>
       </nav>
     )
   })

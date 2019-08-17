@@ -1,24 +1,42 @@
 import React from 'react'
+import { FormInput } from '../components/FormInput'
+import { changeAuthKey } from './events'
 import {
   getEmail,
   getIsAuthLoading,
-  getLoginErrors,
+  getAuthErrors,
   getPassword,
 } from './selectors'
 import { evt } from '../eventTypes'
 import { routeIds } from '../routes'
 import { Link } from '../components/Link'
-import ListErrors from '../components/ListErrors'
+import { ListErrors } from '../components/ListErrors'
 import { dispatch } from '../store'
 import { component, createSub } from 'framework-x'
 
+const requestLogin = ({ email, password }) =>
+  dispatch(evt.USER_REQUESTS_LOGIN, { email, password })
+
+const inputs = ({ email, password, }) => [{
+  type:'email',
+  placeholder: 'Email',
+  value: email,
+  onKeyDown: e => e.which === 13 && requestLogin({  email, password }),
+  onChange: changeAuthKey('email')
+}, {
+  type: 'password',
+  placeholder: 'Password',
+  value: password,
+  onKeyDown: e => e.which === 13 && requestLogin({  email, password }),
+  onChange: changeAuthKey('password')
+}]
 
 export const Login = component('Login', createSub({
     getEmail,
     getPassword,
-    getIsAuthLoading,
-    getLoginErrors
-  }), ({ email, password, isAuthLoading: isRequestInFlight, loginErrors: errors }) => {
+    isRequestInFlight:getIsAuthLoading,
+    errors: getAuthErrors
+  }), ({ email, password, isRequestInFlight, errors }) => {
     return (
       <div className="auth-page">
         <div className="container page">
@@ -32,34 +50,17 @@ export const Login = component('Login', createSub({
                 </Link>
               </p>
 
-              <ListErrors errors={errors} />
+              {errors && <ListErrors errors={errors} />}
 
-              <form onSubmit={() => dispatch(evt.USER_REQUESTS_LOGIN, { email, password })}>
+              <form>
                 <fieldset>
-
-                  <fieldset className="form-group">
-                    <input
-                      className="form-control form-control-lg"
-                      type="email"
-                      placeholder="Email"
-                      value={email}
-                      onChange={
-                        e => dispatch(evt.SET_KV, ['auth', 'email'], e.target.value)} />
-                  </fieldset>
-
-                  <fieldset className="form-group">
-                    <input
-                      className="form-control form-control-lg"
-                      type="password"
-                      placeholder="Password"
-                      value={password}
-                      onChange={
-                        e => dispatch(evt.SET_KV, ['auth', 'password'], e.target.value)} />
-                  </fieldset>
+                  {inputs({email,password}).map((props,i)=>
+                  <FormInput key={i}{...props}/>)}
 
                   <button
                     className="btn btn-lg btn-primary pull-xs-right"
-                    type="submit"
+                    type="button"
+                    onClick={() => requestLogin({ email, password })}
                     disabled={isRequestInFlight}>
                     Sign in
                   </button>

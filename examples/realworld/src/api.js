@@ -1,16 +1,20 @@
+import * as queryString from 'query-string'
 import * as R from 'ramda'
 import { getToken } from './auth/selectors'
+import { ARTICLES_PER_PAGE } from './constants'
 import { fx } from './fx'
 import { regEventFx } from './store'
 import { evt } from './eventTypes'
 
 const API_ROOT = 'https://conduit.productionready.io/api'
 
-export const apiRequest = (method, endpoint, body) => ({
-  method,
-  url: `${API_ROOT}${endpoint}`,
-  ...body,
-})
+export const apiRequest = (method, endpoint, body) => {
+  const base = { method, url: `${API_ROOT}${endpoint}` }
+  return body ? R.merge({
+    body: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json' }
+  }, base) : base
+}
 
 export const success = eventName => `${eventName}-success`
 export const failure = eventName => `${eventName}-failure`
@@ -22,14 +26,11 @@ export const regResultFx = (eventName, successBranch, failureBranch,
 }
 
 regEventFx(evt.API_REQUEST, (_, __, foo) => {
-  console.log('FOO',foo)
   const [eventName, [method, endpoint, body]] = foo
-  console.log('fuuu', eventName,method,endpoint,body)
   const token = getToken()
   const req = apiRequest(method, endpoint, body)
   return [
-    fx.fetch(token ? R.assocPath(['headers', 'authorization'], ` Token ${token}`, req)
-                   : req,
+    fx.fetch(token ? R.assocPath(['headers', 'authorization'], ` Token ${token}`, req) : req,
       success(eventName),
       failure(eventName)
     )
@@ -38,10 +39,9 @@ regEventFx(evt.API_REQUEST, (_, __, foo) => {
 
 export const auth = {
   current: () => ['GET', '/user'],
-  login: (email, password) => ['post', '/users/login', { user: { email, password } }],
+  login: (email, password) => ['POST', '/users/login', { user: { email, password } }],
   register: (username, email, password) =>
     ['POST', '/users', { user: { username, email, password } }],
-  save: user => ['PUT', '/user', { user }]
 }
 
 export const tags = {
@@ -49,9 +49,15 @@ export const tags = {
 }
 
 const limit = (count, p) => `limit=${count}&offset=${p ? p * count : 0}`
-
+const articleQuery = ({ page, tag, author, limit = ARTICLES_PER_PAGE }) => {
+  const offset = page * limit
+  return "?"+queryString.stringify(R.merge( { author, page, tag, limit, },
+    offset ? { offset } : {offset:0}))
+}
 export const articles = {
-  all: page => ['GET', `/articles?${limit(10, page)}`],
+  matching: ({ page, tag, author, limit }) =>
+    ['GET', '/articles' + articleQuery({ page, tag, author, limit })],
+  all: page => ['GET', `/articles?${limit(ARTICLES_PER_PAGE, page)}`],
   byAuthor: (author, page) => ['GET', `/articles?author=${encodeURIComponent(author)}&${limit(5, page)}`],
   byTag: (tag, page) => ['GET', `/articles?tag=${encodeURIComponent(tag)}&${limit(10, page)}`],
   del: slug => ['DELETE', `/articles/${slug}`],
@@ -73,5 +79,6 @@ export const comments = {
 export const profile = {
   follow: username => ['POST', `/profiles/${username}/follow`],
   get: username => ['GET', `/profiles/${username}`],
-  unfollow: username => ['DELETE', `/profiles/${username}/follow`]
+  unfollow: username => ['DELETE', `/profiles/${username}/follow`],
+  save: user => ['PUT', '/user', { user }]
 }

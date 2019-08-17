@@ -1,96 +1,59 @@
-import {ArticleList} from '../ArticleList';
-import React from 'react';
-import agent from '../../agent';
-import { CHANGE_TAB } from '../../constants/actionTypes';
+import React from 'react'
+import { component, createSub } from 'framework-x'
+import { getSelectedTab } from '../../articles/selectors'
+import { tabNames } from '../../constants'
+import { evt } from '../../eventTypes'
+import { getSelectedTag } from '../../tags/selectors'
+import { getUser } from '../../user/selectors'
+import { ArticleList } from '../ArticleList'
+import { dispatch } from '../../store'
 
-const YourFeedTab = props => {
-  if (props.token) {
-    const clickHandler = ev => {
-      ev.preventDefault();
-      props.onTabClick('feed', agent.Articles.feed, agent.Articles.feed());
-    }
 
-    return (
-      <li className="nav-item">
-        <a  href=""
-            className={ props.tab === 'feed' ? 'nav-link active' : 'nav-link' }
-            onClick={clickHandler}>
-          Your Feed
-        </a>
-      </li>
-    );
-  }
-  return null;
-};
+const YourFeedTab = ({ isSelected }) =>
+  <li className="nav-item">
+    <a href=""
+       className={isSelected ? 'nav-link active' : 'nav-link'}
+       onClick={e => {
+         e.preventDefault()
+         dispatch(evt.CHANGE_TAB, tabNames.FEED)
+       }}>
+      Your Feed
+    </a>
+  </li>
 
-const GlobalFeedTab = props => {
-  const clickHandler = ev => {
-    ev.preventDefault();
-    props.onTabClick('all', agent.Articles.all, agent.Articles.all());
-  };
-  return (
-    <li className="nav-item">
-      <a
-        href=""
-        className={ props.tab === 'all' ? 'nav-link active' : 'nav-link' }
-        onClick={clickHandler}>
-        Global Feed
-      </a>
-    </li>
-  );
-};
+const GlobalFeedTab = ({ isSelected }) =>
+  <li className="nav-item">
+    <a className={isSelected ? 'nav-link active' : 'nav-link'}
+       onClick={e => {
+         e.preventDefault()
+         dispatch(evt.CHANGE_TAB, tabNames.ALL)
+       }}>
+      Global Feed
+    </a>
+  </li>
 
-const TagFilterTab = props => {
-  if (!props.tag) {
-    return null;
-  }
+const TagFilterTab = ({ tag }) =>
+  <li className="nav-item">
+    <a href="" className="nav-link active">
+      <i className="ion-pound" /> {tag}
+    </a>
+  </li>
 
-  return (
-    <li className="nav-item">
-      <a href="" className="nav-link active">
-        <i className="ion-pound"></i> {props.tag}
-      </a>
-    </li>
-  );
-};
-
-const mapStateToProps = state => ({
-  ...state.articleList,
-  tags: state.home.tags,
-  token: state.common.token
-});
-
-const mapDispatchToProps = dispatch => ({
-  onTabClick: (tab, pager, payload) => dispatch({ type: CHANGE_TAB, tab, pager, payload })
-});
-
-const MainView = props => {
+export const MainView = component('MainView', createSub({
+  getUser,
+  getSelectedTab,
+  getSelectedTag
+}), ({ user, selectedTag, selectedTab }) => {
   return (
     <div className="col-md-9">
       <div className="feed-toggle">
         <ul className="nav nav-pills outline-active">
-
-          <YourFeedTab
-            token={props.token}
-            tab={props.tab}
-            onTabClick={props.onTabClick} />
-
-          <GlobalFeedTab tab={props.tab} onTabClick={props.onTabClick} />
-
-          <TagFilterTab tag={props.tag} />
-
+          {user && <YourFeedTab isSelected={selectedTab === tabNames.FEED} />}
+          <GlobalFeedTab isSelected={selectedTab === tabNames.ALL} />
+          {selectedTag && <TagFilterTab tag={selectedTag} />}
         </ul>
       </div>
-
-      <ArticleList
-        pager={props.pager}
-        articles={props.articles}
-        loading={props.loading}
-        articlesCount={props.articlesCount}
-        currentPage={props.currentPage} />
+      <ArticleList />
     </div>
-  );
-};
-
-export default MainView
-// export default connect(mapStateToProps, mapDispatchToProps)(MainView);
+  )
+})

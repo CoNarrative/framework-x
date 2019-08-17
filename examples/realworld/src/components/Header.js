@@ -2,7 +2,7 @@ import { component, createSub } from 'framework-x'
 import React from 'react'
 import { APP_NAME } from '../constants'
 import { routeIds as routes } from '../routes'
-import { getCurrentUser } from '../user/selectors'
+import { getUser } from '../user/selectors'
 import { Link } from './Link'
 
 
@@ -11,8 +11,8 @@ export const NavLink = ({ to, className = 'nav-link', children }) =>
     <Link  {...{ to, className, children }} />
   </li>
 
-const Navbar = component('Navbar', createSub({ getCurrentUser }),
-  ({ currentUser: { username, image: userImage } = {} }) =>
+const Navbar = component('Navbar', createSub({ getUser }),
+  ({ user: { username, image } = {} }) =>
     <ul className="nav navbar-nav pull-xs-right">
       <NavLink to={[routes.HOME]}>Home</NavLink>
       {username ? [
@@ -23,7 +23,7 @@ const Navbar = component('Navbar', createSub({ getCurrentUser }),
           <i className='ion-gear-a' />&nbsp;Settings
         </NavLink>,
         <NavLink key={2} to={[routes.USER, { username }]}>
-          <img src={userImage} className="user-pic" alt={username} />
+          <img src={image} className="user-pic" alt={username} />
           {username}
         </NavLink>
       ] : [
