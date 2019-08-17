@@ -50,7 +50,7 @@ export const MainView = component('MainView', createSub({
         <ul className="nav nav-pills outline-active">
           {user && <YourFeedTab isSelected={selectedTab === tabNames.FEED} />}
           <GlobalFeedTab isSelected={selectedTab === tabNames.ALL} />
-          {selectedTag && <TagFilterTab tag={selectedTag} />}
+          {selectedTab === tabNames.TAG && <TagFilterTab tag={selectedTag} />}
         </ul>
       </div>
       <ArticleList />

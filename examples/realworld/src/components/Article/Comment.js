@@ -1,35 +1,37 @@
-import DeleteButton from './DeleteButton';
-import { Link } from 'react-router-dom';
-import React from 'react';
+import React from 'react'
+import { evt } from '../../eventTypes'
+import { routeIds } from '../../routes'
+import { Link } from '../Link'
+import  {dispatch} from '../../store'
 
-const Comment = props => {
-  const comment = props.comment;
-  const show = props.currentUser &&
-    props.currentUser.username === comment.author.username;
+export const Comment = ({ slug, comment: { id, author: { username, image }, body, createdAt }, canModify }) => {
   return (
     <div className="card">
       <div className="card-block">
-        <p className="card-text">{comment.body}</p>
+        <p className="card-text">{body}</p>
       </div>
       <div className="card-footer">
         <Link
-          to={`/@${comment.author.username}`}
+          to={[routeIds.USER, { username }]}
           className="comment-author">
-          <img src={comment.author.image} className="comment-author-img" alt={comment.author.username} />
+          <img src={image} className="comment-author-img"
+               alt={username} />
         </Link>
         &nbsp;
         <Link
-          to={`/@${comment.author.username}`}
+          to={[routeIds.USER, { username }]}
           className="comment-author">
-          {comment.author.username}
+          {username}
         </Link>
         <span className="date-posted">
-          {new Date(comment.createdAt).toDateString()}
+          {new Date(createdAt).toDateString()}
         </span>
-        <DeleteButton show={show} slug={props.slug} commentId={comment.id} />
+        {canModify &&
+         <span className="mod-options">
+        <i className="ion-trash-a"
+           onClick={() => dispatch(evt.USER_REQUESTS_DELETE_COMMENT, { id, slug, })} />
+      </span>}
       </div>
     </div>
-  );
-};
-
-export default Comment;
+  )
+}

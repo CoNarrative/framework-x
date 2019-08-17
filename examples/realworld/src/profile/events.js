@@ -27,3 +27,14 @@ regResultFx(evt.UPDATE_PROFILE, () => {
 }, (_, __, err) => {
   console.error('error updating profile', err)
 })
+
+regEventFx(evt.USER_REQUESTS_TOGGLE_FOLLOWING, ({ db }, _, [username, follow]) => {
+  return [fx.dispatch(evt.API_REQUEST,
+    [evt.TOGGLE_FOLLOW_USER, api.profile[follow ? 'follow' : 'unfollow'](username)])]
+})
+
+regResultFx(evt.TOGGLE_FOLLOW_USER, (_, __, {json:{profile}}) => {
+  return {db:R.assoc('profile',profile)}
+}, (_, __, err) => {
+  console.log('follow  toggle failure', err)
+})

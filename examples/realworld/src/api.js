@@ -26,13 +26,13 @@ export const regResultFx = (eventName, successBranch, failureBranch,
 }
 
 regEventFx(evt.API_REQUEST, (_, __, foo) => {
-  const [eventName, [method, endpoint, body]] = foo
+  const [eventName, [method, endpoint, body], args] = foo
   const token = getToken()
   const req = apiRequest(method, endpoint, body)
   return [
     fx.fetch(token ? R.assocPath(['headers', 'authorization'], ` Token ${token}`, req) : req,
-      success(eventName),
-      failure(eventName)
+      args ? [success(eventName), args] : success(eventName),
+      args ? [failure(eventName), args] : failure(eventName)
     )
   ]
 })
@@ -48,21 +48,21 @@ export const tags = {
   getAll: () => ['GET', '/tags']
 }
 
-const limit = (count, p) => `limit=${count}&offset=${p ? p * count : 0}`
-const articleQuery = ({ page, tag, author, limit = ARTICLES_PER_PAGE }) => {
-  const offset = page * limit
-  return "?"+queryString.stringify(R.merge( { author, page, tag, limit, },
-    offset ? { offset } : {offset:0}))
-}
+const offset = (limit, page) => page ? page * limit : 0
+
+const limitAndOffset = (count, p) => `limit=${count}&offset=${p ? p * count : 0}`;
+const articleQuery = ({ page, tag, author, limit = ARTICLES_PER_PAGE }) =>
+  '?' + queryString.stringify(R.merge({ author, page, tag, limit, }, offset(limit, page)))
+
 export const articles = {
   matching: ({ page, tag, author, limit }) =>
     ['GET', '/articles' + articleQuery({ page, tag, author, limit })],
-  all: page => ['GET', `/articles?${limit(ARTICLES_PER_PAGE, page)}`],
-  byAuthor: (author, page) => ['GET', `/articles?author=${encodeURIComponent(author)}&${limit(5, page)}`],
-  byTag: (tag, page) => ['GET', `/articles?tag=${encodeURIComponent(tag)}&${limit(10, page)}`],
+  all: page => ['GET', `/articles?${offset(ARTICLES_PER_PAGE, page)}`],
+  byAuthor: (author, page) => ['GET', `/articles?author=${encodeURIComponent(author)}&${limitAndOffset(5, page)}`],
+  byTag: (tag, page) => ['GET', `/articles?tag=${encodeURIComponent(tag)}&${limitAndOffset(10, page)}`],
   del: slug => ['DELETE', `/articles/${slug}`],
   favorite: slug => ['POST', `/articles/${slug}/favorite`],
-  favoritedBy: (author, page) => ['GET', `/articles?favorited=${encodeURIComponent(author)}&${limit(5, page)}`],
+  favoritedBy: (author, page) => ['GET', `/articles?favorited=${encodeURIComponent(author)}&${limitAndOffset(5, page)}`],
   feed: () => ['GET', '/articles/feed?limit=10&offset=0'],
   get: slug => ['GET', `/articles/${slug}`],
   unfavorite: slug => ['DELETE', `/articles/${slug}/favorite`],

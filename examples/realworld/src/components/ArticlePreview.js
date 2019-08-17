@@ -3,7 +3,7 @@ import { evt } from '../eventTypes'
 import { routeIds } from '../routes'
 import * as api from '../api'
 import { Link } from './Link'
-import {dispatch} from '../store'
+import { dispatch } from '../store'
 
 const FAVORITED_CLASS = 'btn btn-sm btn-primary'
 const NOT_FAVORITED_CLASS = 'btn btn-sm btn-outline-primary'
@@ -37,9 +37,8 @@ export const ArticlePreview = ({ article }) => {
           <button className={favoriteButtonClass}
                   onClick={e => {
                     e.preventDefault()
-                    const args = favorited
-                                 ? [evt.ARTICLE_UNFAVORITED, api.articles.unfavorite(id)]
-                                 : [evt.ARTICLE_FAVORITED, api.articles.favorite(id)]
+                    const args = [evt.ARTICLE_FAVORITED,
+                      favorited ? api.articles.unfavorite(id) : api.articles.favorite(id)]
                     dispatch(evt.API_REQUEST, args)
                   }}>
             <i className="ion-heart" /> {favoritesCount}
@@ -52,8 +51,8 @@ export const ArticlePreview = ({ article }) => {
         <p>{description}</p>
         <span>Read more...</span>
         <ul className="tag-list">
-          {tagList.map((tag,i) =>
-            <li key={i} className="tag-default tag-pill tag-outline" >
+          {tagList.map((tag, i) =>
+            <li key={i} className="tag-default tag-pill tag-outline">
               {tag}
             </li>
           )}

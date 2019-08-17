@@ -6,9 +6,9 @@ import { getUser } from '../user/selectors'
 import { Link } from './Link'
 
 
-export const NavLink = ({ to, className = 'nav-link', children }) =>
+export const NavLink = ({ to, isActive,className = 'nav-link', children }) =>
   <li className="nav-item">
-    <Link  {...{ to, className, children }} />
+    <Link  {...{ to, isActive,className, children }} />
   </li>
 
 const Navbar = component('Navbar', createSub({ getUser }),

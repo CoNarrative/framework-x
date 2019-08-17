@@ -13,7 +13,7 @@ import { dispatch } from '../store'
 export const ListPagination = component('ListPagination',
   createSub({ getPageNumbers, getPage, getArticleFilters }),
   ({ pageNumbers, page, articleFilters }) => {
-    return R.isEmpty(pageNumbers) ? null : (
+    return R.isEmpty(pageNumbers) || pageNumbers.length === 1 ? null : (
       <nav>
         <ul className="pagination">
           {pageNumbers.map(n => {

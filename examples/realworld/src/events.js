@@ -1,6 +1,8 @@
 import './api'
 import './articles/events'
 import './auth/events'
+import './comments/events'
+import './editor/events'
 import './generalEvents'
 import './profile/events'
 import './tags/events'

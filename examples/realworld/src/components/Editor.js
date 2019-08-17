@@ -1,178 +1,83 @@
-import {ListErrors} from './ListErrors';
-import React from 'react';
-import agent from '../agent';
-import { connect } from 'react-redux';
-import {
-  ADD_TAG,
-  EDITOR_PAGE_LOADED,
-  REMOVE_TAG,
-  ARTICLE_SUBMITTED,
-  EDITOR_PAGE_UNLOADED,
-  UPDATE_FIELD_EDITOR
-} from '../constants/actionTypes';
+import * as R from 'ramda'
+import React from 'react'
+import { component, createSub } from 'framework-x'
+import { getEditorErrors, getEditorForm, getEditorLoading } from '../editor/selectors'
+import { evt } from '../eventTypes'
+import { setKV } from '../generalEvents'
+import { FormInput } from './FormInput'
+import { ListErrors } from './ListErrors'
+import { dispatch } from '../store'
 
-const mapStateToProps = state => ({
-  ...state.editor
-});
-
-const mapDispatchToProps = dispatch => ({
-  onAddTag: () =>
-    dispatch({ type: ADD_TAG }),
-  onLoad: payload =>
-    dispatch({ type: EDITOR_PAGE_LOADED, payload }),
-  onRemoveTag: tag =>
-    dispatch({ type: REMOVE_TAG, tag }),
-  onSubmit: payload =>
-    dispatch({ type: ARTICLE_SUBMITTED, payload }),
-  onUnload: payload =>
-    dispatch({ type: EDITOR_PAGE_UNLOADED }),
-  onUpdateField: (key, value) =>
-    dispatch({ type: UPDATE_FIELD_EDITOR, key, value })
-});
-
-class Editor extends React.Component {
-  constructor() {
-    super();
-
-    const updateFieldEvent =
-      key => ev => this.props.onUpdateField(key, ev.target.value);
-    this.changeTitle = updateFieldEvent('title');
-    this.changeDescription = updateFieldEvent('description');
-    this.changeBody = updateFieldEvent('body');
-    this.changeTagInput = updateFieldEvent('tagInput');
-
-    this.watchForEnter = ev => {
-      if (ev.keyCode === 13) {
-        ev.preventDefault();
-        this.props.onAddTag();
-      }
-    };
-
-    this.removeTagHandler = tag => () => {
-      this.props.onRemoveTag(tag);
-    };
-
-    this.submitForm = ev => {
-      ev.preventDefault();
-      const article = {
-        title: this.props.title,
-        description: this.props.description,
-        body: this.props.body,
-        tagList: this.props.tagList
-      };
-
-      const slug = { slug: this.props.articleSlug };
-      const promise = this.props.articleSlug ?
-        agent.Articles.update(Object.assign(article, slug)) :
-        agent.Articles.create(article);
-
-      this.props.onSubmit(promise);
-    };
+const setField = k => e => dispatch(evt.SET_KV, [['editor', 'form', k], e.target.value])
+const inputs = ({ title, description, body, tagInput, tagList }) => [{
+  name: 'title',
+  placeholder: 'Article Title',
+  value: title
+}, {
+  name: 'description',
+  className: 'form-control',
+  placeholder: `What's this article about?`,
+  value: description
+}, {
+  name: 'body',
+  type: 'textarea',
+  rows: 8,
+  className: 'form-control',
+  placeholder: `What's your article about?`,
+  value: body
+}, {
+  name: 'tagInput',
+  className: 'form-control',
+  placeholder: 'Enter tags',
+  value: tagInput,
+  onKeyDown: e => {
+    if (e.which !== 13) return
+    setKV(['editor', 'form', 'tagInput'], '')
+    setKV(['editor', 'form', 'tagList'], tagList.concat([tagInput]))
   }
+}]
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.match.params.slug !== nextProps.match.params.slug) {
-      if (nextProps.match.params.slug) {
-        this.props.onUnload();
-        return this.props.onLoad(agent.Articles.get(this.props.match.params.slug));
-      }
-      this.props.onLoad(null);
-    }
-  }
-
-  componentWillMount() {
-    if (this.props.match.params.slug) {
-      return this.props.onLoad(agent.Articles.get(this.props.match.params.slug));
-    }
-    this.props.onLoad(null);
-  }
-
-  componentWillUnmount() {
-    this.props.onUnload();
-  }
-
-  render() {
+export const Editor = component('Editor', createSub({
+    getEditorForm,
+    getEditorErrors,
+    getEditorLoading
+  }),
+  ({ editorForm: { tagList = [], title, description, body, tagInput }, editorErrors: errors, editorLoading: isRequestInFlight }) => {
     return (
       <div className="editor-page">
         <div className="container page">
           <div className="row">
             <div className="col-md-10 offset-md-1 col-xs-12">
-
-              <ListErrors errors={this.props.errors}></ListErrors>
-
+              {errors && <ListErrors errors={errors} />}
               <form>
                 <fieldset>
-
-                  <fieldset className="form-group">
-                    <input
-                      className="form-control form-control-lg"
-                      type="text"
-                      placeholder="Article Title"
-                      value={this.props.title}
-                      onChange={this.changeTitle} />
-                  </fieldset>
-
-                  <fieldset className="form-group">
-                    <input
-                      className="form-control"
-                      type="text"
-                      placeholder="What's this article about?"
-                      value={this.props.description}
-                      onChange={this.changeDescription} />
-                  </fieldset>
-
-                  <fieldset className="form-group">
-                    <textarea
-                      className="form-control"
-                      rows="8"
-                      placeholder="Write your article (in markdown)"
-                      value={this.props.body}
-                      onChange={this.changeBody}>
-                    </textarea>
-                  </fieldset>
-
-                  <fieldset className="form-group">
-                    <input
-                      className="form-control"
-                      type="text"
-                      placeholder="Enter tags"
-                      value={this.props.tagInput}
-                      onChange={this.changeTagInput}
-                      onKeyUp={this.watchForEnter} />
-
-                    <div className="tag-list">
-                      {
-                        (this.props.tagList || []).map(tag => {
-                          return (
-                            <span className="tag-default tag-pill" key={tag}>
-                              <i  className="ion-close-round"
-                                  onClick={this.removeTagHandler(tag)}>
+                  {inputs({ title, description, body, tagInput, tagList })
+                    .map((props, i) =>
+                      <FormInput key={i}  {...props}
+                                 onChange={setField(props.name)} />
+                    )}
+                  <div className="tag-list">
+                    {tagList.map(tag =>
+                      <span className="tag-default tag-pill" key={tag}>
+                              <i className="ion-close-round"
+                                 onClick={() => setKV(['editor', 'form', 'tagList'], R.without([tag], tagList))
+                                 }>
                               </i>
-                              {tag}
-                            </span>
-                          );
-                        })
-                      }
-                    </div>
-                  </fieldset>
-
-                  <button
-                    className="btn btn-lg pull-xs-right btn-primary"
-                    type="button"
-                    disabled={this.props.inProgress}
-                    onClick={this.submitForm}>
-                    Publish Article
-                  </button>
-
+                        {tag}
+                            </span>)}
+                  </div>
                 </fieldset>
+                <button
+                  className="btn btn-lg pull-xs-right btn-primary"
+                  type="button"
+                  disabled={isRequestInFlight}
+                  onClick={() => dispatch(evt.USER_REQUESTS_SAVE_STORY)}>
+                  Publish Article
+                </button>
               </form>
-
             </div>
           </div>
         </div>
       </div>
-    );
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Editor);
+    )
+  })
