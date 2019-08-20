@@ -6,7 +6,7 @@ const extension = typeof window !== 'undefined' && (window.__REDUX_DEVTOOLS_EXTE
 const pageSource = '@devtools-page'
 const extensionSource = '@devtools-extension'
 const libConfig = {
-  name: '[framework-x] ' + document.title,
+  name: '[framework-x] ' + (typeof document === 'undefined' ? '' : document.title),
   features: {
     jump: true,
     skip: false,
