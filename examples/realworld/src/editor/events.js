@@ -12,9 +12,8 @@ regEventFx(evt.USER_REQUESTS_SAVE_STORY, ({ db }) => {
   const story = getEditorForm(db)
   const isEdit = getRouteId(db) === routeIds.EDIT_STORY
   const params = getRouteParams(db)
-  const req = [evt.SAVE_STORY, isEdit
-                               ? api.articles.update(R.assoc('slug', params.id, story))
-                               : api.articles.create(story)]
+  const req = [evt.SAVE_STORY,
+    isEdit ? api.articles.update(R.assoc('slug', params.id, story)) : api.articles.create(story)]
   return [fx.dispatch(evt.API_REQUEST, req)]
 })
 

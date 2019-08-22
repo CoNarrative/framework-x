@@ -9,33 +9,26 @@ import { ListErrors } from './ListErrors'
 import { dispatch } from '../store'
 
 const setField = k => e => dispatch(evt.SET_KV, [['editor', 'form', k], e.target.value])
-const inputs = ({ title, description, body, tagInput, tagList }) => [{
-  name: 'title',
-  placeholder: 'Article Title',
-  value: title
-}, {
-  name: 'description',
-  className: 'form-control',
-  placeholder: `What's this article about?`,
-  value: description
-}, {
-  name: 'body',
-  type: 'textarea',
-  rows: 8,
-  className: 'form-control',
-  placeholder: `What's your article about?`,
-  value: body
-}, {
-  name: 'tagInput',
-  className: 'form-control',
-  placeholder: 'Enter tags',
-  value: tagInput,
-  onKeyDown: e => {
-    if (e.which !== 13) return
-    setKV(['editor', 'form', 'tagInput'], '')
-    setKV(['editor', 'form', 'tagList'], tagList.concat([tagInput]))
-  }
-}]
+const inputs = ({ title, description, body, tagInput, tagList }) => [
+  { name: 'title', placeholder: 'Article Title', value: title },
+  {
+    name: 'description',
+    className: 'form-control',
+    placeholder: `What's this article about?`,
+    value: description
+  }, {
+    name: 'body', type: 'textarea', rows: 8, className: 'form-control',
+    placeholder: `What's your article about?`,
+    value: body
+  }, {
+    name: 'tagInput', className: 'form-control', placeholder: 'Enter tags',
+    value: tagInput,
+    onKeyDown: e => {
+      if (e.which !== 13) return
+      setKV(['editor', 'form', 'tagInput'], '')
+      setKV(['editor', 'form', 'tagList'], tagList.concat([tagInput]))
+    }
+  }]
 
 export const Editor = component('Editor',
   createSub({ getEditorForm, getEditorErrors, getEditorLoading }),

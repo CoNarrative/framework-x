@@ -2,11 +2,7 @@ import React from 'react'
 import { evt } from '../eventTypes'
 import { component, createSub } from 'framework-x'
 import { setKV } from '../generalEvents'
-import {
-  getProfileForm,
-  getProfileFormErrors,
-  getProfileFormLoading
-} from '../profile/selectors'
+import { getProfileForm, getProfileFormErrors, getProfileFormLoading } from '../profile/selectors'
 import { FormInput } from './FormInput'
 import { ListErrors } from './ListErrors'
 import { dispatch } from '../store'

@@ -3,11 +3,8 @@ import React from 'react'
 import { APP_NAME } from '../constants'
 import { routeIds as routes } from '../routes'
 import { getUser } from '../user/selectors'
-import { Link } from './Link'
+import { Link, NavLink } from './Link'
 
-
-export const NavLink = ({ to, isActive,className = 'nav-link', children }) =>
-  <li className="nav-item"><Link  {...{ to, isActive,className, children }} /></li>
 
 const Navbar = component('Navbar', createSub({ getUser }),
   ({ user: { username, image } = {} }) =>

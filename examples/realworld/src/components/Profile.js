@@ -6,8 +6,7 @@ import { getProfileUser, isViewingSelf } from '../profile/selectors'
 import { routeIds } from '../routes'
 import { getRouteId } from '../routes/selectors'
 import { ArticleList } from './ArticleList'
-import { NavLink } from './Header'
-import { Link } from './Link'
+import { Link, NavLink } from './Link'
 import { dispatch } from '../store'
 
 
