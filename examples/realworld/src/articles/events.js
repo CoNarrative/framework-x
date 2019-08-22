@@ -18,24 +18,20 @@ regResultFx(evt.ARTICLE_FAVORITED, ({ db }, __, { json: { article } }) => ({
   }), (_, __, res) => { console.error('favorite failure', res) },
 )
 
-regEventFx(evt.CHANGE_TAB, (_, __, id) => {
-  return [
-    fx.db(R.pipe(
-      R.assoc('articles', []),
-      R.dissocPath(['articleFilters', 'tag']),
-      R.assoc('selectedTab', id))),
-    fx.dispatch(evt.API_REQUEST,
-      [evt.GET_ARTICLES, id === tabNames.FEED ? api.articles.feed() : api.articles.all()]
-    )
-  ]
-})
+regEventFx(evt.CHANGE_TAB, (_, __, id) => [
+  fx.db(R.pipe(
+    R.assoc('articles', []),
+    R.dissocPath(['articleFilters', 'tag']),
+    R.assoc('selectedTab', id))),
+  fx.dispatch(evt.API_REQUEST,
+    [evt.GET_ARTICLES, id === tabNames.FEED ? api.articles.feed() : api.articles.all()]
+  )
+])
 
-regEventFx(evt.UPDATE_ARTICLE_FILTERS, (_, __, filters) => {
-  return [
-    fx.db(R.assoc('articleFilters', filters)),
-    fx.dispatch(evt.API_REQUEST, [evt.GET_ARTICLES, api.articles.matching(filters)])
-  ]
-})
+regEventFx(evt.UPDATE_ARTICLE_FILTERS, (_, __, filters) => [
+  fx.db(R.assoc('articleFilters', filters)),
+  fx.dispatch(evt.API_REQUEST, [evt.GET_ARTICLES, api.articles.matching(filters)])
+])
 
 regResultFx(evt.GET_ARTICLE,
   (_, __, { json: { article } }) => ({ db: R.assoc('article', article) }),

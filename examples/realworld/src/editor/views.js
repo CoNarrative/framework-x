@@ -1,14 +1,15 @@
 import * as R from 'ramda'
 import React from 'react'
 import { component, createSub } from 'framework-x'
-import { getEditorErrors, getEditorForm, getEditorLoading } from '../editor/selectors'
+import { getEditorErrors, getEditorForm, getEditorLoading } from './selectors'
 import { evt } from '../eventTypes'
 import { setKV } from '../generalEvents'
-import { FormInput } from './FormInput'
-import { ListErrors } from './ListErrors'
+import { FormInput } from '../components/FormInput'
+import { ListErrors } from '../components/ListErrors'
 import { dispatch } from '../store'
 
 const setField = k => e => dispatch(evt.SET_KV, [['editor', 'form', k], e.target.value])
+
 const inputs = ({ title, description, body, tagInput, tagList }) => [
   { name: 'title', placeholder: 'Article Title', value: title },
   {
