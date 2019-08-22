@@ -25,12 +25,8 @@ export const ArticlePreview = ({ article }) => {
         </Link>
 
         <div className="info">
-          <Link className="author" to={[routeIds.USER, { username }]}>
-            {username}
-          </Link>
-          <span className="date">
-            {new Date(createdAt).toDateString()}
-          </span>
+          <Link className="author" to={[routeIds.USER, { username }]}>{username}</Link>
+          <span className="date">{new Date(createdAt).toDateString()}</span>
         </div>
 
         <div className="pull-xs-right">
@@ -39,8 +35,7 @@ export const ArticlePreview = ({ article }) => {
                     e.preventDefault()
                     const args = [evt.ARTICLE_FAVORITED,
                       favorited ? api.articles.unfavorite(id) : api.articles.favorite(id)]
-                    dispatch(evt.API_REQUEST, args)
-                  }}>
+                    dispatch(evt.API_REQUEST, args)}}>
             <i className="ion-heart" /> {favoritesCount}
           </button>
         </div>
@@ -52,10 +47,7 @@ export const ArticlePreview = ({ article }) => {
         <span>Read more...</span>
         <ul className="tag-list">
           {tagList.map((tag, i) =>
-            <li key={i} className="tag-default tag-pill tag-outline">
-              {tag}
-            </li>
-          )}
+            <li key={i} className="tag-default tag-pill tag-outline">{tag}</li>)}
         </ul>
       </Link>
     </div>

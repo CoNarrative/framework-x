@@ -18,8 +18,7 @@ regEventFx(evt.USER_REQUESTS_LOGIN, (_, __, { email, password }) => {
   ]
 })
 
-regResultFx(evt.LOGIN_REQUEST, ({ db }, _, res) => {
-  const { user } = res.json
+regResultFx(evt.LOGIN_REQUEST, (_, __, { json: { user } }) => {
   setToken(user.token)
   return [
     fx.db(R.pipe(
@@ -27,7 +26,7 @@ regResultFx(evt.LOGIN_REQUEST, ({ db }, _, res) => {
       R.assoc('user', user))),
     fx.dispatch(evt.NAV_TO, [routeIds.HOME])
   ]
-}, ({ db }, _, res) => {
+}, (_, __, res) => {
   console.error('login error', res)
   return [fx.db(R.pipe(
     R.dissocPath(['auth', 'isLoading']),
@@ -43,15 +42,14 @@ regEventFx(evt.USER_REQUESTS_REGISTER, (_, __, { username, email, password }) =>
   ]
 })
 
-regResultFx(evt.REGISTER_REQUEST, ({ db }, _, res) => {
-  const { user } = res.json
+regResultFx(evt.REGISTER_REQUEST, (_, __, { json: { user } }) => {
   setToken(user.token)
   return [fx.db(R.pipe(
     R.dissocPath(['auth', 'isLoading']),
     R.assoc('user', user)
   )),
     fx.dispatch(evt.NAV_TO, [routeIds.HOME])]
-}, ({ db }, _, res) => {
+}, (_,__, res) => {
   console.error('register error', res)
   return [fx.db(R.pipe(
     R.dissocPath(['auth', 'isLoading']),

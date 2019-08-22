@@ -40,13 +40,10 @@ regEventFx(evt.API_REQUEST, (_, __, foo) => {
 export const auth = {
   current: () => ['GET', '/user'],
   login: (email, password) => ['POST', '/users/login', { user: { email, password } }],
-  register: (username, email, password) =>
-    ['POST', '/users', { user: { username, email, password } }],
+  register: (username, email, password) => ['POST', '/users', { user: { username, email, password } }],
 }
 
-export const tags = {
-  getAll: () => ['GET', '/tags']
-}
+export const tags = { getAll: () => ['GET', '/tags'] }
 
 const offset = (limit, page) => page ? page * limit : 0
 
@@ -55,8 +52,7 @@ const articleQuery = ({ page, tag, author, limit = ARTICLES_PER_PAGE }) =>
   '?' + queryString.stringify(R.merge({ author, page, tag, limit, }, offset(limit, page)))
 
 export const articles = {
-  matching: ({ page, tag, author, limit }) =>
-    ['GET', '/articles' + articleQuery({ page, tag, author, limit })],
+  matching: ({ page, tag, author, limit }) => ['GET', '/articles' + articleQuery({ page, tag, author, limit })],
   all: page => ['GET', `/articles?${offset(ARTICLES_PER_PAGE, page)}`],
   byAuthor: (author, page) => ['GET', `/articles?author=${encodeURIComponent(author)}&${limitAndOffset(5, page)}`],
   byTag: (tag, page) => ['GET', `/articles?tag=${encodeURIComponent(tag)}&${limitAndOffset(10, page)}`],

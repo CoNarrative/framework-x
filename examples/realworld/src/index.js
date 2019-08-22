@@ -10,27 +10,18 @@ import './events'
 import { App } from './App'
 import { parseJwt } from './util'
 
-regEventFx(evt.INITIALIZE_DB, (_, __, state) => {
-  return { db: state }
-})
+regEventFx(evt.INITIALIZE_DB, (_, __, state) => ({ db: state }))
 
 dispatch(evt.INITIALIZE_DB,
-  R.mergeAll([
-    { articles: [] },
-    isLoggedIn()
-    ? { user: parseJwt(getToken()) }
-    : {}
-  ]))
+  R.mergeAll([{ articles: [] }, isLoggedIn() ? { user: parseJwt(getToken()) } : {}]))
 
 startRouter()
-ReactDOM.render((
+ReactDOM.render(
   <Provider
     subscribeToState={subscribeToState}
     dispatch={dispatch}
     getState={getState}>
     <App />
-  </Provider>
-
-), document.getElementById('root'))
+  </Provider>, document.getElementById('root'))
 
 window._store = store

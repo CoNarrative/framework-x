@@ -7,9 +7,8 @@ import React from 'react'
 
 const ArticleActions = ({ slug }) =>
   <React.Fragment>
-    <Link
-      to={[routeIds.EDIT_STORY, { id: slug }]}
-      className="btn btn-outline-secondary btn-sm">
+    <Link to={[routeIds.EDIT_STORY, { id: slug }]}
+          className="btn btn-outline-secondary btn-sm">
       <i className="ion-edit" /> Edit Article
     </Link>
     <button className="btn btn-outline-danger btn-sm"
@@ -28,9 +27,7 @@ export const ArticleMeta = ({ article, canModify }) =>
             className="author">
         {article.author.username}
       </Link>
-      <span className="date">
-          {new Date(article.createdAt).toDateString()}
-        </span>
+      <span className="date">{new Date(article.createdAt).toDateString()}</span>
     </div>
     {canModify && <ArticleActions slug={article.slug} />}
   </div>

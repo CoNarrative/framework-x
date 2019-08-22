@@ -10,47 +10,25 @@ import { NavLink } from './Header'
 import { Link } from './Link'
 import { dispatch } from '../store'
 
-const followClassname = following =>
-  ['btn', 'btn-sm', 'action-btn'].concat(
-    following ? ['btn-secondary']
-              : ['btn-outline-secondary']
-  ).join(' ')
 
-const FavoritesTabs = component('FavoritesTabs', createSub({
-  getProfileUser,
-  isFavoritesRoute: derive([getRouteId], x => x === routeIds.USER_FAVORITES)
-}), ({ isFavoritesRoute, profileUser: { username } }) =>
-  isFavoritesRoute ? (
-    <React.Fragment>
-      <NavLink
-        className="nav-link"
-        to={[routeIds.USER, { username }]}>
-        My Articles
-      </NavLink>
-      <NavLink
-        className="nav-link active"
-        to={[routeIds.USER_FAVORITES, { username }]}>
-        Favorited Articles
-      </NavLink>
-    </React.Fragment>
-  ) : (
-    <React.Fragment>
-      <NavLink
-        className="nav-link active"
-        to={[routeIds.USER, { username }]}>
-        My Articles
-      </NavLink>
-      <NavLink
-        to={[routeIds.USER_FAVORITES, { username }]}>
-        Favorited Articles
-      </NavLink>
-    </React.Fragment>
-  ))
+const followClassname = following => ['btn', 'btn-sm', 'action-btn']
+  .concat(following ? ['btn-secondary'] : ['btn-outline-secondary']).join(' ')
 
-export const Profile = component('Profile', createSub({
-    getProfileUser,
-    isViewingSelf
-  }), ({ isViewingSelf, profileUser: { username, image, bio, following } }) =>
+
+const FavoritesTabs = component('FavoritesTabs',
+  createSub({ getProfileUser, isFavoritesRoute: derive([getRouteId], R.equals(routeIds.USER_FAVORITES)) }),
+  ({ isFavoritesRoute, profileUser: { username } }) =>
+    <React.Fragment>
+      <NavLink className={'nav-link' + (!isFavoritesRoute ? ' active' : '')}
+               to={[routeIds.USER, { username }]}>My Articles</NavLink>
+      <NavLink className={'nav-link' + (isFavoritesRoute ? ' active' : '')}
+               to={[routeIds.USER_FAVORITES, { username }]}>Favorited Articles</NavLink>
+    </React.Fragment>
+)
+
+export const Profile = component('Profile',
+  createSub({ getProfileUser, isViewingSelf }),
+  ({ isViewingSelf, profileUser: { username, image, bio, following } }) =>
     <div className="profile-page">
       <div className="user-info">
         <div className="container">
@@ -60,17 +38,15 @@ export const Profile = component('Profile', createSub({
               <h4>{username}</h4>
               <p>{bio}</p>
               {isViewingSelf
-               ? <Link
-                 to={[routeIds.SETTINGS]}
-                 className="btn btn-sm btn-outline-secondary action-btn">
+               ? <Link to={[routeIds.SETTINGS]}
+                       className="btn btn-sm btn-outline-secondary action-btn">
                  <i className="ion-gear-a" /> Edit Profile Settings
                </Link>
-               : <button
-                 className={followClassname(following)}
-                 onClick={() => dispatch(evt.USER_REQUESTS_TOGGLE_FOLLOWING, [username, R.not(following)])}>
-                 <i className="ion-plus-round" />
-                 &nbsp;
-                 {following ? 'Unfollow' : 'Follow'} {username}
+               : <button className={followClassname(following)}
+                         onClick={() => dispatch(evt.USER_REQUESTS_TOGGLE_FOLLOWING, [username, R.not(following)])}>
+                 <i className="ion-plus-round" />{' '}{following
+                                                       ? 'Unfollow'
+                                                       : 'Follow'} {username}
                </button>}
             </div>
           </div>

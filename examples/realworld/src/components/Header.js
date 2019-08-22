@@ -7,21 +7,15 @@ import { Link } from './Link'
 
 
 export const NavLink = ({ to, isActive,className = 'nav-link', children }) =>
-  <li className="nav-item">
-    <Link  {...{ to, isActive,className, children }} />
-  </li>
+  <li className="nav-item"><Link  {...{ to, isActive,className, children }} /></li>
 
 const Navbar = component('Navbar', createSub({ getUser }),
   ({ user: { username, image } = {} }) =>
     <ul className="nav navbar-nav pull-xs-right">
       <NavLink to={[routes.HOME]}>Home</NavLink>
       {username ? [
-        <NavLink key={0} to={[routes.EDITOR]}>
-          <i className="ion-compose" />&nbsp;New Post
-        </NavLink>,
-        <NavLink key={1} to={[routes.SETTINGS]}>
-          <i className='ion-gear-a' />&nbsp;Settings
-        </NavLink>,
+        <NavLink key={0} to={[routes.EDITOR]}><i className="ion-compose" />{" "}New Post</NavLink>,
+        <NavLink key={1} to={[routes.SETTINGS]}><i className='ion-gear-a' />{" "}Settings</NavLink>,
         <NavLink key={2} to={[routes.USER, { username }]}>
           <img src={image} className="user-pic" alt={username} />
           {username}
@@ -36,9 +30,7 @@ const Navbar = component('Navbar', createSub({ getUser }),
 export const Header = () =>
   <nav className="navbar navbar-light">
     <div className="container">
-      <Link to={[routes.HOME]} className="navbar-brand">
-        {APP_NAME.toLowerCase()}
-      </Link>
+      <Link to={[routes.HOME]} className="navbar-brand">{APP_NAME.toLowerCase()}</Link>
       <Navbar />
     </div>
   </nav>

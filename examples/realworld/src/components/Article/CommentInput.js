@@ -6,35 +6,21 @@ import { getUser } from '../../user/selectors'
 import { dispatch } from '../../store'
 
 
-export const CommentInput = component('CommentInput', createSub({
-  getCommentForm,
-  getUser
-}), ({
-  commentForm: { body }, user
-}) => {
-  return (
-    <form className="card comment-form" onSubmit={this.createComment}>
+export const CommentInput = component('CommentInput',
+  createSub({ getCommentForm, getUser }), ({ commentForm: { body }, user }) =>
+    <form className="card comment-form">
       <div className="card-block">
-          <textarea className="form-control"
-                    placeholder="Write a comment..."
+          <textarea className="form-control" placeholder="Write a comment..." rows="3"
                     value={body}
-                    onChange={
-                      e => dispatch(evt.SET_KV, [['comment', 'form', 'body'], e.target.value])}
-                    rows="3">
-          </textarea>
+                    onChange={({ target: { value } }) =>
+                      dispatch(evt.SET_KV, [['comment', 'form', 'body'], value])} />
       </div>
       <div className="card-footer">
-        <img
-          src={user.image}
-          className="comment-author-img"
-          alt={user.username} />
-        <button
-          className="btn btn-sm btn-primary"
-          type="button"
-          onClick={() => dispatch(evt.USER_REQUESTS_POST_COMMENT)}>
+        <img src={user.image} className="comment-author-img" alt={user.username} />
+        <button className="btn btn-sm btn-primary" type="button"
+                onClick={() => dispatch(evt.USER_REQUESTS_POST_COMMENT)}>
           Post Comment
         </button>
       </div>
     </form>
-  )
-})
+)

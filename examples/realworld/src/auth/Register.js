@@ -25,7 +25,7 @@ const inputs = ({ username, email, password, }) => [{
   onKeyDown: e => e.which === 13 && requestRegister({ username, email, password }),
   onChange: changeAuthKey('username')
 }, {
-  type:'email',
+  type: 'email',
   placeholder: 'Email',
   value: email,
   onKeyDown: e => e.which === 13 && requestRegister({ username, email, password }),
@@ -39,12 +39,8 @@ const inputs = ({ username, email, password, }) => [{
 }]
 
 export const Register = component('Register', createSub({
-    getUsername,
-    getEmail,
-    getPassword,
-    isRequestInFlight: getIsAuthLoading,
-    errors: getAuthErrors
-  }), ({ username, email, password, isRequestInFlight, errors }) =>
+    getUsername, getEmail, getPassword, getIsAuthLoading, getAuthErrors
+  }), ({ username, email, password, isAuthLoading, authErrors }) =>
     <div className="auth-page">
       <div className="container page">
         <div className="row">
@@ -52,12 +48,10 @@ export const Register = component('Register', createSub({
           <div className="col-md-6 offset-md-3 col-xs-12">
             <h1 className="text-xs-center">Sign Up</h1>
             <p className="text-xs-center">
-              <Link to={[routeIds.LOGIN]}>
-                Have an account?
-              </Link>
+              <Link to={[routeIds.LOGIN]}>Have an account?</Link>
             </p>
 
-            {errors && <ListErrors errors={errors} />}
+            {authErrors && <ListErrors errors={authErrors} />}
 
             <form>
               <fieldset>
@@ -67,9 +61,8 @@ export const Register = component('Register', createSub({
                 <button
                   className="btn btn-lg btn-primary pull-xs-right"
                   type="button"
-                  disabled={isRequestInFlight}
-                  onClick={() => requestRegister({ username, email, password })}
-                >
+                  disabled={isAuthLoading}
+                  onClick={() => requestRegister({ username, email, password })}>
                   Sign up
                 </button>
 

@@ -37,47 +37,35 @@ const inputs = ({ title, description, body, tagInput, tagList }) => [{
   }
 }]
 
-export const Editor = component('Editor', createSub({
-    getEditorForm,
-    getEditorErrors,
-    getEditorLoading
-  }),
-  ({ editorForm: { tagList = [], title, description, body, tagInput }, editorErrors: errors, editorLoading: isRequestInFlight }) => {
-    return (
-      <div className="editor-page">
-        <div className="container page">
-          <div className="row">
-            <div className="col-md-10 offset-md-1 col-xs-12">
-              {errors && <ListErrors errors={errors} />}
-              <form>
-                <fieldset>
-                  {inputs({ title, description, body, tagInput, tagList })
-                    .map((props, i) =>
-                      <FormInput key={i}  {...props}
-                                 onChange={setField(props.name)} />
-                    )}
-                  <div className="tag-list">
-                    {tagList.map(tag =>
-                      <span className="tag-default tag-pill" key={tag}>
+export const Editor = component('Editor',
+  createSub({ getEditorForm, getEditorErrors, getEditorLoading }),
+  ({ editorForm: { tagList = [], title, description, body, tagInput }, editorErrors: errors, editorLoading: isRequestInFlight }) =>
+    <div className="editor-page">
+      <div className="container page">
+        <div className="row">
+          <div className="col-md-10 offset-md-1 col-xs-12">
+            {errors && <ListErrors errors={errors} />}
+            <form>
+              <fieldset>
+                {inputs({ title, description, body, tagInput, tagList }).map((props, i) =>
+                  <FormInput key={i} {...props} onChange={setField(props.name)} />)}
+                <div className="tag-list">
+                  {tagList.map(tag =>
+                    <span key={tag} className="tag-default tag-pill">
                               <i className="ion-close-round"
-                                 onClick={() => setKV(['editor', 'form', 'tagList'], R.without([tag], tagList))
-                                 }>
+                                 onClick={() => setKV(['editor', 'form', 'tagList'], R.without([tag], tagList))}>
                               </i>
-                        {tag}
-                            </span>)}
-                  </div>
-                </fieldset>
-                <button
-                  className="btn btn-lg pull-xs-right btn-primary"
-                  type="button"
-                  disabled={isRequestInFlight}
-                  onClick={() => dispatch(evt.USER_REQUESTS_SAVE_STORY)}>
-                  Publish Article
-                </button>
-              </form>
-            </div>
+                      {tag}</span>)}
+                </div>
+              </fieldset>
+              <button type="button" className="btn btn-lg pull-xs-right btn-primary"
+                      disabled={isRequestInFlight}
+                      onClick={() => dispatch(evt.USER_REQUESTS_SAVE_STORY)}>
+                Publish Article
+              </button>
+            </form>
           </div>
         </div>
       </div>
-    )
-  })
+    </div>
+)

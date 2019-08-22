@@ -39,12 +39,9 @@ const TagFilterTab = ({ tag }) =>
     </a>
   </li>
 
-export const MainView = component('MainView', createSub({
-  getUser,
-  getSelectedTab,
-  getSelectedTag
-}), ({ user, selectedTag, selectedTab }) => {
-  return (
+export const MainView = component('MainView',
+  createSub({ getUser, getSelectedTab, getSelectedTag }),
+  ({ user, selectedTag, selectedTab }) =>
     <div className="col-md-9">
       <div className="feed-toggle">
         <ul className="nav nav-pills outline-active">
@@ -55,5 +52,4 @@ export const MainView = component('MainView', createSub({
       </div>
       <ArticleList />
     </div>
-  )
-})
+)

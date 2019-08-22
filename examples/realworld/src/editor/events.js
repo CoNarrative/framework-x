@@ -15,9 +15,7 @@ regEventFx(evt.USER_REQUESTS_SAVE_STORY, ({ db }) => {
   const req = [evt.SAVE_STORY, isEdit
                                ? api.articles.update(R.assoc('slug', params.id, story))
                                : api.articles.create(story)]
-  return [
-    fx.dispatch(evt.API_REQUEST, req)
-  ]
+  return [fx.dispatch(evt.API_REQUEST, req)]
 })
 
 regResultFx(evt.SAVE_STORY, (_, __, { json: { article } }) => {
@@ -25,16 +23,10 @@ regResultFx(evt.SAVE_STORY, (_, __, { json: { article } }) => {
   return [
     fx.db(R.pipe(
       R.dissoc('editor'),
-      R.assoc('article', article)
-      )
-    ),
+      R.assoc('article', article))),
     fx.dispatch(evt.NAV_TO, [routeIds.ARTICLE, { id }]),
     fx.dispatch(evt.API_REQUEST, [evt.GET_COMMENTS, api.comments.forArticle(id)])
   ]
-}, (_, __, { json: { errors } }) => {
-  return {
-    db: R.pipe(R.dissocPath(['editor', 'isLoading']),
-      R.assocPath(['editor', 'errors'], errors)
-    )
-  }
-})
+  }, (_, __, { json: { errors } }) => ({
+    db: R.pipe(R.dissocPath(['editor', 'isLoading']), R.assocPath(['editor', 'errors'], errors))
+}))

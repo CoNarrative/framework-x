@@ -1,11 +1,8 @@
 import * as R from 'ramda'
 import { evt } from './eventTypes'
-import { fx } from './fx'
 import { dispatch, regEventFx } from './store'
 
 
 export const setKV = (ks, v) => dispatch(evt.SET_KV, [ks, v])
 
-regEventFx(evt.SET_KV, (_, __, [ks, v]) => {
-  return [fx.db( R.assocPath(ks, v))]
-})
+regEventFx(evt.SET_KV, (_, __, [ks, v]) => ({ db: R.assocPath(ks, v) }))

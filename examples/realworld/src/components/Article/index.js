@@ -6,10 +6,8 @@ import React from 'react'
 import marked from 'marked'
 
 
-export const Article = component('Article', createSub({
-  getArticle,
-  canModifyArticle
-}), ({ article, canModifyArticle }) => {
+export const Article = component('Article', createSub({ getArticle, canModifyArticle }),
+  ({ article, canModifyArticle }) => {
   if (!article.body) return null
   const markup = { __html: marked(article.body, { sanitize: true }) }
   return (
@@ -17,9 +15,7 @@ export const Article = component('Article', createSub({
       <div className="banner">
         <div className="container">
           <h1>{article.title}</h1>
-          <ArticleMeta
-            article={article}
-            canModify={canModifyArticle} />
+          <ArticleMeta article={article} canModify={canModifyArticle} />
         </div>
       </div>
       <div className="container page">
@@ -28,12 +24,7 @@ export const Article = component('Article', createSub({
             <div dangerouslySetInnerHTML={markup} />
             <ul className="tag-list">
               {article.tagList.map(tag =>
-                <li
-                  className="tag-default tag-pill tag-outline"
-                  key={tag}>
-                  {tag}
-                </li>
-              ) }
+                <li key={tag} className="tag-default tag-pill tag-outline">{tag}</li>)}
             </ul>
 
           </div>

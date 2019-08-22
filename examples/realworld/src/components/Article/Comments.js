@@ -12,10 +12,8 @@ import { CommentInput } from './CommentInput'
 
 const canModify = (comment, user) => comment.author.username === user.username
 
-export const Comments = component('Comments', createSub({
-    getComments, getCommentErrors,
-    getUser, slug: getArticleId
-  }),
+export const Comments = component('Comments',
+  createSub({ getComments, getCommentErrors, getUser, slug: getArticleId }),
   ({ comments, errors, user, slug }) => {
     return user ? (
       <div className="col-xs-12 col-md-8 offset-md-2">
@@ -26,31 +24,19 @@ export const Comments = component('Comments', createSub({
 
         <div>
           {comments.map((comment, i) =>
-            <Comment key={i} {...{
-              slug,
-              comment,
-              canModify: canModify(comment, user)
-            }} />
-          )}
+            <Comment key={i} {...{ slug, comment, canModify: canModify(comment, user) }} /> )}
         </div>
       </div>
     ) : (
-             <div className="col-xs-12 col-md-8 offset-md-2">
-               <p>
-                 <Link to={[routeIds.LOGIN]}>Sign in</Link>
-                 &nbsp;or&nbsp;
-                 <Link to={[routeIds.REGISTER]}>sign up</Link>
-                 &nbsp;to add comments on this article.
-               </p>
-               <div>
-                 {comments.map((comment, i) =>
-                   <Comment key={i}  {...{
-                     comment,
-                     slug,
-                     canModify: canModify(comment, user)
-                   }}
-                   />)}
-               </div>
-             </div>
-           )
-  })
+      <div className="col-xs-12 col-md-8 offset-md-2">
+        <p>
+          <Link to={[routeIds.LOGIN]}>Sign in</Link>{" "}or{" "}
+          <Link to={[routeIds.REGISTER]}>sign up</Link>{" "}to add comments on this article.
+        </p>
+        <div>
+          {comments.map((comment, i) =>
+            <Comment key={i}  {...{ comment, slug, canModify: canModify(comment, user) }} />)}
+        </div>
+      </div>
+   )
+})

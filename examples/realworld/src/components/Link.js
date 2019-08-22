@@ -7,6 +7,4 @@ export const Link = ({ to, className, children }) =>
     const [routeId, params = {}, query] = to
     e.preventDefault()
     dispatch(evt.NAV_TO, [routeId, params, query])
-  }}>
-    {children}
-  </a>
+  }}>{children}</a>
