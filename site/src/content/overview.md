@@ -1,8 +1,7 @@
 ---
-#title: Overview
-#date: 2019-07-10
 path: /learn
 ---
+
 # Overview
 
 framework-x is a reeactive, event-based front-end framework for
@@ -10,31 +9,31 @@ implementing deterministic state machines in Javascript. It shares much
 of its API and design with Clojurescript's
 [`re-frame`](https://github.com/Day8/re-frame), the
 [most expressive front-end framework to date](https://www.freecodecamp.org/news/a-realworld-comparison-of-front-end-frameworks-with-benchmarks-2019-update-4be0d3c78075/)
-. It's similar to Redux but differs in ways that have far-reaching
-consequences.
+. It has things in common with Redux, but differs in ways that have
+far-reaching consequences for simplicity, mental overhead, productivity.
 
 
 Key features:
-1. **All state is in one place**, the `db` state atom. You can put the
-   application into any state it's capable of representing by setting
-   this value. The whole state is passed to all framework-x functions,
-   so you always have whatever you need.
+1. **State is a just another side effect.** You don't write
+   different code for updating the state than you would an API call.
 2. **Events are first-class.** You can respond to an event with another
    event, a state change, or both, all in the same place in code.
-3. **Top-level keys on the state atom are not special.** If you want to
-   read from three different top-level keys and dispatch a side effect
-   in the same place, you can. If you want add a key to the state that
-   doesn't exist yet you can, without having to write a reducer.
-4. **`setState` is a just another side effect.** You don't need to write
-   different code for updating the state than you would an API call or
-   an dispatching an event.
-5. **Components have subscriptions.** They're easy to write, so you
-   aren't tempted to pass props as much. A subscription is defined in
-   terms of values derived from the global state, any component has
-   direct access to all state.
+3. **All state is in one place**, the `db` state atom. You can put the
+   application into any state it's capable of representing by setting
+   this value. 
+4. **Component subscriptions** let components specify what data they
+   need and receive updates when it changes.
+5. **Data flows from state to components through functions**. Any
+   function that takes the `db` as an argument can be subscribed to by a
+   component. Functions used as subscriptions are memoized, so the
+   subscription only tells the component to rerender when there's a new
+   value .
    
-
-Key components: 
+<!--3. **Top-level keys on the state atom are not special.** If you want to-->
+<!--   read from three different top-level keys and dispatch a side effect-->
+<!--   in the same place, you can. If you want add a key to the state that-->
+<!--   doesn't exist yet you can, without having to write a reducer.-->
+Key concepts: 
 
 ## Base selectors, `derive`d selectors
 
@@ -214,184 +213,7 @@ regEventFx(evt.ADD_TODO, ({ db }) => {
 ```
 
 
-API: 
 
-
-### `createStore`
-> Creates an instance of a `framework-x` store
-
-
-arguments: `(initialState?: {[k:any]: any}, middlewares?: Array<(type,
-payload, effects, count)=>void>`
-
-returns: `{ dispatch, regEventFx, regFx, getState, setState,
-subscribeToState }`
-
-Middleware receives every event that returns an effect after it's
-applied.
-
-
-### `dispatch`
-
-> Sends a message with an optional payload
-
-examples: 
-
-```js
-dispatch('todo/add')
-dispatch('todo/add', payload)
-```
-
-### `regEventFx`
-
-> Registers a function that is called when an event is `dispatch`ed. 
-
-type: Function
-
-arguments: `(eventName: string, (context: {db: Db} & {[k: any]: any},
-eventName: string, eventArgs: any) => undefined | null | {[keyof
-RegisteredFx]: any} | [keyof RegisteredFx, any][]`
-
-returns: `undefined`
-
-Receives the current global state.
- 
-May return a state update, dispatch other events, or both.
-
-examples: 
-
-> Simple `db` update
-```js
-regEventFx(evt.CLEAR_ALL, () => {
-  return {
-    // return a function that will be called with the current state and produce the next state
-    db: R.assoc('todos', [])
-  }
-})
-```
-
->  Update `db` then fire an event
-
-```js
-regEventFx(evt.CLEAR_ALL, () => { 
-  // return a sequence of effects. Updates the state, then shows a notification. 
-   return [
-    [fx.db(R.assoc('todos', []))]
-    [fx.dispatch(evt.SHOW_NOTIFICATION, 'all-clear')] 
-  ]
-})
-
-```
-
-You can register multiple handlers for the same event. They run in the
-order they were registered.
-
-
-### `createSub`
-
-> Provides a component with a subscription to the `db`
-
-type: Function
-
-arguments: (subscriptionMap: {[k:any]: Subscription)
- 
- 
-examples:
-
-```js
-createSub({
-  todos: db => db.todos
-})
-
-const getAllTodos =  R.path(['todos'])
- createSub({ todos: getAllTodos })
-```
-
-- All key names prefixed with `get` also return a lowercase version of
-  the key name in addition to the `get`-prefixed key. This is for
-  convenience only.
-  
-example:
-
-```js
-const Todos = component("TodosList",  createSub({ getAllTodos }), 
-({ allTodos, getAllTodos }) => 
-   <div>{JSON.stringify(allTodos, null, 2) === JSON.stringify(getAllTodos, null, 2)}</div>
-)
-```
-
-### `component`
-
->  Ties a subscription to a render function
-
-
-arguments:
-
-`(name: string, sub: Subscription, renderFn: React.Component), 
-
-example:
-
-```js
-export const TodosList = component('TodosList',
-  createSub({
-    todos: getVisibleTodos
-  }),
-  ({ todos }) =>
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {todos && todos.map(({ text, done }, i) =>
-        <div
-          key={i}
-          style={{ display: 'flex' }}>
-          {done
-           ? <strike>{text}</strike>
-           : <div>{text}</div>}
-          <button onClick={() => dispatch(evt.TOGGLE_DONE, text)}>
-            Toggle done
-          </button>
-        </div>
-      )}
-    </div>
-)
-```
-
-### `getState`
-> Returns the current state
-
-type: Function 
-
-arguments: `()`
-
-
-### `setState`
-> Sets the state to the value provided. If called with a function, sets
-> the state to the result of calling the function the current state.
-
-
-type: Function
-
-arguments: `(newStateOrReducer: {[k:any]: any} | (db)=> {[k:any]: any})`
-
-
-### `Provider`
-> Enables `component` subscriptions
-
-type: React.Component
- 
-arguments: {dispatch, getState, subscribeToState}
-
-example:
-
-```js
-ReactDOM.render(
-  <Provider
-    getState={getState}
-    subscribeToState={subscribeToState}
-    dispatch={dispatch}
-  >
-    <App />
-  </Provider>,
-  document.getElementById('root'))
-```
 
 
 

@@ -10,14 +10,13 @@ const Header = styled.h1`
 `
 const IndexPage = () => (
   <Layout>
-    <SEO title="Home" />
-    <Header>Hi people</Header>
-    <p>Welcome to your new Gatsby site.</p>
-    <p>Now go build something great.</p>
+    <SEO title="framework-x: Reasonable global state" />
+    <Header>Framework-x</Header>
     <div style={{ maxWidth: `300px`, marginBottom: `1.45rem` }}>
       <Image />
     </div>
-    <Link to="/page-2/">Go to page 2</Link>
+    <Link to="/learn">Learn</Link>
+    <Link to="/api">API</Link>
   </Layout>
 )
 

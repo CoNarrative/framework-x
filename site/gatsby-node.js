@@ -12,10 +12,7 @@ exports.createPages = async ({ actions, graphql }) => {
 
   const result = await graphql(`
     {
-      allMarkdownRemark(
-        sort: { order: DESC, fields: [frontmatter___date] }
-        limit: 1000
-      ) {
+      allMarkdownRemark {
         edges {
           node {
             frontmatter {
@@ -27,8 +24,8 @@ exports.createPages = async ({ actions, graphql }) => {
     }
   `)
   if (result.errors) {
-    console.log(result.errors)
-    throw new Error("Things broke, see console output above")
+    console.log(JSON.stringify(result.errors,null,2))
+    throw new Error("Everything sucks")
   }
 
   result.data.allMarkdownRemark.edges.forEach(({ node }) => {
