@@ -20,6 +20,18 @@ module.exports = {
       options: {
         name: `content`,
         path: `${__dirname}/src/content`,
+        plugins: [
+          'gatsby-remark-component',
+          'gatsby-remark-autolink-headers',
+          'gatsby-plugin-catch-links',
+          {
+            resolve: "gatsby-remark-external-links",
+            options: {
+              target: "_blank",
+              rel: "noopener"
+            }
+          }
+        ]
       },
     },
     `gatsby-transformer-sharp`,

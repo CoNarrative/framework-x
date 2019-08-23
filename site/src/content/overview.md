@@ -4,7 +4,7 @@ path: /learn
 
 # Overview
 
-framework-x is a reeactive, event-based front-end framework for
+framework-x is a reactive, event-based front-end framework for
 implementing deterministic state machines in Javascript. It shares much
 of its API and design with Clojurescript's
 [`re-frame`](https://github.com/Day8/re-frame), the
