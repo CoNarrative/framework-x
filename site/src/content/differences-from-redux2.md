@@ -4,6 +4,8 @@ path: /differences-from-redux
 
 # Differences from redux
 
+In aggregate, no reducers, no middleware.
+
 Redux:
 Does not allow
 - updating two top-level keys on the global state at the same spot in code
