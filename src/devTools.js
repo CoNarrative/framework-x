@@ -19,6 +19,25 @@ const noExtensionFallbackMiddleware = (/* store, self */) => {
   return (/* action */) => {}
 }
 
+/* TODO: Need to reintegrate this back in -- was in createStore */
+/* Hacked a bit to support redux devtools -- the only middleware we care about right now */
+// let initializedMiddlewares = middlewares.map(m => m({}, {
+//   setState(state) {
+//     setState(state)
+//   },
+//   get subs() {
+//     return subs || []
+//   },
+//   get state() {
+//     return db
+//   },
+// }, {}))
+
+// const notifyMiddlewares = (type, payload, effects,
+//   count) => initializedMiddlewares.forEach(m => m(type, payload, effects, count))
+
+
+
 const reduxDevTools = ({ instanceId = 1, maxAge = 50 } = {}) => !extension
   ? noExtensionFallbackMiddleware
   : (store, self, actions) => {
