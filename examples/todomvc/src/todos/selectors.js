@@ -11,7 +11,7 @@ export const getNotDoneTodos = derive([getAllTodos], R.reject(R.prop('done')))
 
 export const getTodosByText = derive([getAllTodos], R.indexBy(R.prop('text')))
 
-export const getNewTodoText = R.path(['newTodoText'])
+export const getNewTodoText = R.pathOr('', ['newTodoText'])
 
 export const getVisibilityFilter = derive([getRouteParams], R.propOr(visibilityFilter.ALL, 'filter'))
 
