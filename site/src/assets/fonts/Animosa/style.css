@@ -1,0 +1,38 @@
+@font-face {
+font-family: 'Animosa';
+font-style: normal;
+font-weight: 400;
+src: local('Animosa Regular'), url('Animosa-Regular.woff') format('woff');
+}
+
+
+@font-face {
+font-family: 'Animosa';
+font-style: normal;
+font-weight: 200;
+src: local('Animosa Extra Light'), url('Animosa-ExtraLight.woff') format('woff');
+}
+
+
+@font-face {
+font-family: 'Animosa';
+font-style: normal;
+font-weight: 300;
+src: local('Animosa Light'), url('Animosa-Light.woff') format('woff');
+}
+
+
+@font-face {
+font-family: 'Animosa';
+font-style: normal;
+font-weight: 700;
+src: local('Animosa Bold'), url('Animosa-Bold.woff') format('woff');
+}
+
+
+@font-face {
+font-family: 'Animosa';
+font-style: normal;
+font-weight: 800;
+src: local('Animosa Extra Bold'), url('Animosa-ExtraBold.woff') format('woff');
+}
