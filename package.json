@@ -1,10 +1,13 @@
 {
   "name": "framework-x",
-  "version": "0.1.42",
-  "description": "",
+  "version": "0.1.45",
+  "description": "Reasonable global state for React.",
   "author": "mikegai",
   "license": "MIT",
-  "repository": "conarrative/framework-x",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CoNarrative/framework-x"
+  },
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "jsnext:main": "dist/index.es.js",
@@ -25,6 +28,7 @@
   },
   "peerDependencies": {
     "history": "^4.7.2",
+    "ramda": "^0.26.1",
     "react": "^16.3.2",
     "react-dom": "^16.3.2"
   },
@@ -45,6 +49,7 @@
     "eslint-plugin-react": "^7.7.0",
     "eslint-plugin-standard": "^3.0.1",
     "gh-pages": "^1.1.0",
+    "ramda": "^0.26.1",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
     "react-scripts": "^1.1.1",
