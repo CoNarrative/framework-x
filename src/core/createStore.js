@@ -1,6 +1,4 @@
-import { reduceDispatchDef } from './reduceDispatch'
-
-const noop = () => {}
+import { reduceDispatchReg, reduceFx } from './reduceDispatch'
 
 const nextDb = (db, newStateOrReducer) => {
   if (typeof (newStateOrReducer) === 'function') {
@@ -28,25 +26,42 @@ export const createStore = (baseReg, initialState = {}) => {
   /* registrations -- these can be passed to new stores */
   const reg = baseReg ? Object.assign({}, baseReg) : {
     fxReg: {},
-    fxReducerReg: {},
     eventFxReg: {}
   }
 
-  const regFx = (fxType, perform) => {
-    checkType('regFx', fxType)
-    reg.fxReg[fxType] = perform
-  }
   /**
-   * Fx reducers allow fx to reduce the accumulated flow of db and effects
-   * durring a dispatch reduction.
-   * The two main use cases are the db and dispatch fx
+   * Underlying reducer that participates in reduceDispatch
    * @param fxType
-   * @param reduce
+   * @param reduce (reg, acc, payload)
    */
-  const regFxReducer = (fxType, reduce) => {
-    checkType('regFxReducer', fxType)
-    reg.fxReducerReg[fxType] = reduce
+  const regFxRaw = (fxType, reduce) => {
+    reg.fxReg[fxType] = reduce
   }
+
+  /**
+   * Normal fx signature
+   * can return more fx requests now
+   * @param fxType
+   * @param perform
+   */
+  const regFx = (fxType, standardFxr) => {
+    checkType('regFx', fxType)
+    regFxRaw(fxType, (reg, acc, fxPayload) => {
+      let after = []
+      const context = {
+        type: fxType,
+        db: acc.db,
+        after: (fn) => after = after.concat([fn])
+        // determine: Do I need these?
+        // setState,
+        // dispatch
+      }
+      acc = Object.assign({}, acc, { after: acc.after.concat(after) })
+      /* a normal fxr can return more fx */
+      return reduceFx(reg, acc, standardFxr(context, fxPayload))
+    })
+  }
+
   const regEventFx = (type, fn) => {
     // todo: add type as array or function signatures
     checkType('regEventFx', type)
@@ -80,10 +95,7 @@ export const createStore = (baseReg, initialState = {}) => {
    * @param payload
    * @returns {(function(*=, *=): function(*=, *=): *)|*}
    */
-  const reduceDispatch = payload => {
-    console.log('def!!!!', reg)
-    return reduceDispatchDef(reg, { db, fx: {} }, payload)
-  }
+  const reduceDispatch = payload => reduceDispatchReg(reg, { db, after: [] }, payload)
 
   /**
    * dispatch and execute side effects
@@ -100,16 +112,14 @@ export const createStore = (baseReg, initialState = {}) => {
     dispatchDepth = dispatchDepth + 1
     const result = reduceDispatch([type, payload])
     dispatchDepth = dispatchDepth - 1
-    console.log(result)
     // Object.entries(result.fx).forEach()
   }
 
   // These two are core so we always have these. They can be overridden as desired.
-  regFxReducer('db', (_, acc, newStateOrReducer) =>
-    Object.assign({}, acc, { db: nextDb(acc.db, newStateOrReducer) }))
-  regFxReducer('dispatch', reduceDispatchDef)
-  regFx('db', ({ db }) => setState(db))
-  regFx('dispatch', noop)
+  regFxRaw('db', (_, acc, newStateOrReducer) =>
+    Object.assign({}, acc, { db: nextDb(acc.db, newStateOrReducer), stateIsDirty: true })
+  )
+  regFxRaw('dispatch', reduceDispatchReg)
 
   return {
     reg,
@@ -120,7 +130,7 @@ export const createStore = (baseReg, initialState = {}) => {
     notifyState,
     regEventFx,
     regFx,
-    regFxReducer,
+    regFxRaw,
     subscribeToState,
     reduceDispatch,
     getDispatchDepth

@@ -14,7 +14,10 @@ const dispatchFx = (type, payload) => ['dispatch', [type, payload]]
 
 it('should reduce a simple event', () => {
   const { regEventFx, reduceDispatch } = createStore()
-  regEventFx(evt.MESSAGE, (_, message) => [dbFx(R.assoc('message', message))])
+  regEventFx(evt.MESSAGE, (_, message) => {
+    console.log('enter eventFx', message)
+    return [dbFx(R.assoc('message', message))]
+  })
   const result = reduceDispatch([evt.MESSAGE, 'hello'])
   expect(result).toEqual({ 'db': { 'message': 'hello' }, 'fx': {} })
 })
