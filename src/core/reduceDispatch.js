@@ -1,3 +1,11 @@
+/**
+ * Takes a list of effects and reduces them.
+ * Fxrs (fx handlers) can return more fx which are executed inline
+ * @param reg
+ * @param acc
+ * @param effects
+ * @returns {*}
+ */
 export function reduceFx(reg, acc, effects) {
   if (!effects) return acc
   // Accepts either map or array

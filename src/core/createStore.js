@@ -19,7 +19,8 @@ function checkType(op, type) {
 
 /**
  * Create a store (logic plus state)
- * @param baseDef
+ * @param baseReg registrations from another store so this can be a functional clone
+ * @param initialState initial state defaults to {}
  * @returns {{notifyState: (function(*=): void), regFxReducer: regFxReducer, regEventFx: regEventFx, dispatch: dispatch, getState: (function(): *), regFx: regFx, def: {regFxReducer, regEventFx, regFx, def}, stateListeners: Array, setState: setState, subscribeToState: (function(*=): number)}}
  */
 export const createStore = (baseReg, initialState = {}) => {
