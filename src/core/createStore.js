@@ -49,16 +49,20 @@ export const createStore = (baseReg, initialState = {}) => {
     regFxRaw(fxType, (reg, acc, fxPayload) => {
       let after = []
       const context = {
-        type: fxType,
         db: acc.db,
-        after: (fn) => after = after.concat([fn])
+        fxType,
+        after: fn => {
+          after = after.concat([fn])
+        }
         // determine: Do I need these?
         // setState,
         // dispatch
       }
+      const fxDef = standardFxr(context, fxPayload)
+      /* incorporate any after requests */
       acc = Object.assign({}, acc, { after: acc.after.concat(after) })
       /* a normal fxr can return more fx */
-      return reduceFx(reg, acc, standardFxr(context, fxPayload))
+      return reduceFx(reg, acc, fxDef)
     })
   }
 
