@@ -44,11 +44,12 @@ it('should process dispatch child event synchronously', () => {
     'stateIsDirty': true
   })
 })
-it('should permit custom fx', () => {
+it('should permit custom fx and those can chain', () => {
   const { regFx, regEventFx, reduceDispatch } = createStore()
+  let afterCntr = 0
   regFx('custom', ({ after, lastEventType }, attitude) => {
     after(() => {
-      console.log('I went after!')
+      afterCntr++
     })
     return [dbFx(R.assoc('customStarted', attitude))]
   })
@@ -68,28 +69,37 @@ it('should permit custom fx', () => {
     'stateIsDirty': true
   })
   expect(result.after.length).toBe(1)
-})
-it('custom fx can chain other fx', () => {
-  const { regEventFx, reduceDispatch } = createStore()
-  regEventFx(evt.MESSAGE, (_, message) => [
-    dbFx(updateIn(['messages'], R.append(message))),
-    dispatchFx(evt.SUBEVENT, message),
-    dbFx(updateIn(['messages'], R.append('end')))
-  ])
-  regEventFx(evt.SUBEVENT, (_, message) => [
-    dbFx(updateIn(['messages'], R.append(`sub ${message}`)))
-  ])
-  const result = reduceDispatch([evt.MESSAGE, 'hello'])
-  expect(result).toEqual({
-    'after': [],
-    'db': { 'messages': ['hello', 'sub hello', 'end'] },
-    'lastEventType': 'subevent',
-    'stateIsDirty': true
-  })
+  expect(afterCntr).toEqual(0)
 })
 
-it('should notify subscribers only once', () => {
-  const { regEventFx, reduceDispatch } = createStore()
-  regEventFx(evt.MESSAGE, (_, message) => [dbFx(R.assoc('message', message))])
-  const result = reduceDispatch([evt.MESSAGE, 'hello'])
+it('should notify subscribers only once and apply afterFx', () => {
+  const { regEventFx, regFx, dispatch, subscribeToState } = createStore()
+  let stateCntr = 0
+  let state = null
+  let afterCntr = 0
+  subscribeToState(newState => {
+    stateCntr++
+    state = newState
+  })
+  regFx('custom', ({ after, lastEventType }, attitude) => {
+    after(() => {
+      afterCntr++
+    })
+    return [dbFx(R.assoc('customStarted', attitude))]
+  })
+  regEventFx(evt.MESSAGE, (_, message) => [
+    dbFx(R.assoc('message', message)),
+    dispatchFx(evt.SUBEVENT, message),
+    dbFx(R.assoc('done', true))
+  ])
+  regEventFx(evt.SUBEVENT, (_, message) => [
+    ['custom', 'yep'],
+    dbFx(updateIn(['messages'], R.append(`sub ${message}`)))
+  ])
+  dispatch(evt.MESSAGE, 'hello')
+  expect(stateCntr).toEqual(1)
+  expect(afterCntr).toEqual(1)
+  expect(state).toEqual({
+    'customStarted': 'yep', 'done': true, 'message': 'hello', 'messages': ['sub hello']
+  })
 })

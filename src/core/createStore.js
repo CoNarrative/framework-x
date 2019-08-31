@@ -87,8 +87,7 @@ export const createStore = (baseReg, initialState = {}) => {
   const getState = () => db
   const setState = nextDb => {
     if (dispatchDepth > 0) {
-      console.warn('attempt to call setState while in the middle of things.')
-      return
+      console.warn('Do not call setState from an eventFx. In an fx, you can just return db fx')
     }
     db = nextDb
     notifyState(db)
@@ -107,8 +106,7 @@ export const createStore = (baseReg, initialState = {}) => {
    */
   const dispatch = (...event) => {
     if (dispatchDepth > 0) {
-      console.warn('attempt to call dispatch while in the middle of things.')
-      return
+      console.warn('Do not call dispatch from an eventFx. In an fx, you can just return dispatch fx')
     }
     const finalEvent = (event[0] instanceof Array) ? event[0] : event
     if (!event[0]) throw new Error('Dispatch requires at least a valid event key')
@@ -116,7 +114,13 @@ export const createStore = (baseReg, initialState = {}) => {
     dispatchDepth = dispatchDepth + 1
     const result = reduceDispatch([type, payload])
     dispatchDepth = dispatchDepth - 1
-    // Object.entries(result.fx).forEach()
+    // get the state change in quickly
+    // fixme. in the future we should generalize this so other "aftereffectors"
+    // can operate over the whole regFx state
+    if (result.stateIsDirty) {
+      setState(result.db)
+    }
+    result.after.forEach(after => after())
   }
 
   // These two are core so we always have these. They can be overridden as desired.
