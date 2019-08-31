@@ -25,8 +25,7 @@ export const regResultFx = (eventName, successBranch, failureBranch,
   regEventFx(failureEventName, failureBranch)
 }
 
-regEventFx(evt.API_REQUEST, (_, __, foo) => {
-  const [eventName, [method, endpoint, body], args] = foo
+regEventFx(evt.API_REQUEST, (_, __, [eventName, [method, endpoint, body], args]) => {
   const token = getToken()
   const req = apiRequest(method, endpoint, body)
   return [
