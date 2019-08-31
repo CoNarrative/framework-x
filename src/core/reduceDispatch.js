@@ -7,15 +7,11 @@
  * @param payload
  * @returns {(function(*=, *=): function(*=, *=): *)|*}
  */
-export function reduceDispatch(
+export function reduceDispatchDef(
   def,
   acc,
-  [type, payload] //fixme. Alex wants this to be the old ...event, signature to permit argument spreading
+  [type, payload] // fixme. Alex wants this to be the old ...event, signature to permit argument spreading
 ) {
-  // curry if just def provided
-  if (arguments.length === 1) {
-    return (acc, payload) => reduceDispatch(def, acc, payload)
-  }
   const eventHandlers = def.eventFxReg[type]
   if (!eventHandlers) {
     const message = `No event -> fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`
