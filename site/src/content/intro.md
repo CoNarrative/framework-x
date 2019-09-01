@@ -1,3 +1,7 @@
+---
+path: /intro
+---
+
 # Framework-X: Reasonable global state management for React apps
 > Side effects may include other effects.
 

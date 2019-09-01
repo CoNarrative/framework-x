@@ -1,3 +1,6 @@
+---
+path: /scratch
+---
 > Note: These examples use Ramda (`R.`). We encourage trying it, but
 > it's not required. 
 > We use it because it provides immutability, we're used to it, and
