@@ -10,7 +10,8 @@ of its API and design with Clojurescript's
 [`re-frame`](https://github.com/Day8/re-frame), the
 [most expressive front-end framework to date](https://www.freecodecamp.org/news/a-realworld-comparison-of-front-end-frameworks-with-benchmarks-2019-update-4be0d3c78075/)
 . It has things in common with Redux, but differs in ways that have
-far-reaching consequences for simplicity, mental overhead, productivity.
+far-reaching consequences for simplicity, mental overhead, and 
+productivity.
 
 
 Key features:
