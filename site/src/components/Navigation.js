@@ -1,10 +1,9 @@
-import React from "react"
-import {Link} from "gatsby"
-import PropTypes from "prop-types"
-import {jsx} from '@emotion/core'
+import React from 'react'
+import { Link } from 'gatsby'
 import styled from '@emotion/styled'
 import * as theme from '../theme'
 import Logo from '../assets/icons/logo.svg'
+import MulletMan from '../images/mullet-man1.png'
 import Github from '../assets/icons/github.svg'
 
 const Container = styled.div({
@@ -17,7 +16,7 @@ const Container = styled.div({
   }
 })
 
-export const Navigation = ({siteTitle}) => (
+export const Navigation = ({ siteTitle }) => (
   <div
     css={{
       background: `white`,
@@ -31,7 +30,10 @@ export const Navigation = ({siteTitle}) => (
       padding: '0 64px',
     }}
   >
-    <img src={Logo}/>
+    <Link to={'/'} style={{ display: 'flex', alignItems: 'center' }}>
+      <img style={{ height: 38 }} src={MulletMan} alt={'logo'} />
+      <img style={{ height: 16 }} src={Logo} alt={'logo'} />
+    </Link>
     <Container>
       <Link
         to="/"
@@ -43,7 +45,7 @@ export const Navigation = ({siteTitle}) => (
         Features
       </Link>
       <Link
-        to="/"
+        to="/api"
         style={{
           color: theme.darkGrey,
           textDecoration: `none`,
@@ -52,7 +54,7 @@ export const Navigation = ({siteTitle}) => (
         Documentation
       </Link>
       <Link
-        to="/"
+        to="/learn"
         style={{
           color: theme.darkGrey,
           textDecoration: `none`,
@@ -60,9 +62,10 @@ export const Navigation = ({siteTitle}) => (
       >
         Learn
       </Link>
-      <Link to={'/'} >
-        <img src={Github}/>
-      </Link>
+      <a href={'http://github.com/CoNarrative/framework-x'}
+         target={'_blank'}>
+        <img src={Github} />
+      </a>
     </Container>
   </div>
 )
