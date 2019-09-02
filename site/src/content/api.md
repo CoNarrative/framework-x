@@ -179,3 +179,101 @@ ReactDOM.render(
   </Provider>,
   document.getElementById('root'))
 ```
+
+### `createRouter`
+> Returns client-side routing functions for the provided routes
+
+arguments: `(history: history.History, routes: RouteDef[])` 
+
+returns: 
+```typescript
+{
+ pushedNamedRoute:(routeId: RouteDef['id'], params: ParamMatch, query: {[k:string]: string}) => void
+ replaceNamedRoute: (routeId: RouteDef['id'], params: ParamMatch, query: {[k:string]: string}) => void
+ listen: ((locationAndMatch:LocationAndMatch) => any)) => void
+}
+``` 
+
+types, etc. 
+```typescript
+type Path = string
+
+type ParameterizedPath = string
+
+type RouteDef = {id: string, path:  Path | ParameterizedPath} & {[k: string]: any}
+
+type ParameterKey = string
+
+const isPath  = (x: string) : x is Path => x.startsWith('/')
+
+const isParameterizedPath = (x: Path) : x is ParameterizedPath => x.includes("/:")
+
+const routeParameterKeys = (x: ParameterizedPath) : ParameterKey[] => 
+  x.split("/")
+   .filter(x => x.startsWith(":"))
+   .map(x => x.slice(1)) as ParameterKey[]
+
+type ParamMatch = {[k in ParameterKey]: string}
+
+type RouteMatch = {params: ParamMatch, route: RouteDef}
+
+type MatchType = 'INITIAL' | 'PUSH' | | 'POP' | 'REPLACE'
+
+type Location = {pathname: string, search:string, hash: string, state: any}
+
+type LocationAndMatch = {location: Location, match: RouteMatch, type: MatchType}
+```
+
+
+basic example: 
+
+```js
+import * as R from 'ramda'
+import { createBrowserHistory } from 'history'
+import { createRouter } from 'framework-x'
+import { dispatch, regEventFx, regFx } from './store'
+
+const routeIds = {
+  ALL_TODOS: 'all-todos',
+  FILTERED_TODOS: 'filtered-todos',
+}
+
+const routes = [
+  { id: routeIds.ALL_TODOS, path: '/' },
+  { id: routeIds.FILTERED_TODOS, path: '/:filter' }
+]
+
+// for hash history import createHashHistory
+const history = createBrowserHistory()
+
+// initialize routing with the provided routes and history
+const { pushNamedRoute, replaceNamedRoute, listen } = createRouter({
+  history,
+  routes,
+})
+
+regFx('route', args => pushNamedRoute.apply(null, args))
+regFx('redirect', args => replaceNamedRoute.apply(null, args))
+
+regEventFx(evt.NAV_TO, (_, [id, params, options]) => {
+  return [
+    ["route", [id, params, options]]
+  ]
+})
+
+// store current route data in state whenever the route changes
+regEventFx(evt.ROUTE_CHANGED, ({ db }, locationAndMatch) => {
+  return {
+    db: R.assoc('router',locationAndMatch)
+  }
+})
+
+export const startRouter = () =>
+  listen(locationAndMatch => {
+    dispatch(evt.ROUTE_CHANGED, locationAndMatch)
+  })
+```
+
+An example with custom onEnter/onExit and routing logic and storing route history in global state may be found in the
+RealWorld example application.
+
