@@ -40,6 +40,9 @@ export function reduceDispatchReg(
   acc,
   [type, payload] // fixme. Alex wants this to be the old ...event, signature to permit argument spreading
 ) {
+  if (typeof type !== 'string') {
+    throw new Error('attempted to dispatch empty or invalid type argument')
+  }
   const eventHandlers = reg.eventFxReg[type]
   if (!eventHandlers) {
     const message = `No event -> fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`
