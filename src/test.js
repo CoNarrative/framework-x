@@ -1,5 +1,5 @@
 import * as R from 'ramda'
-import { createStore } from '.'
+import { createStore } from './createStore'
 
 const evt = {
   MESSAGE: 'message',
