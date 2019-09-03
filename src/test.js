@@ -118,7 +118,7 @@ it('should block and ask for coeffects', () => {
 
 it('should work all the way through if supplied coeffects', () => {
   const { regEventFx, reduceDispatchStateless } = createStore()
-  regEventFx(evt.MESSAGE, [['id']], ({ supplied:[id]}) => [
+  regEventFx(evt.MESSAGE, [['id']], ({ supplied: [id] }) => [
     dbFx(R.assoc('id', id)),
     dbFx(R.assoc('done', true))
   ])
@@ -130,12 +130,31 @@ it('should work all the way through if supplied coeffects', () => {
   }, [evt.MESSAGE, 'hello'])
 
   expect(R.omit(['lastEventType'], next)).toEqual({
-    afterFx: [], db: {
+    afterFx: [],
+    db: {
       done: true,
       id: '88'
     },
     stateIsDirty: true,
     requires: [['id']],
     supplied: ['88']
+  })
+})
+
+it('dispatch should auto-supply coeffects', () => {
+  const { regEventFx, dispatch, regSupplier, getState, regAfter } = createStore()
+  regEventFx(evt.MESSAGE, [['id']], ({ supplied: [id] }) => [
+    dbFx(R.assoc('id', id)),
+    dbFx(R.assoc('done', true))
+  ])
+  regSupplier('id', () => '88')
+  regAfter((result, type, payload) => {
+    console.log(result)
+  })
+  dispatch(evt.MESSAGE, 'hello')
+
+  expect(getState()).toEqual({
+    done: true,
+    id: '88'
   })
 })
