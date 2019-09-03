@@ -4,13 +4,11 @@ path: /learn
 
 # Overview
 
-framework-x is a reactive, event-based front-end framework for
-implementing deterministic state machines in Javascript. It shares much
-of its API and design with Clojurescript's
+Framework-x shares much of its API and design with Clojurescript's
 [`re-frame`](https://github.com/Day8/re-frame), the
 [most expressive front-end framework to date](https://www.freecodecamp.org/news/a-realworld-comparison-of-front-end-frameworks-with-benchmarks-2019-update-4be0d3c78075/)
-. It has things in common with Redux, but differs in ways that have
-far-reaching consequences for simplicity, mental overhead, and 
+. Its design overlaps with Redux, but diverges in ways that have enable referentially transparent events and side
+effects, colocation of state transformations and far-reaching consequences for simplicity, mental overhead, and
 productivity.
 
 
@@ -304,8 +302,7 @@ fx helpers are functions that return the array format.
 
 ## Writing your own `fx`
 
-Users can define their own `fx` by mapping an fx name to a function with
-`regFx`.
+Applications can define their own `fx` by mapping an fx name to a function with `regFx`.
 
 Example:
 
@@ -322,7 +319,18 @@ regEventFx('login-success', ()=> {
 })
 ```
 
-Users are free to override the default `db` and `dispatch` with their
-own implementation with `regFx('dispatch', (whatever) =>
-dispatch(whatever))`, `regFx('db', (whatever) => setState(whatever))`
+Applications may override the default `db` and `dispatch` with their own implementation:
+
+```js
+const myDispatch = (...args) => {
+    if (typeof args[0] !== 'string') {
+      throw new Error("First `dispatch` argument should be a string.")
+    }
+    console.log("dispatching:", args)
+    dispatch(...args)
+}
+regFx('dispatch', myDispatch)
+```
+
+`regFx('db', (whatever) => setState(whatever))`
 

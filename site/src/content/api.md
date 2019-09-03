@@ -276,4 +276,3 @@ export const startRouter = () =>
 
 An example with custom onEnter/onExit and routing logic and storing route history in global state may be found in the
 RealWorld example application.
-
