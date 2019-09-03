@@ -48,15 +48,20 @@ export const createStore = (baseReg, initialState = {}) => {
     checkType('regFx', fxType)
     // defer until later, and ignore anything it returns
     const reducer = (acc, [type, payload]) =>
-      Object.assign({}, acc, {afterFx: acc.afterFx.concat(() => standardFxr(acc, payload))})
+      Object.assign({}, acc, { afterFx: acc.afterFx.concat(() => standardFxr(acc, payload)) })
     reg.fxReg[fxType] = reducer
   }
 
-  const regEventFx = (type, fn) => {
+  const regEventFx = (type, fn, fn2) => {
+    let requires = []
+    if (Array.isArray(fn)) {
+      requires = fn
+      fn = fn2
+    }
     // todo: add type as array or function signatures
     checkType('regEventFx', type)
     // we allow multiple event fx for one event name
-    reg.eventFxReg[type] = [...reg.eventFxReg[type] || [], fn]
+    reg.eventFxReg[type] = [...reg.eventFxReg[type] || [], [requires, fn]]
   }
 
   /* state definition */
@@ -132,10 +137,21 @@ export const createStore = (baseReg, initialState = {}) => {
       }
     }
     return eventHandlers.reduce(
-      (acc, handler) => {
+      (acc, [requires, handler]) => {
+        const prevRequiredLength = acc.requires.length
+        if (requires.length > 0) {
+          console.log('ASKED for dependencies!', requires)
+          acc = Object.assign({}, acc, { requires: [...acc.requires, ...requires] })
+        }
+        /* once we get to a position where we need more than we are supplied, we are out! */
+        if (acc.requires.length > acc.supplied.length) {
+          return acc
+        }
+        const supplied = acc.supplied.slice(prevRequiredLength, requires.length)
         const context = {
           db: acc.db,
-          eventType: type
+          eventType: type,
+          supplied
           // fixme. Dynamically add helpers, etc.
         }
         acc = Object.assign({}, acc, { lastEventType: type })
@@ -151,7 +167,13 @@ export const createStore = (baseReg, initialState = {}) => {
    * @param payload
    * @returns {(function(*=, *=): function(*=, *=): *)|*}
    */
-  const reduceDispatch = payload => reduceDispatchStateless({ db, afterFx: [] }, payload)
+  const reduceDispatch = (type, payload) =>
+    reduceDispatchStateless({
+      db,
+      requires: [],
+      supplied: [],
+      afterFx: []
+    }, [type, payload])
 
   /**
    * dispatch and execute side effects
@@ -165,7 +187,7 @@ export const createStore = (baseReg, initialState = {}) => {
     if (!event[0]) throw new Error('Dispatch requires at least a valid event key')
     const [type, payload] = finalEvent
     dispatchDepth = dispatchDepth + 1
-    const result = reduceDispatch([type, payload])
+    const result = reduceDispatch(type, payload)
     dispatchDepth = dispatchDepth - 1
     // get the state change in quickly
     // fixme. in the future we should generalize this so other "aftereffectors"

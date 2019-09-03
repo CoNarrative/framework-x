@@ -18,12 +18,14 @@ it('should reduce a simple event', () => {
     console.log('enter eventFx', message)
     return [dbFx(R.assoc('message', message))]
   })
-  const result = reduceDispatch([evt.MESSAGE, 'hello'])
+  const result = reduceDispatch(evt.MESSAGE, 'hello')
   expect(result).toEqual({
     'afterFx': [],
     'db': { 'message': 'hello' },
     'lastEventType': 'message',
-    'stateIsDirty': true
+    'stateIsDirty': true,
+    supplied: [],
+    requires: []
   })
 })
 it('should process dispatch child event synchronously', () => {
@@ -36,12 +38,14 @@ it('should process dispatch child event synchronously', () => {
   regEventFx(evt.SUBEVENT, (_, message) => [
     dbFx(updateIn(['messages'], R.append(`sub ${message}`)))
   ])
-  const result = reduceDispatch([evt.MESSAGE, 'hello'])
+  const result = reduceDispatch(evt.MESSAGE, 'hello')
   expect(result).toEqual({
     'afterFx': [],
     'db': { 'messages': ['hello', 'sub hello', 'end'] },
     'lastEventType': 'subevent',
-    'stateIsDirty': true
+    'stateIsDirty': true,
+    supplied: [],
+    requires: []
   })
 })
 it('should permit custom fx and those can chain', () => {
@@ -59,11 +63,13 @@ it('should permit custom fx and those can chain', () => {
     dbFx(updateIn(['messages'], R.append(`sub ${message}`))),
     ['custom', 'yep']
   ])
-  const result = reduceDispatch([evt.MESSAGE, 'hello'])
+  const result = reduceDispatch(evt.MESSAGE, 'hello')
   expect(R.omit(['afterFx'], result)).toEqual({
     'db': { 'messages': ['hello', 'sub hello', 'end'] },
     'lastEventType': 'subevent',
-    'stateIsDirty': true
+    'stateIsDirty': true,
+    supplied: [],
+    requires: []
   })
   expect(result.afterFx.length).toBe(1)
   expect(afterCntr).toEqual(0)
@@ -78,7 +84,7 @@ it('should notify subscribers only once and apply afterFx', () => {
     stateCntr++
     state = newState
   })
-  regFx('custom', ({ after, lastEventType }, attitude) => {
+  regFx('custom', () => {
     afterCntr++
   })
   regEventFx(evt.MESSAGE, (_, message) => [
@@ -95,5 +101,41 @@ it('should notify subscribers only once and apply afterFx', () => {
   expect(afterCntr).toEqual(1)
   expect(state).toEqual({
     'done': true, 'message': 'hello', 'messages': ['sub hello']
+  })
+})
+
+it('should block and ask for coeffects', () => {
+  const { regEventFx, reduceDispatch } = createStore()
+  regEventFx(evt.MESSAGE, [['id']], () => {
+    throw new Error('Should never get to me (at least how we are handling coeffects now)')
+  })
+  const next = reduceDispatch(evt.MESSAGE, 'hello')
+
+  expect(next).toEqual({
+    afterFx: [], db: {}, requires: [['id']], supplied: []
+  })
+})
+
+it('should work all the way through if supplied coeffects', () => {
+  const { regEventFx, reduceDispatchStateless } = createStore()
+  regEventFx(evt.MESSAGE, [['id']], ({ supplied:[id]}) => [
+    dbFx(R.assoc('id', id)),
+    dbFx(R.assoc('done', true))
+  ])
+  const next = reduceDispatchStateless({
+    db: {},
+    requires: [],
+    supplied: ['88'],
+    afterFx: []
+  }, [evt.MESSAGE, 'hello'])
+
+  expect(R.omit(['lastEventType'], next)).toEqual({
+    afterFx: [], db: {
+      done: true,
+      id: '88'
+    },
+    stateIsDirty: true,
+    requires: [['id']],
+    supplied: ['88']
   })
 })
