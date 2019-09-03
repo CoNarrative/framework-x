@@ -30,39 +30,26 @@ export const createStore = (baseReg, initialState = {}) => {
 
   /**
    * Underlying reducer that participates in reduceDispatch
+   * can return more fx requests now
    * @param fxType
    * @param reduce (reg, acc, payload)
    */
-  const regFxRaw = (fxType, reduce) => {
-    reg.fxReg[fxType] = reduce
+  const regFxImmediate = (fxType, reducer) => {
+    checkType('regFxImmediate', fxType)
+    reg.fxReg[fxType] = reducer
   }
 
   /**
    * Normal fx signature
-   * can return more fx requests now
    * @param fxType
    * @param perform
    */
   const regFx = (fxType, standardFxr) => {
     checkType('regFx', fxType)
-    regFxRaw(fxType, (acc, fxPayload) => {
-      let after = []
-      const context = {
-        db: acc.db,
-        fxType,
-        after: fn => {
-          after = after.concat([fn])
-        }
-        // determine: Do I need these?
-        // setState,
-        // dispatch
-      }
-      const fxDef = standardFxr(context, fxPayload)
-      /* incorporate any after requests */
-      acc = Object.assign({}, acc, { after: acc.after.concat(after) })
-      /* a normal fxr can return more fx */
-      return reduceFx(acc, fxDef)
-    })
+    // defer until later, and ignore anything it returns
+    const reducer = (acc, [type, payload]) =>
+      Object.assign({}, acc, {afterFx: acc.afterFx.concat(() => standardFxr(acc, payload))})
+    reg.fxReg[fxType] = reducer
   }
 
   const regEventFx = (type, fn) => {
@@ -103,14 +90,13 @@ export const createStore = (baseReg, initialState = {}) => {
     if (!effects) return acc
     // Accepts either map or array
     const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
-    // Process effects by reducing over them
+    // Process IMMEDIATE effects by reducing over them
     return effectsList.reduce(
       (acc, [fxType, fxPayload]) => {
         const fxr = reg.fxReg[fxType]
         if (!fxr) {
           throw new Error(`No fx handler for effect "${fxType}". Try registering a handler using "regFx('${fxType}', ({ effect }) => ({...some side-effect})"`)
         }
-        // console.log('FXR', fxType, fxr)
         const nextAcc = fxr(acc, fxPayload)
         // console.log('NEXT ACC', nextAcc)
         return nextAcc
@@ -165,7 +151,7 @@ export const createStore = (baseReg, initialState = {}) => {
    * @param payload
    * @returns {(function(*=, *=): function(*=, *=): *)|*}
    */
-  const reduceDispatch = payload => reduceDispatchStateless({ db, after: [] }, payload)
+  const reduceDispatch = payload => reduceDispatchStateless({ db, afterFx: [] }, payload)
 
   /**
    * dispatch and execute side effects
@@ -187,14 +173,14 @@ export const createStore = (baseReg, initialState = {}) => {
     if (result.stateIsDirty) {
       setState(result.db)
     }
-    result.after.forEach(after => after())
+    result.afterFx.forEach(after => after())
   }
 
   // These two are core so we always have these. They can be overridden as desired.
-  regFxRaw('db', (acc, newStateOrReducer) =>
+  regFxImmediate('db', (acc, newStateOrReducer) =>
     Object.assign({}, acc, { db: nextDb(acc.db, newStateOrReducer), stateIsDirty: true })
   )
-  regFxRaw('dispatch', reduceDispatchStateless)
+  regFxImmediate('dispatch', reduceDispatchStateless)
 
   return {
     reg,
@@ -205,7 +191,7 @@ export const createStore = (baseReg, initialState = {}) => {
     notifyState,
     regEventFx,
     regFx,
-    regFxRaw,
+    regFxImmediate,
     subscribeToState,
     reduceDispatch,
     reduceDispatchStateless,
