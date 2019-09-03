@@ -25,7 +25,7 @@ const MainContent = ({ starCount, downloadCount }) =>
       Reasonable <Highlight>global state.</Highlight>
     </h1>
     <div css={{ marginBottom: '1.45rem' }}>
-      Framework-X is a Javascript framework that processes simple definitions of cause and
+      Framework-X is a Javascript framework that processes definitions of cause and
       effect.
       Applications define what their events mean by mapping them to descriptions of the
       effects they entail -- a state change, an

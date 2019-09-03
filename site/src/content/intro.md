@@ -5,37 +5,31 @@ path: /intro
 # Framework-X: Reasonable global state management for React apps
 > Side effects may include other effects.
 
+Framework-X is a Javascript framework that processes definitions of cause and effect. Applications map events to
+descriptions of the effects they entail -- a state change, a function, or another event. 
 
-Framework-X is a front-end Javascript framework that lets you define the
-effects of an event as a state change, side effect, or another event. 
+When an application dispatches an event, the framework calls functions the application has associated it with the event.
+Each function receives a context argument and the event's arguments. The context includes the current immutable state
+object; applications may extended context to include other values. The framework interprets the function's return value
+as an ordered map. Each key corresponds to a map of effect the application has registered. The framework iterates over
+the map's entries in order, invoking the registered effect function for the key with the map entry's value. is provides
+a description of effects as data back to the framework, which are then applied The framework then applies them by
+invoking built-in functions to perform immutable state updates
 
-Framework-X is a front-end Javascript framework that lets you connect
-application events to their effects. An effect can be a state change,
-"side effect", and may delegate to the effects of other events by
-dispatching them.
+Some of this may may sound familiar to readers who have used Redux. Framework-X has even more in common with re-frame,
+upon which it's based.
 
-Framework-X is a front-end Javascript framework that connects events
-with effects.
+The model is reducible to the following: 
 
-
-Event handlers can return more than one effect, and more than one kind
-of effect, for the event they handle. This means you can write code that
-performs a state update and initiates an API call in the same place. Any
-series of effects represented by an array is executed in the order
-provided.
+0. There is a context.
+1. There are events.
+2. There are effects. 
+3. Events have effects: a state change, the execution of a function, or
+   other events.
 
 
-We'll highlight its differences from Redux and other forms of state
-management for React, discuss the motivations and philosophy behind it,
-
-and attempt to show its design is reasonable. 
-
-uses a straightforward pattern to define what happens as the result
-   of an an event by
-This
-   straightforward pattern makes code simple to read and write, and to
-   discover what the application does when see all effects of each
-   cause, and see where in the application each event occurs.
+We'll highlight its differences from [Redux](https://redux.js.org/) and other forms of state
+management for React, discuss the motivations and philosophy behind it, and attempt to show its design is reasonable. 
    
 By "reasonable", we generally mean Framework-X tends to be:
 1. **Logical** Applications define causes and their effects. The
@@ -57,20 +51,11 @@ By "reasonable", we generally mean Framework-X tends to be:
    handlers. You can redefine built-in effects like `db` and `dispatch`
    if you choose. Because effects are data structures, it's easy to
    write functions that return them using types or whatever you want.
-8. **Well-prioritized** One state is easier to reason about than many
-   separate ones. Framework-X doesn't sacrifice this on the way to
-   trying to achieve gains in other areas, like decreased verbosity.
-   
-   
-Framework-X's design is based on `re-frame`, a state management
-framework written in Clojurescript. 
+8. **Prioritized** One state is easier to reason about than many separate ones. Framework-X doesn't sacrifice this on
+   the way to trying to achieve gains in other areas, like decreased verbosity.
 
-The model is simple: 
 
-1. There are events.
-2. There are effects. 
-3. Events have effects: a state change, the execution of a function, or
-   other events.
+
 
 
 # Code
@@ -107,12 +92,7 @@ Events are dispatched with an optional payload argument.
 dispatch(evt.ADD_TODO, 'Use framework-x')
 ```
 
-`regEventFx` associates events with their effects. It has access to the
-current global state (`{db}`). State is immutable, and the next state is
-always a function of the current one. The `db` effect, when executed by
-the framework, will set the next state to the value provided or if it
-receives a function it will call the function with the current state and
-set the next state to the value the function returns:
+Applications use `regEventFx` to associate events with their effects. 
 
 ```js
 regEventFx(evt.ADD_TODO, ({ db }, _, text) => {
@@ -128,6 +108,10 @@ regEventFx(evt.ADD_TODO, ({ db }, _, text) => {
   ]
 })
 ```
+
+It has access to the current global state (`{db}`). State is immutable, and the next state is always a function of the current one. The `db` effect, when executed
+by the framework, will set the next state to the value provided or if it receives a function it will call the function
+with the current state and set the next state to the value the function returns:
 
 We can easily define additional effects for this event, like resetting
 the todo input's text whenever a new todo is added:
