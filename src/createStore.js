@@ -7,6 +7,8 @@ export const identityEnv = () => ({
   eventListeners: [],
 })
 
+const shallowClone = a => Array.isArray(a) ? a.concat([]) : Object.assign({}, a)
+
 export const createStore = ({
   context = { db: {} },
   fx = {},
@@ -32,12 +34,20 @@ export const createStore = ({
   // 2. the natural world, as a whole or in a particular geographical area,
   // especially as affected by human activity.
 
+  /**
+   * We use mutability (for now) for all registration
+   * Therefore, all passed in objects need to be cloned as they may continue to be
+   * mutated (e.g. by reg calls on a source store)
+   * If in the future we decided in reg calls to
+   * R.assoc or equivalent (which clones the object each time)
+   * then we would not need to do this
+   **/
   const env = Object.assign({}, identityEnv(), {
-    context,
-    fx,
-    eventFx,
-    dbListeners,
-    eventListeners
+    context: shallowClone(context),
+    fx: shallowClone(fx),
+    eventFx: shallowClone(eventFx),
+    dbListeners: shallowClone(dbListeners),
+    eventListeners: shallowClone(eventListeners)
   })
 
   let { db } = env.context
