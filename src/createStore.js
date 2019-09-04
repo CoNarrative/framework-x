@@ -81,7 +81,7 @@ export const createStore = (initialState, ...middlewares) => {
       if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
       let count = 0
       eventHandlers.forEach(handler => {
-        const coeffects = { db: getState() }
+        const coeffects = { db: getState(), eventType: type }
         // console.log(`event handler (${type}-${count})`, 'current db:', coeffects.db, 'args:', args)
         const effects = handler(coeffects, ...args)
         if (!effects) return
