@@ -9,6 +9,8 @@ export const createStore = (initialState, ...middlewares) => {
   let appState = initialState
   let initializedMiddlewares
   const subs = {}
+  const fxReg = {}
+  const eventFxReg = {}
   // let subscriptions = []
 
   const subscribeToState = fn => stateListeners.push(fn)
@@ -19,7 +21,7 @@ export const createStore = (initialState, ...middlewares) => {
     if (typeof (newStateOrReducer) === 'function') {
       const myNextState = newStateOrReducer(getState())
       if (typeof (myNextState) === 'function') {
-        throw new Error('db fx request was a reducer function that returned a function. ' +
+        throw new Error('db fxReg request was a reducer function that returned a function. ' +
                         'If you are using ramda, you probably didn\'t finish currying all the args')
       }
       return myNextState
@@ -27,8 +29,14 @@ export const createStore = (initialState, ...middlewares) => {
     return newStateOrReducer
   }
 
+  let dispatchDepth = 0
+  let stateIsDirty = false
   const setState = (newStateOrReducer) => {
     appState = nextState(newStateOrReducer)
+    if (dispatchDepth > 0) {
+      stateIsDirty = true
+      return
+    }
     stateListeners.forEach(fn => fn(appState))
   }
 
@@ -45,26 +53,23 @@ export const createStore = (initialState, ...middlewares) => {
     }
   }, {}))
 
-  const eventFx = {}
   const checkType = (op, type) => {
     if (typeof (type) !== 'string') throw new Error(`${op} requires a string as the fx key`)
     if (type.length === 0) throw new Error(`${op} fx key cannot be a zero-length string`)
   }
   const regEventFx = (type, fn) => {
     checkType('regEventFx', type)
-    eventFx[type] = [...eventFx[type] || [], fn]
+    eventFxReg[type] = [...eventFxReg[type] || [], fn]
   }
 
-  const fx = {}
   const regFx = (type, fn) => {
     checkType('regEventFx', type)
-    fx[type] = fn
+    fxReg[type] = fn
   }
 
   const notifyMiddlewares = (type, payload, effects,
     count) => initializedMiddlewares.forEach(m => m(type, payload, effects, count))
 
-  let dispatchDepth = 0
   const processDispatch = (event) => {
     dispatchDepth = dispatchDepth + 1
     try {
@@ -72,7 +77,7 @@ export const createStore = (initialState, ...middlewares) => {
       const args = event.slice(1)
       // console.log('H:', type, args)
       /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
-      const eventHandlers = eventFx[type]
+      const eventHandlers = eventFxReg[type]
       if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
       let count = 0
       eventHandlers.forEach(handler => {
@@ -83,14 +88,14 @@ export const createStore = (initialState, ...middlewares) => {
         const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
         /* Process effects */
         effectsList.forEach(([key, value]) => {
-          const effect = fx[key]
+          const effect = fxReg[key]
           // console.log(`  effect handler (${key}) for event (${type})`, value)
           if (!effect) throw new Error(`No fx handler for effect "${key}". Try registering a handler using "regFx('${key}', ({ effect }) => ({...some side-effect})"`)
           // NOTE: no need really to handle result of effect for now -
           // we're not doing anything with promises for instance
           effect(value)
         })
-        // only notify if at root
+        // only notify if at root, and notify once per handler
         if (dispatchDepth === 1) {
           notifyMiddlewares(type, args, effects, count)
           count++
@@ -98,6 +103,11 @@ export const createStore = (initialState, ...middlewares) => {
       })
     } finally {
       dispatchDepth = dispatchDepth - 1
+      // defer notification until all done with root dispatch
+      if (dispatchDepth === 0 && stateIsDirty) {
+        stateListeners.forEach(fn => fn(appState))
+        stateIsDirty = false
+      }
     }
   }
 
@@ -113,7 +123,7 @@ export const createStore = (initialState, ...middlewares) => {
 
   regFx('db', setState)
 
-  /* dispatch fx should happen next tick */
+  /* dispatch fxReg should happen next tick */
   regFx('dispatch', dispatch)
 
   return {
