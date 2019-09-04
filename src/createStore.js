@@ -56,7 +56,8 @@ export const createStore = (baseReg, initialState = {}) => {
 
   const regEventFx = (type, fn, fn2) => {
     let requires = []
-    if (Array.isArray(fn)) {
+    // when second argument is an object, it is a requirements request
+    if (typeof fn === 'object') {
       requires = fn
       fn = fn2
     }
@@ -147,27 +148,34 @@ export const createStore = (baseReg, initialState = {}) => {
         throw new Error(message)
       }
     }
+    // fixme. Should probably just align supply with recording of events
+    // to make the whole thing simpler.
     return eventHandlers.reduce(
       (acc, [requires, handler]) => {
-        const prevRequiredLength = acc.requires.length
-        if (requires.length > 0) {
+        const needsSuppliers = requires && Object.keys(requires).length > 0 ? 1 : 0
+        if (needsSuppliers) {
           // console.log('ASKED for dependencies!', requires)
-          acc = Object.assign({}, acc, { requires: [...acc.requires, ...requires] })
+          acc = Object.assign({}, acc, { requires: [...acc.requires, requires] })
         }
-        /* once we get to a position where we need more than we are supplied, we are out! */
+        /* once we get to a position where we need more than we are supplied, we exit! */
         if (acc.requires.length > acc.supplied.length) {
           return acc
         }
-        const supplied = acc.supplied.slice(prevRequiredLength, requires.length)
-        const context = {
+        let context = {
           db: acc.db,
-          eventType: type,
-          supplied
+          eventType: type
           // fixme. Dynamically add helpers, etc.
         }
-        acc = Object.assign({}, acc, { lastEventType: type })
+        if (needsSuppliers) {
+          const thisBag = acc.supplied[acc.supplyIndex || 0]
+          Object.assign(context, thisBag)
+        }
         const fx = handler(context, payload)
-        return reduceFx(acc, fx) // fixme. Alex wants spread arguments
+        acc = Object.assign({}, acc, {
+          lastEventType: type
+        }, needsSuppliers
+          ? { supplyIndex: (acc.supplyIndex || 0) + 1 } : {})
+        return reduceFx(acc, fx)
       },
       acc
     )
@@ -187,7 +195,44 @@ export const createStore = (baseReg, initialState = {}) => {
     }, [type, payload])
 
   /**
-   * dispatch and execute side effects
+   * keep asking for next state and supplying required "impurities"
+   *  (ids, dates, local storage, etc.) until all are supplied
+   * */
+  const dispatchReduceSupply = (type, payload) => {
+    let loop = 0
+    let supplied = []
+    let result = null
+    let insufficient = false
+    // a loop seems natural as this is an unknown number of iterations
+    do {
+      result = reduceDispatchStateless({
+        db,
+        requires: [],
+        supplied,
+        afterFx: []
+      }, [type, payload])
+      insufficient = result.requires.length > result.supplied.length
+      if (insufficient) {
+        const needToSupply = result.requires.slice(result.supplied.length, result.requires.length)
+        supplied = needToSupply.reduce((acc, block) => {
+          const requirements = Object.entries(block)
+          const thisBag = requirements.reduce(
+            (acc, [key, [requireType, ...args]]) => {
+              const supplier = reg.supplierReg[requireType]
+              if (!supplier) throw new Error(`EventFx request "${requireType}" but that was not registered using regSupplier`)
+              return { ...acc, [key]: supplier.apply(null, args) }
+            }, {}
+          )
+          return [...acc, thisBag]
+        }, result.supplied)
+        loop++
+      }
+    } while (loop < 32 && insufficient)
+    return result
+  }
+
+  /**
+   * dispatch reduce and execute side effects
    * @param event
    */
   const dispatch = (...event) => {
@@ -198,27 +243,7 @@ export const createStore = (baseReg, initialState = {}) => {
     if (!event[0]) throw new Error('Dispatch requires at least a valid event key')
     const [type, payload] = finalEvent
     dispatchDepth = dispatchDepth + 1
-    let result = {
-      db,
-      requires: [],
-      supplied: [],
-      afterFx: []
-    }
-    let loop = 0
-
-    /* DECIDE: loop until all impure generator / accessor value (ids, dates, local storage, etc.)
-       requirements are supplied */
-    do {
-      const needToSupply = result.requires.slice(result.supplied.length,
-        result.requires.length - result.supplied.length)
-      const supplied = needToSupply.reduce((acc, [requireType, ...args]) => {
-        const supplier = reg.supplierReg[requireType]
-        if (!supplier) throw new Error(`EventFx request "${requireType}" but that was not registered using regSupplier`)
-        return [...acc, supplier.apply(null, args)]
-      }, [])
-      result = reduceDispatchStateless({...result, requires: [], supplied}, [type, payload])
-      loop++
-    } while (loop < 32 && result.supplied.length < result.requires.length)
+    const result = dispatchReduceSupply(type, payload)
     dispatchDepth = dispatchDepth - 1
 
     /* EXECUTE side-effects */

@@ -104,28 +104,30 @@ it('should notify subscribers only once and apply afterFx', () => {
   })
 })
 
+const id = ['id']
+
 it('should block and ask for coeffects', () => {
   const { regEventFx, reduceDispatch } = createStore()
-  regEventFx(evt.MESSAGE, [['id']], () => {
+  regEventFx(evt.MESSAGE, { id }, () => {
     throw new Error('Should never get to me (at least how we are handling coeffects now)')
   })
   const next = reduceDispatch(evt.MESSAGE, 'hello')
 
   expect(next).toEqual({
-    afterFx: [], db: {}, requires: [['id']], supplied: []
+    afterFx: [], db: {}, requires: [{ id: ['id'] }], supplied: []
   })
 })
 
 it('should work all the way through if supplied coeffects', () => {
   const { regEventFx, reduceDispatchStateless } = createStore()
-  regEventFx(evt.MESSAGE, [['id']], ({ supplied: [id] }) => [
+  regEventFx(evt.MESSAGE, { id }, ({ id }) => [
     dbFx(R.assoc('id', id)),
     dbFx(R.assoc('done', true))
   ])
   const next = reduceDispatchStateless({
     db: {},
     requires: [],
-    supplied: ['88'],
+    supplied: [{ id: '88' }],
     afterFx: []
   }, [evt.MESSAGE, 'hello'])
 
@@ -136,25 +138,60 @@ it('should work all the way through if supplied coeffects', () => {
       id: '88'
     },
     stateIsDirty: true,
-    requires: [['id']],
-    supplied: ['88']
+    requires: [{ id: ['id'] }],
+    supplied: [{ id: '88' }],
+    supplyIndex: 1
   })
 })
 
 it('dispatch should auto-supply coeffects', () => {
   const { regEventFx, dispatch, regSupplier, getState, regAfter } = createStore()
-  regEventFx(evt.MESSAGE, [['id']], ({ supplied: [id] }) => [
+  regEventFx(evt.MESSAGE, { id }, ({ id }) => [
     dbFx(R.assoc('id', id)),
     dbFx(R.assoc('done', true))
   ])
   regSupplier('id', () => '88')
-  regAfter((result, type, payload) => {
-    console.log(result)
-  })
   dispatch(evt.MESSAGE, 'hello')
 
   expect(getState()).toEqual({
     done: true,
     id: '88'
+  })
+})
+
+it('dispatch should auto-supply deep coeffects', () => {
+  const { regEventFx, regFx, regSupplier, regAfter, dispatch, subscribeToState } = createStore()
+  let stateCntr = 0
+  let state = null
+  let afterCntr = 0
+  subscribeToState(newState => {
+    stateCntr++
+    state = newState
+  })
+  regAfter((result) => {
+    console.log(result)
+  })
+  regFx('custom', () => {
+    afterCntr++
+  })
+  let idCounter = 10
+  regSupplier('id', () => idCounter++)
+  regEventFx(evt.MESSAGE, ({ id }), ({ id }, message) => [
+    dbFx(R.assoc('message', { id, message })),
+    dispatchFx(evt.SUBEVENT, message),
+    dbFx(R.assoc('done', true))
+  ])
+  regEventFx(evt.SUBEVENT, ({ id }), ({ id }, message) => [
+    ['custom', 'yep'],
+    dbFx(updateIn(['messages'], R.append(`sub ${message} ${id}`)))
+  ])
+  dispatch(evt.MESSAGE, 'hello')
+  expect(stateCntr).toEqual(1)
+  expect(afterCntr).toEqual(1)
+  expect(state).toEqual({
+    'done': true, 'message': {
+      id: 10,
+      message: 'hello'
+    }, 'messages': ['sub hello 11']
   })
 })
