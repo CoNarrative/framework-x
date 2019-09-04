@@ -1,7 +1,3 @@
-/*
- * Separate, less nested version (pure render functions only)
- * */
-
 import React, { Component } from 'react'
 import { Context, subs } from './context'
 import { shallowEqual } from '../util'
@@ -31,7 +27,7 @@ const connectFn = (name, config, renderFn) => {
       extractedProps: null,
       appState: null,
       merged: null,
-      v: 0,
+      v: 0
     }
 
     /* FOR DEBUGGING INSTRUMENTATION WE TRACK ACTIVE SUBSCRIPTIONS (for now) */
@@ -87,7 +83,7 @@ const connectFn = (name, config, renderFn) => {
         version: this._sub.v,
         didChange: didOwnPropsChange || didExtractedPropsChange,
         didOwnPropsChange,
-        didExtractedPropsChange,
+        didExtractedPropsChange
       })
       return <SyntheticComponentBasedOnRenderFunction {...this._sub.merged} />
     }
@@ -111,19 +107,19 @@ export const component = (name, mapStateOrConfigBag, renderFn) => {
     throw new Error('This component wrapper is for pure functional components only.')
   }
   const explicitConfig = typeof (mapStateOrConfigBag) === 'function'
-                         ? { subscribe: mapStateOrConfigBag }
-                         : mapStateOrConfigBag
+    ? { subscribe: mapStateOrConfigBag }
+    : mapStateOrConfigBag
 
   // apply defaults
   const config = Object.assign({}, {
-    skipProps: [],
+    skipProps: []
   }, explicitConfig)
 
   const { makeSubscribe, subscribe } = config
 
   // convert classes to render fns
   renderFn = (renderFn.prototype && renderFn.prototype.isReactComponent)
-             ? props => React.createElement(renderFn, props) : renderFn
+    ? props => React.createElement(renderFn, props) : renderFn
 
   // connected component
   if (makeSubscribe || subscribe) return connectFn(name, config, renderFn)
