@@ -92,8 +92,8 @@ export const createStore = (initialState, ...middlewares) => {
           // console.log(`  effect handler (${key}) for event (${type})`, value)
           if (!effect) throw new Error(`No fx handler for effect "${key}". Try registering a handler using "regFx('${key}', ({ effect }) => ({...some side-effect})"`)
           // NOTE: no need really to handle result of effect for now -
-          // we're not doing anything with promises for instance
-          effect(value)
+          const fxContext = { db: appState }
+          effect(fxContext, value)
         })
         // only notify if at root, and notify once per handler
         if (dispatchDepth === 1) {
@@ -121,10 +121,10 @@ export const createStore = (initialState, ...middlewares) => {
     processDispatch(finalEvent)
   }
 
-  regFx('db', setState)
+  regFx('db', (_, dbOrReducer) => setState(dbOrReducer))
 
   /* dispatch fxReg should happen next tick */
-  regFx('dispatch', dispatch)
+  regFx('dispatch', (_, event) => dispatch(event))
 
   return {
     dispatch,

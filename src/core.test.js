@@ -36,9 +36,9 @@ it('should process dispatch child event synchronously', () => {
 
 it('should permit custom fx', () => {
   const { regFx, regEventFx, getState, dispatch } = createStore()
-  let afterCntr = 0
-  regFx('custom', () => {
-    afterCntr++
+  let afterCntr = 2
+  regFx('custom', (_, amount) => {
+    afterCntr = afterCntr + amount
   })
   regEventFx(evt.MESSAGE, (_, message) => [
     dbFx(updateIn(['messages'], R.append(message))),
@@ -47,11 +47,11 @@ it('should permit custom fx', () => {
   ])
   regEventFx(evt.SUBEVENT, (_, message) => [
     dbFx(updateIn(['messages'], R.append(`sub ${message}`))),
-    ['custom', 'yep']
+    ['custom', 5]
   ])
   dispatch(evt.MESSAGE, 'hello')
   expect(getState()).toEqual({ 'messages': ['hello', 'sub hello', 'end'] })
-  expect(afterCntr).toEqual(1)
+  expect(afterCntr).toEqual(7)
 })
 
 it('should notify subscribers of state change', () => {
