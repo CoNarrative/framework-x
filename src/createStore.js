@@ -182,23 +182,12 @@ export const createStore = (baseReg, initialState = {}) => {
   }
 
   /**
-   * dispatch and receive new db and instructions
-   * @param payload
-   * @returns {(function(*=, *=): function(*=, *=): *)|*}
-   */
-  const reduceDispatch = (type, payload) =>
-    reduceDispatchStateless({
-      db,
-      requires: [],
-      supplied: [],
-      afterFx: []
-    }, [type, payload])
-
-  /**
-   * keep asking for next state and supplying required "impurities"
-   *  (ids, dates, local storage, etc.) until all are supplied
+   * IMPURE version that satisfies dynamic input values but does
+   * not execute side-effects.
+   * Keeps asking ordinary reduceDispatch for next state and supplies required "impurities"
+   * (ids, dates, local storage, etc.) until all are supplied
    * */
-  const dispatchReduceSupply = (type, payload) => {
+  const reduceDispatchSupply = (type, payload) => {
     let loop = 0
     let supplied = []
     let result = null
@@ -243,7 +232,7 @@ export const createStore = (baseReg, initialState = {}) => {
     if (!event[0]) throw new Error('Dispatch requires at least a valid event key')
     const [type, payload] = finalEvent
     dispatchDepth = dispatchDepth + 1
-    const result = dispatchReduceSupply(type, payload)
+    const result = reduceDispatchSupply(type, payload)
     dispatchDepth = dispatchDepth - 1
 
     /* EXECUTE side-effects */
@@ -262,6 +251,20 @@ export const createStore = (baseReg, initialState = {}) => {
     }
   })
 
+  /**
+   * dispatch and receive new db and instructions
+   *
+   * @param payload
+   * @returns {(function(*=, *=): function(*=, *=): *)|*}
+   */
+  const reduceDispatch = (type, payload) =>
+    reduceDispatchStateless({
+      db,
+      requires: [],
+      supplied: [],
+      afterFx: []
+    }, [type, payload])
+
   return {
     reg,
     stateListeners,
@@ -273,8 +276,9 @@ export const createStore = (baseReg, initialState = {}) => {
     regFx,
     regFxImmediate,
     subscribeToState,
-    reduceDispatch,
     reduceDispatchStateless,
+    reduceDispatch,
+    reduceDispatchSupply,
     getDispatchDepth,
     regSupplier,
     regAfter
