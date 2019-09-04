@@ -30,8 +30,7 @@
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-helmet": "^5.2.1",
-    "rehype-react": "^4.0.1",
-    "styled-components": "^4.3.2"
+    "rehype-react": "^4.0.1"
   },
   "devDependencies": {
     "prettier": "^1.18.2"

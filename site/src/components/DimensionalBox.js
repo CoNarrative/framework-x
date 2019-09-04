@@ -31,8 +31,8 @@ const SvgBox = ({width, height, color}) => (
         <line id="Line_2" data-name="Line 2" y1={height - 6} transform={'translate(' + (width + 342.5) + ' ' + (484) + ')'} fill="none" stroke={color ? color : theme.black} strokeWidth="1"/>
       </g>
       <g id="Rectangle_33" data-name="Rectangle 33" transform="translate(343 478)" fill="#fff" stroke={color ? color : theme.black} strokeWidth="1">
-        <rect width={width - 7} height={height - 6} stroke="none"/>
-        <rect x="0.5" y="0.5" width={width - 8} height={height - 7} fill="none"/>
+        <rect width={width - 7} height={height - 6} stroke="none" fill={'#fff'}/>
+        <rect x="0.5" y="0.5" width={width - 8} height={height - 7} fill="white"/>
       </g>
     </g>
   </Svg>

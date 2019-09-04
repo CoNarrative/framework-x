@@ -20,7 +20,6 @@ export const Navigation = ({ siteTitle }) => (
   <div
     css={{
       background: `white`,
-      marginBottom: `1.45rem`,
       boxShadow: '0 4px 16px 0 rgba(20,27,46,0.07)',
       height: 64,
       display: 'flex',

@@ -1,4 +1,5 @@
 import React from 'react'
+import * as theme from '../theme'
 
 //todo. @austin I wasn't able to converge on a ratio of the text's with to highlight,
 // so this version highlights 100% of it. When we want to do something like <div>foo <Highlight>bar only</etc
@@ -7,8 +8,10 @@ import React from 'react'
 // Suggest keeping this for when we want full coontrol,  making a new version off of it that does some set
 // portion of the text's width
 const highlightStyle = {
-  padding: '2px 0px 4px 0',
-  backgroundImage: 'linear-gradient(transparent 0%, transparent calc(50% - 8px), rgba(112, 224, 163, 1) calc(50% - 8px), rgba(112, 224, 163, 1) 100% )',
+  padding: '2px 8px 4px 8px',
+  marginLeft: -4,
+  marginRight: -4,
+  backgroundColor: theme.lightTeal,
   backgroundPosition: '0 120%',
   backgroundSize: '100% 200%'
 }
