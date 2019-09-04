@@ -1,5 +1,3 @@
-// import hoistStatics from 'hoist-non-react-statics'
-
 export const identityEnv = () => ({
   context: { db: {} },
   fx: {},

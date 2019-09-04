@@ -1,10 +1,6 @@
-/*
- * for wrapping full classes AND inlining via subscription
- * uses PureComponent -- but results in deep nesting
- */
-
 import React, { Component, PureComponent } from 'react'
 import { Context } from './context'
+import hoistStatics from 'hoist-non-react-statics'
 
 const getNonChildProps = props => {
   const otherProps = Object.assign({}, props)
@@ -41,6 +37,12 @@ export class Subscribe extends Component {
     )
   }
 }
+
+/**
+ * for wrapping full classes AND inlining via subscription
+ * very simple use/abuse of Context for ordered state propagation,
+ * but results in deeper nesting than ideal
+ */
 
 export const connect = selector => WrappedComponent => {
   const ConnectedComponent = (props) => {
