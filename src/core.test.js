@@ -98,3 +98,43 @@ it('should notify subscribers only once of state change', () => {
     'done': true, 'message': 'hello', 'messages': ['sub hello']
   })
 })
+
+describe('creation with specified env', () => {
+  it('should work', () => {
+    const staticFxDef = jest.fn()
+    const overwrittenFxDef = jest.fn()
+    const { env, regEventFx, regFx, dispatch, subscribeToState } = createStore({
+      context: { db: { cool: true } },
+      fx: {
+        'static-fx': staticFxDef,
+        'my-fx': overwrittenFxDef
+      },
+      eventFx: {
+        'my-evt': [({ db }) => {
+          expect(db).toEqual({ cool: true })
+          return [['db', R.assoc('awesome', true)]]
+        }]
+      }
+    })
+
+    function dynRegister({ db }) {
+      expect(db).toEqual({ cool: true, awesome: true })
+      return [['my-fx'], ['static-fx']]
+    }
+
+    const myFx = jest.fn()
+
+    regEventFx('my-evt', dynRegister)
+    regFx('my-fx', myFx)
+
+    dispatch('my-evt')
+    expect(staticFxDef).toBeCalled()
+    expect(myFx).toBeCalled()
+    expect(overwrittenFxDef).not.toBeCalled()
+
+    expect(Object.isFrozen(env)).toEqual(true)
+    expect(env.eventFx['my-evt'].length).toEqual(2)
+    expect(env.eventFx['my-evt'][1].name).toEqual('dynRegister')
+
+  })
+})

@@ -1,22 +1,51 @@
 // import hoistStatics from 'hoist-non-react-statics'
 
-export const createStore = (initialState, ...middlewares) => {
-  if (typeof (initialState) === 'function') {
-    middlewares.unshift(initialState)
-    initialState = null
-  }
-  const stateListeners = []
-  let appState = initialState
-  let initializedMiddlewares
-  const subs = {}
-  const fxReg = {}
-  const eventFxReg = {}
-  // let subscriptions = []
+export const identityEnv = () => ({
+  context: { db: {} },
+  fx: {},
+  eventFx: {},
+  // subs: [],  //todo. @mike was this being used for devtools?
+  dbListeners: [],
+  eventListeners: [],
+})
 
-  const subscribeToState = fn => stateListeners.push(fn)
+export const createStore = ({
+  context = { db: {} },
+  fx = {},
+  eventFx = {},
+  dbListeners = [],
+  eventListeners = []
+} = {}) => {
+  // context: "the circumstances that form the setting for an event, statement, or idea,
+  // and in terms of which it can be fully understood and assessed."
+
+  // environment: en·vi·ron·ment
+  // /inˈvīrənmənt/
+  // noun
+  // noun: environment; plural noun: environments; noun: the environment
+  // 1. the surroundings or conditions in which a person, animal, or plant lives or operates.
+  // synonyms:	habitat, territory, domain, home, abode;
+  // - the setting or conditions in which a particular activity is carried on.
+  //   "a good learning environment"
+  // synonyms:	situation, setting, milieu, medium, background, backdrop, scene, scenario, location, locale, context, framework; More
+  // COMPUTING
+  // - the overall structure within which a user, computer, or program operates.
+  //   "a desktop development environment"
+  // 2. the natural world, as a whole or in a particular geographical area,
+  // especially as affected by human activity.
+
+  const env = Object.assign({}, identityEnv(), {
+    context,
+    fx,
+    eventFx,
+    dbListeners,
+    eventListeners
+  })
+
+  let { db } = env.context
 
   /* State is synchronous */
-  const getState = () => (appState)
+  const getState = () => db
   const nextState = (newStateOrReducer) => {
     if (typeof (newStateOrReducer) === 'function') {
       const myNextState = newStateOrReducer(getState())
@@ -32,24 +61,25 @@ export const createStore = (initialState, ...middlewares) => {
   let dispatchDepth = 0
   let stateIsDirty = false
   const setState = (newStateOrReducer) => {
-    appState = nextState(newStateOrReducer)
+    db = nextState(newStateOrReducer)
     if (dispatchDepth > 0) {
       stateIsDirty = true
       return
     }
-    stateListeners.forEach(fn => fn(appState))
+    env.dbListeners.forEach(fn => fn(db))
   }
 
   /* Hacked a bit to support redux devtools -- the only middleware we care about right now */
-  initializedMiddlewares = middlewares.map(m => m({}, {
+  let initializedEventListeners = env.eventListeners.map(m => m({}, {
     setState(state) {
       setState(state)
     },
     get subs() {
-      return subs || []
+      // return subs || []
+      return []
     },
     get state() {
-      return appState
+      return db
     }
   }, {}))
 
@@ -59,16 +89,16 @@ export const createStore = (initialState, ...middlewares) => {
   }
   const regEventFx = (type, fn) => {
     checkType('regEventFx', type)
-    eventFxReg[type] = [...eventFxReg[type] || [], fn]
+    env.eventFx[type] = [...env.eventFx[type] || [], fn]
   }
 
   const regFx = (type, fn) => {
     checkType('regEventFx', type)
-    fxReg[type] = fn
+    env.fx[type] = fn
   }
 
-  const notifyMiddlewares = (type, payload, effects,
-    count) => initializedMiddlewares.forEach(m => m(type, payload, effects, count))
+  const notifyEventListeners = (type, payload, effects,
+    count) => initializedEventListeners.forEach(m => m(type, payload, effects, count))
 
   const processDispatch = (event) => {
     dispatchDepth = dispatchDepth + 1
@@ -77,10 +107,15 @@ export const createStore = (initialState, ...middlewares) => {
       const args = event.slice(1)
       // console.log('H:', type, args)
       /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
-      const eventHandlers = eventFxReg[type]
+      const eventHandlers = env.eventFx[type]
       if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
       let count = 0
       eventHandlers.forEach(handler => {
+        // todo. provide other realized stateful ctx.context values (like `db`) to eventFx
+        // There's two main options I see: context should be a function that
+        // returns a value i.e. getState or a value.
+        // We know eventFx should receive values only, but are they be computed from
+
         const coeffects = { db: getState(), eventType: type }
         // console.log(`event handler (${type}-${count})`, 'current db:', coeffects.db, 'args:', args)
         const effects = handler(coeffects, ...args)
@@ -88,16 +123,16 @@ export const createStore = (initialState, ...middlewares) => {
         const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
         /* Process effects */
         effectsList.forEach(([key, value]) => {
-          const effect = fxReg[key]
+          const effect = env.fx[key]
           // console.log(`  effect handler (${key}) for event (${type})`, value)
           if (!effect) throw new Error(`No fx handler for effect "${key}". Try registering a handler using "regFx('${key}', ({ effect }) => ({...some side-effect})"`)
           // NOTE: no need really to handle result of effect for now -
-          const fxContext = { db: appState }
+          const fxContext = { db }
           effect(fxContext, value)
         })
         // only notify if at root, and notify once per handler
         if (dispatchDepth === 1) {
-          notifyMiddlewares(type, args, effects, count)
+          notifyEventListeners(type, args, effects, count)
           count++
         }
       })
@@ -105,7 +140,7 @@ export const createStore = (initialState, ...middlewares) => {
       dispatchDepth = dispatchDepth - 1
       // defer notification until all done with root dispatch
       if (dispatchDepth === 0 && stateIsDirty) {
-        stateListeners.forEach(fn => fn(appState))
+        env.dbListeners.forEach(fn => fn(db))
         stateIsDirty = false
       }
     }
@@ -126,7 +161,10 @@ export const createStore = (initialState, ...middlewares) => {
   /* dispatch fxReg should happen next tick */
   regFx('dispatch', (_, event) => dispatch(event))
 
+  const subscribeToState = fn => env.dbListeners.push(fn)
+
   return {
+    env: Object.freeze(env),
     dispatch,
     getState,
     setState, // for when you want to bypass the eventing
