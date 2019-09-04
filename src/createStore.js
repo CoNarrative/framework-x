@@ -97,6 +97,20 @@ export const createStore = (baseReg, initialState = {}) => {
   }
 
   /**
+   * Satisfy a requirements bag
+   * @param requirementsBag
+   * @returns {{}}
+   */
+  const satisfy = (requirementsBag) =>
+    Object.entries(requirementsBag).reduce(
+      (acc, [key, [requireType, ...args]]) => {
+        const supplier = reg.supplierReg[requireType]
+        if (!supplier) throw new Error(`EventFx request "${requireType}" but that was not registered using regSupplier`)
+        return { ...acc, [key]: supplier.apply(null, args) }
+      }, {}
+    )
+
+  /**
    * Takes a list of effects and reduces them.
    * Fxrs (fx handlers) can return more fx which are executed inline
    * @param acc
@@ -204,14 +218,7 @@ export const createStore = (baseReg, initialState = {}) => {
       if (insufficient) {
         const needToSupply = result.requires.slice(result.supplied.length, result.requires.length)
         supplied = needToSupply.reduce((acc, block) => {
-          const requirements = Object.entries(block)
-          const thisBag = requirements.reduce(
-            (acc, [key, [requireType, ...args]]) => {
-              const supplier = reg.supplierReg[requireType]
-              if (!supplier) throw new Error(`EventFx request "${requireType}" but that was not registered using regSupplier`)
-              return { ...acc, [key]: supplier.apply(null, args) }
-            }, {}
-          )
+          const thisBag = satisfy(block)
           return [...acc, thisBag]
         }, result.supplied)
         loop++
