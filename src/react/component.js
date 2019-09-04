@@ -4,7 +4,7 @@
 
 import React, { Component } from 'react'
 import { Context, subs } from './context'
-import { shallowEqual } from './util'
+import { shallowEqual } from '../util'
 
 const connectFn = (name, config, renderFn) => {
   let { devTools, debug, subscribe, makeSubscribe } = config
