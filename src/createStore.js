@@ -103,9 +103,13 @@ export const createStore = (args = identityEnv()) => {
       startState = env.state.db
     }
 
-    env.state.dispatch.depth += 1
-    processEventEffects(env, finalEvent)
-    env.state.dispatch.depth -= 1
+    try {
+      env.state.dispatch.depth += 1
+      processEventEffects(env, finalEvent)
+    } finally {
+      // always make sure it decrements back even if fx throws error
+      env.state.dispatch.depth -= 1
+    }
 
     if (env.state.dispatch.depth === 0 && startState !== env.state.db) {
       env.dbListeners.forEach(fn => fn(env.state.db))
