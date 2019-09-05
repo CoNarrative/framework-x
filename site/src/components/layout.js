@@ -37,10 +37,10 @@ const Layout = ({ children, rootCss }) => {
         }}
       >
         <React.Fragment>{children}</React.Fragment>
-        <footer>
-          © {new Date().getFullYear()} {" "}
-          <a href="https://conarrative.com">CoNarrative</a>
-        </footer>
+        {/*<footer>*/}
+        {/*  © {new Date().getFullYear()} {" "}*/}
+        {/*  <a href="https://conarrative.com">CoNarrative</a>*/}
+        {/*</footer>*/}
       </div>
     </>
   )

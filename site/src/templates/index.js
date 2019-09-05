@@ -23,7 +23,7 @@ const MainContent = ({starCount, downloadCount}) =>
   <div css={{ display: 'flex', maxWidth: 960, alignSelf: 'center', }}>
     <MulletManMain/>
     <div css={{ paddingBottom: '4rem' }}>
-      <h1 css={{marginBottom: '0.8rem'}}>
+      <h1 css={{marginBottom: '0.8rem', display: 'flex'}}>
         Reasonable <Highlight>global state.</Highlight>
       </h1>
       <div css={{marginBottom: '1.45rem', fontFamily: 'Basier Square Mono', lineHeight: '1.4rem'}}>
