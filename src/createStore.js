@@ -34,10 +34,10 @@ export const identityEnv = () => ({
       }
     }
   },
-  events:[],
+  events: [],
   eventFx: {},
   dbListeners: [],
-  eventListeners: [],
+  eventListeners: []
 })
 
 export const createStore = (args = identityEnv()) => {
@@ -63,7 +63,7 @@ export const createStore = (args = identityEnv()) => {
    * synchronous dispatch
    * @param event
    */
-  const processEventEffects = (env,event) => {
+  const processEventEffects = (env, event) => {
     const type = event[0]
     const args = event.slice(1)
     // console.log('H:', type, args)
@@ -114,13 +114,12 @@ export const createStore = (args = identityEnv()) => {
 
   regFxRaw(env, 'dispatch', dispatch)
 
-
   return {
     env,
     dispatch: (...event) => { dispatch(env, event) },
     getState: () => env.state.db,
     setState: (newStateOrReducer) => env.fx.db(env, newStateOrReducer), // for when you want to bypass the eventing
-    regEventFx:(type, fn) => {
+    regEventFx: (type, fn) => {
       checkType('regEventFx', type)
       env.eventFx[type] = [...env.eventFx[type] || [], fn]
     },
@@ -128,9 +127,9 @@ export const createStore = (args = identityEnv()) => {
       checkType('regEventFx', type)
       env.fx[type] = fn
     },
-    regProvider: (key, fn) =>{
-      env.valueProviders[key]=fn
+    regProvider: (key, fn) => {
+      env.valueProviders[key] = fn
     },
-    subscribeToState:fn => env.dbListeners.push(fn)
+    subscribeToState: fn => env.dbListeners.push(fn)
   }
 }
