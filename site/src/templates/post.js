@@ -1,26 +1,26 @@
 import React from 'react'
-import {graphql} from 'gatsby'
+import { graphql } from 'gatsby'
 import RehypeReact from 'rehype-react'
 import Layout from '../components/layout'
-import {Highlight} from '../components/TextBackgroundHighlight'
-import {Sidebar} from "../components/Sidebar";
+import { Highlight } from '../components/TextBackgroundHighlight'
+import { Sidebar } from '../components/Sidebar'
 import styled from '@emotion/styled'
 
-const H1 = ({children}) => <h1><Highlight>{children}</Highlight></h1>
+const H1 = ({ children }) => <h1><Highlight>{children}</Highlight></h1>
 
-const H2 = ({children}) => <div>{children}</div>
+const H2 = ({ children }) => <div>{children}</div>
 
-const H3 = ({children}) => <div>{children}</div>
+const H3 = ({ children }) => <div>{children}</div>
 
-const Ul = ({children}) => <div>{children}</div>
+const Ul = ({ children }) => <div>{children}</div>
 
-const Li = ({children}) => <div>{children}</div>
+const Li = ({ children }) => <div>{children}</div>
 
-const Pre = ({children}) => <div>{children}</div>
+const Pre = ({ children }) => <div>{children}</div>
 
-const Code = ({children}) => <div>{children}</div>
+const Code = ({ children }) => <div>{children}</div>
 
-const P = ({children}) => <div>{children}</div>
+const P = ({ children }) => <div>{children}</div>
 
 const renderAst = new RehypeReact({
   createElement: React.createElement,
@@ -42,25 +42,38 @@ const Container = styled.div({
   overflow: 'auto'
 })
 
-export default function Template({data}) {
-  const {markdownRemark} = data
-  const {frontmatter, htmlAst} = markdownRemark
+export default class Template extends React.Component {
+  componentDidMount() {
+    const hash = window.decodeURI(window.location.hash.replace('#', ''))
+    if (hash !== '') {
+      const element = document.getElementById(hash)
+      if (element) {
+        element.firstElementChild.click()
+      }
+    }
+  }
 
-  return (
-    <Layout>
-      <Container>
-        <Sidebar/>
-        <div>
-          <h1>{frontmatter.title}</h1>
-          <div
-            style={{paddingLeft: '5em', paddingRight: '5em'}}
-          >
-            {renderAst(htmlAst)}
+  render() {
+    const { data } = this.props
+    const { markdownRemark } = data
+    const { frontmatter, htmlAst } = markdownRemark
+
+    return (
+      <Layout>
+        <Container>
+          <Sidebar />
+          <div>
+            <h1>{frontmatter.title}</h1>
+            <div
+              style={{ paddingLeft: '5em', paddingRight: '5em' }}
+            >
+              {renderAst(htmlAst)}
+            </div>
           </div>
-        </div>
-      </Container>
-    </Layout>
-  )
+        </Container>
+      </Layout>
+    )
+  }
 }
 
 export const pageQuery = graphql`
