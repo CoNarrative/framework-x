@@ -106,7 +106,7 @@ describe('creation with specified env', () => {
     const staticFxDef = jest.fn()
     const overwrittenFxDef = jest.fn()
     const { env, regEventFx, regFx, dispatch, subscribeToState } = createStore({
-      context: { db: { cool: true } },
+      state: { db: { cool: true } },
       fx: {
         'static-fx': staticFxDef,
         'my-fx': overwrittenFxDef
@@ -134,7 +134,6 @@ describe('creation with specified env', () => {
     expect(myFx).toBeCalled()
     expect(overwrittenFxDef).not.toBeCalled()
 
-    expect(Object.isFrozen(env)).toEqual(true)
     expect(env.eventFx['my-evt'].length).toEqual(2)
     expect(env.eventFx['my-evt'][1].name).toEqual('dynRegister')
   })

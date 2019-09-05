@@ -1,93 +1,43 @@
+// import hoistStatics from 'hoist-non-react-statics'
+import {mergeDeepRight} from 'ramda'
+
+const shallowClone = a => Array.isArray(a) ? a.concat([]) : Object.assign({}, a)
+
 export const identityEnv = () => ({
-  context: { db: {} },
-  fx: {},
+  state: { db: {}, dispatchDepth: 0, stateIsDirty: false },
+  valueProviders: {
+    db: ({ db }) => db
+  },
+  fx: {
+    db: (env, newStateOrReducer) => {
+      if (typeof newStateOrReducer !== 'function') {
+        env.state.db = newStateOrReducer
+      } else {
+        env.state.db = newStateOrReducer(env.state.db)
+        if (typeof env.state.db === 'function') {
+          throw new Error('db fxReg request was a reducer function that returned a function. ' + 'If you are using ramda, you probably didn\'t finish currying all the args')
+        }
+      }
+    }
+  },
   eventFx: {},
-  // subs: [],  //todo. @mike was this being used for devtools?
   dbListeners: [],
   eventListeners: [],
 })
 
-const shallowClone = a => Array.isArray(a) ? a.concat([]) : Object.assign({}, a)
-
-export const createStore = ({
-  context = { db: {} },
-  fx = {},
-  eventFx = {},
-  dbListeners = [],
-  eventListeners = []
-} = {}) => {
-  // context: "the circumstances that form the setting for an event, statement, or idea,
-  // and in terms of which it can be fully understood and assessed."
-
-  // environment: en·vi·ron·ment
-  // /inˈvīrənmənt/
-  // noun
-  // noun: environment; plural noun: environments; noun: the environment
-  // 1. the surroundings or conditions in which a person, animal, or plant lives or operates.
-  // synonyms:	habitat, territory, domain, home, abode;
-  // - the setting or conditions in which a particular activity is carried on.
-  //   "a good learning environment"
-  // synonyms:	situation, setting, milieu, medium, background, backdrop, scene, scenario, location, locale, context, framework; More
-  // COMPUTING
-  // - the overall structure within which a user, computer, or program operates.
-  //   "a desktop development environment"
-  // 2. the natural world, as a whole or in a particular geographical area,
-  // especially as affected by human activity.
-
-  /**
-   * We use mutability (for now) for all registration
-   * Therefore, all passed in objects need to be cloned as they may continue to be
-   * mutated (e.g. by reg calls on a source store)
-   * If in the future we decided in reg calls to
-   * R.assoc or equivalent (which clones the object each time)
-   * then we would not need to do this
-   **/
-  const env = Object.assign({}, identityEnv(), {
-    context: shallowClone(context),
-    fx: shallowClone(fx),
-    eventFx: shallowClone(eventFx),
-    dbListeners: shallowClone(dbListeners),
-    eventListeners: shallowClone(eventListeners)
-  })
-
-  let { db } = env.context
-
-  /* State is synchronous */
-  const getState = () => db
-  const nextState = (newStateOrReducer) => {
-    if (typeof (newStateOrReducer) === 'function') {
-      const myNextState = newStateOrReducer(getState())
-      if (typeof (myNextState) === 'function') {
-        throw new Error('db fxReg request was a reducer function that returned a function. ' +
-                        'If you are using ramda, you probably didn\'t finish currying all the args')
-      }
-      return myNextState
-    }
-    return newStateOrReducer
-  }
-
-  let dispatchDepth = 0
-  let stateIsDirty = false
-  const setState = (newStateOrReducer) => {
-    db = nextState(newStateOrReducer)
-    if (dispatchDepth > 0) {
-      stateIsDirty = true
-      return
-    }
-    env.dbListeners.forEach(fn => fn(db))
-  }
+export const createStore = (args = identityEnv()) => {
+  const env = mergeDeepRight(identityEnv(), args)
 
   /* Hacked a bit to support redux devtools -- the only middleware we care about right now */
   let initializedEventListeners = env.eventListeners.map(m => m({}, {
     setState(state) {
-      setState(state)
+      env.fx.db(env, state)
     },
     get subs() {
-      // return subs || []
       return []
     },
     get state() {
-      return db
+      return env.state.db
     }
   }, {}))
 
@@ -108,74 +58,66 @@ export const createStore = ({
   const notifyEventListeners = (type, payload, effects,
     count) => initializedEventListeners.forEach(m => m(type, payload, effects, count))
 
-  const processDispatch = (event) => {
-    dispatchDepth = dispatchDepth + 1
-    try {
-      const type = event[0]
-      const args = event.slice(1)
-      // console.log('H:', type, args)
-      /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
-      const eventHandlers = env.eventFx[type]
-      if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
-      let count = 0
-      eventHandlers.forEach(handler => {
-        // todo. provide other realized stateful ctx.context values (like `db`) to eventFx
-        // There's two main options I see: context should be a function that
-        // returns a value i.e. getState or a value.
-        // We know eventFx should receive values only, but are they be computed from
-
-        const coeffects = { db: getState(), eventType: type }
-        // console.log(`event handler (${type}-${count})`, 'current db:', coeffects.db, 'args:', args)
-        const effects = handler(coeffects, ...args)
-        if (!effects) return
-        const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
-        /* Process effects */
-        effectsList.forEach(([key, value]) => {
-          const effect = env.fx[key]
-          // console.log(`  effect handler (${key}) for event (${type})`, value)
-          if (!effect) throw new Error(`No fx handler for effect "${key}". Try registering a handler using "regFx('${key}', ({ effect }) => ({...some side-effect})"`)
-          // NOTE: no need really to handle result of effect for now -
-          const fxContext = { db }
-          effect(fxContext, value)
-        })
-        // only notify if at root, and notify once per handler
-        if (dispatchDepth === 1) {
-          notifyEventListeners(type, args, effects, count)
-          count++
-        }
-      })
-    } finally {
-      dispatchDepth = dispatchDepth - 1
-      // defer notification until all done with root dispatch
-      if (dispatchDepth === 0 && stateIsDirty) {
-        env.dbListeners.forEach(fn => fn(db))
-        stateIsDirty = false
-      }
-    }
-  }
-
   /**
    * synchronous dispatch
    * @param event
    */
-  const dispatch = (...event) => {
-    const finalEvent = Array.isArray(event[0]) ? event[0] : event
-    if (!finalEvent[0]) throw new Error('Dispatch requires a valid event key')
-    processDispatch(finalEvent)
+  const processEventEffects = (env,event) => {
+    const type = event[0]
+    const args = event.slice(1)
+    // console.log('H:', type, args)
+    /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
+    const eventHandlers = env.eventFx[type]
+    if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
+    let count = 0
+    eventHandlers.forEach(handler => {
+      const coeffects = Object.entries(env.valueProviders).reduce((a, [k, f]) => {
+        a[k] = f(env.state)
+        return a
+      }, {})
+      const effects = handler(coeffects, ...args)
+      if (!effects) return
+      const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
+      /* Process effects */
+      effectsList.forEach(([key, value]) => {
+        const effect = env.fx[key]
+        // console.log(`  effect handler (${key}) for event (${type})`, value)
+        if (!effect) throw new Error(`No fx handler for effect "${key}". Try registering a handler using "regFx('${key}', ({ effect }) => ({...some side-effect})"`)
+        // NOTE: no need really to handle result of effect for now -
+        effect(env, value)
+        if (key === 'db') {
+          env.state.stateIsDirty = true
+        }
+      })
+
+      notifyEventListeners(type, args, effects, count)
+      count++
+    })
   }
 
-  regFx('db', (_, dbOrReducer) => setState(dbOrReducer))
-
   /* dispatch fxReg should happen next tick */
-  regFx('dispatch', (_, event) => dispatch(event))
+  const dispatch = (env, event) => {
+    const finalEvent = Array.isArray(event[0]) ? event[0] : event
+    if (!finalEvent[0]) throw new Error('Dispatch requires a valid event key')
+
+    env.state.dispatchDepth += 1
+    processEventEffects(env, finalEvent)
+    env.state.dispatchDepth -= 1
+
+    if (env.state.dispatchDepth === 0 && env.state.stateIsDirty) {
+      env.dbListeners.forEach(fn => fn(env.state.db))
+      env.state.stateIsDirty = false
+    }
+  }
+  regFx('dispatch', dispatch)
 
   const subscribeToState = fn => env.dbListeners.push(fn)
 
   return {
-    env: Object.freeze(env),
-    dispatch,
-    getState,
-    setState, // for when you want to bypass the eventing
+    env,
+    dispatch: (...event) => { dispatch(env, event) },
+    getState: () => env.state.db,
+    setState: (newStateOrReducer)=>env.fx.db(env,newStateOrReducer), // for when you want to bypass the eventing
     regEventFx,
     regFx,
     subscribeToState
