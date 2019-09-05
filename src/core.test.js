@@ -99,6 +99,37 @@ describe('core dispatch flow', () => {
       'done': true, 'message': 'hello', 'messages': ['sub hello']
     })
   })
+
+  it('should process db effects and make reductions available to non-listeners', () => {
+    const { regEventFx, dispatch, subscribeToState } = createStore()
+    let nNotifications = 0
+    const nEvents = 5
+    const reduced = { 'messages': R.times((n) => 'event-' + n, nEvents) }
+    const reductions = n => R.map((n2) => 'event-' + n2, R.range(0, n))
+
+    subscribeToState(db => {
+      expect(db).toEqual(reduced)
+      nNotifications += 1
+    })
+
+    R.map(n => {
+      regEventFx('event-' + n, ({ db, eventName }) => {
+        if (n > 0) {
+          expect(db.messages).toEqual(reductions(n))
+        }
+        return [
+          ['db', updateIn(['messages'], R.append(eventName))]
+        ].concat(
+          n < nEvents - 1
+          ? [['dispatch', ['event-' + R.inc(n)]]]
+          : []
+        )
+      })
+    }, R.range(0, nEvents))
+
+    dispatch('event-0')
+    expect(nNotifications).toEqual(1)
+  })
 })
 
 describe('creation with specified env', () => {

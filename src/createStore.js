@@ -1,10 +1,24 @@
 // import hoistStatics from 'hoist-non-react-statics'
 import {mergeDeepRight} from 'ramda'
 
-const shallowClone = a => Array.isArray(a) ? a.concat([]) : Object.assign({}, a)
+export const regFxRaw = (env, type, fn) => {
+  env.fx[type] = fn
+}
+
+export const regEventFxRaw = (env, type, fn) => {
+  env.eventFx[type] = [...env.eventFx[type] || [], fn]
+}
+export const regProviderRaw = (env, key, fn) => {
+  env.valueProviders[key] = fn
+}
+
+const checkType = (op, type) => {
+  if (typeof (type) !== 'string') throw new Error(`${op} requires a string as the fx key`)
+  if (type.length === 0) throw new Error(`${op} fx key cannot be a zero-length string`)
+}
 
 export const identityEnv = () => ({
-  state: { db: {}, dispatchDepth: 0, stateIsDirty: false },
+  state: { db: {}, dispatch: { depth: 0 } },
   valueProviders: {
     db: ({ db }) => db
   },
@@ -20,6 +34,7 @@ export const identityEnv = () => ({
       }
     }
   },
+  events:[],
   eventFx: {},
   dbListeners: [],
   eventListeners: [],
@@ -41,20 +56,6 @@ export const createStore = (args = identityEnv()) => {
     }
   }, {}))
 
-  const checkType = (op, type) => {
-    if (typeof (type) !== 'string') throw new Error(`${op} requires a string as the fx key`)
-    if (type.length === 0) throw new Error(`${op} fx key cannot be a zero-length string`)
-  }
-  const regEventFx = (type, fn) => {
-    checkType('regEventFx', type)
-    env.eventFx[type] = [...env.eventFx[type] || [], fn]
-  }
-
-  const regFx = (type, fn) => {
-    checkType('regEventFx', type)
-    env.fx[type] = fn
-  }
-
   const notifyEventListeners = (type, payload, effects,
     count) => initializedEventListeners.forEach(m => m(type, payload, effects, count))
 
@@ -74,7 +75,7 @@ export const createStore = (args = identityEnv()) => {
       const coeffects = Object.entries(env.valueProviders).reduce((a, [k, f]) => {
         a[k] = f(env.state)
         return a
-      }, {})
+      }, { eventName: type })
       const effects = handler(coeffects, ...args)
       if (!effects) return
       const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
@@ -85,9 +86,6 @@ export const createStore = (args = identityEnv()) => {
         if (!effect) throw new Error(`No fx handler for effect "${key}". Try registering a handler using "regFx('${key}', ({ effect }) => ({...some side-effect})"`)
         // NOTE: no need really to handle result of effect for now -
         effect(env, value)
-        if (key === 'db') {
-          env.state.stateIsDirty = true
-        }
       })
 
       notifyEventListeners(type, args, effects, count)
@@ -100,26 +98,39 @@ export const createStore = (args = identityEnv()) => {
     const finalEvent = Array.isArray(event[0]) ? event[0] : event
     if (!finalEvent[0]) throw new Error('Dispatch requires a valid event key')
 
-    env.state.dispatchDepth += 1
-    processEventEffects(env, finalEvent)
-    env.state.dispatchDepth -= 1
+    let startState
+    if (env.state.dispatch.depth === 0) {
+      startState = env.state.db
+    }
 
-    if (env.state.dispatchDepth === 0 && env.state.stateIsDirty) {
+    env.state.dispatch.depth += 1
+    processEventEffects(env, finalEvent)
+    env.state.dispatch.depth -= 1
+
+    if (env.state.dispatch.depth === 0 && startState !== env.state.db) {
       env.dbListeners.forEach(fn => fn(env.state.db))
-      env.state.stateIsDirty = false
     }
   }
-  regFx('dispatch', dispatch)
 
-  const subscribeToState = fn => env.dbListeners.push(fn)
+  regFxRaw(env, 'dispatch', dispatch)
+
 
   return {
     env,
     dispatch: (...event) => { dispatch(env, event) },
     getState: () => env.state.db,
-    setState: (newStateOrReducer)=>env.fx.db(env,newStateOrReducer), // for when you want to bypass the eventing
-    regEventFx,
-    regFx,
-    subscribeToState
+    setState: (newStateOrReducer) => env.fx.db(env, newStateOrReducer), // for when you want to bypass the eventing
+    regEventFx:(type, fn) => {
+      checkType('regEventFx', type)
+      env.eventFx[type] = [...env.eventFx[type] || [], fn]
+    },
+    regFx: (type, fn) => {
+      checkType('regEventFx', type)
+      env.fx[type] = fn
+    },
+    regProvider: (key, fn) =>{
+      env.valueProviders[key]=fn
+    },
+    subscribeToState:fn => env.dbListeners.push(fn)
   }
 }
