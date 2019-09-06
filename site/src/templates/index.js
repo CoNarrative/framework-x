@@ -20,11 +20,11 @@ const MulletManMain = () =>
 
 
 const MainContent = ({starCount, downloadCount}) =>
-  <div css={{ display: 'flex', maxWidth: 960, alignSelf: 'center', }}>
+  <div css={{display: 'flex', maxWidth: 960, alignSelf: 'center',}}>
     <MulletManMain/>
-    <div css={{ paddingBottom: '4rem' }}>
+    <div css={{paddingBottom: '4rem'}}>
       <h1 css={{marginBottom: '0.8rem', display: 'flex'}}>
-        Reasonable <Highlight>global state.</Highlight>
+        Reasonable <Highlight rootCss={{marginLeft: 10}}>global state.</Highlight>
       </h1>
       <div css={{marginBottom: '1.45rem', fontFamily: 'Basier Square Mono', lineHeight: '1.4rem'}}>
         Framework-X is a Javascript framework that processes definitions of cause and
@@ -101,7 +101,17 @@ const IndexPage = () => {
     <Layout>
       <SEO title="framework-x: Reasonable global state"/>
 
-      <div css={{display: 'flex', width: '100%', flexDirection: 'column', justifyContent: 'center', height: '100%', flexShrink: 0, backgroundImage: 'url(' + CircleBackdrop + ')', backgroundSize: 'cover', zIndex: -1}}>
+      <div css={{
+        display: 'flex',
+        width: '100%',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        height: '100%',
+        flexShrink: 0,
+        backgroundImage: 'url(' + CircleBackdrop + ')',
+        backgroundSize: 'cover',
+        zIndex: -1
+      }}>
         <MainContentAsyncStuff/>
       </div>
 

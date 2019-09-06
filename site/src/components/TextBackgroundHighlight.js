@@ -1,4 +1,5 @@
 import React from 'react'
+import styled from '@emotion/styled'
 import * as theme from '../theme'
 
 //todo. @austin I wasn't able to converge on a ratio of the text's with to highlight,
@@ -8,21 +9,21 @@ import * as theme from '../theme'
 // Suggest keeping this for when we want full coontrol,  making a new version off of it that does some set
 // portion of the text's width
 
-const highlightStyle = {
+const HighlightStyle = styled.div( props => ({
   width: '110%',
   position: 'absolute',
   top: 0,
   bottom: '0.2rem',
   left: '-5%',
   right: '-5%',
-  backgroundColor: theme.lightTeal,
+  backgroundColor: props.code ? theme.lightGrey : theme.lightTeal,
   zIndex: -1
-}
+}))
 
-const container = {
+const Container = styled.div( props => ({
   display: 'flex',
   position: 'relative',
-  marginLeft: 10  ,
-}
+  ...props.rootCss
+}))
 
-export const Highlight = ({ children }) => <div css={container}><div css={highlightStyle}/><span>{children}</span></div>
+export const Highlight = ({ children, code, rootCss }) => <Container rootCss={rootCss}><HighlightStyle code={code}/><div>{children}</div></Container>

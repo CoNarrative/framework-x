@@ -20,7 +20,7 @@ applied.
 
 > Sends a message with an optional payload
 
-examples: 
+#### examples: 
 
 ```js
 dispatch('todo/add')
@@ -43,7 +43,7 @@ Receives the current global state.
  
 May return a state update, dispatch other events, or both.
 
-examples: 
+#### examples: 
 
 
 > Simple `db` update
@@ -83,7 +83,7 @@ type: Function
 arguments: (subscriptionMap: {[k:any]: Subscription)
  
  
-examples:
+#### examples:
 
 ```js
 createSub({
@@ -98,7 +98,7 @@ const getAllTodos =  R.path(['todos'])
   the key name in addition to the `get`-prefixed key. This is for
   convenience only.
   
-example:
+#### example:
 
 ```js
 const Todos = component("TodosList",  createSub({ getAllTodos }), 
@@ -116,7 +116,7 @@ arguments:
 
 `(name: string, sub: Subscription, renderFn: React.Component), 
 
-example:
+#### example:
 
 ```js
 export const TodosList = component('TodosList',
@@ -166,7 +166,7 @@ type: React.Component
  
 arguments: {dispatch, getState, subscribeToState}
 
-example:
+#### example:
 
 ```js
 ReactDOM.render(
@@ -225,7 +225,7 @@ type LocationAndMatch = {location: Location, match: RouteMatch, type: MatchType}
 ```
 
 
-basic example: 
+#### basic example: 
 
 ```js
 import * as R from 'ramda'

@@ -16,6 +16,32 @@ code {
   font-family: "Fira Code", "Courier", monospace !important;
 }
 
+/* Code blocks */
+pre[class*="language-"] {
+  padding: 1em;
+  margin: .5em 0;
+  overflow: auto;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+  background: rgba(203,210,228,0.4);
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+  color: #E75D57;
+  padding: .1em;
+  border-radius: .3em;
+  white-space: normal;
+  font-size: 0.9rem;
+}
+
+
+.anchor {
+  margin-left: -32px !important;
+}
+
 /*!***/
 /* * If you already use line highlighting*/
 /* *!*/
