@@ -170,7 +170,123 @@ describe('creation with specified env', () => {
     expect(env.eventFx['my-evt'][1].name).toEqual('dynRegister')
   })
 })
-describe('preFx', () => {
+
+describe('event stream', () => {
+  it('should publish each event name and payload', () => {
+    let evts = []
+    const { dispatch } = createStore({
+      state: { db: {} },
+      eventListeners: [(...x) => evts.push(x)],
+      eventFx: {
+        'my-evt': [() => [['dispatch', ['my-evt2', 'a', 'b']]]],
+        'my-evt2': [() => {}]
+      }
+
+    })
+    dispatch('my-evt')
+
+    expect(evts.length).toEqual(3)
+
+    const devtoolsEvent = evts[0]
+    expect(devtoolsEvent[0]).toEqual({})
+    expect(Object.keys(devtoolsEvent[1])).toEqual(['setState', 'subs', 'state'])
+    expect(devtoolsEvent[2]).toEqual({})
+
+    expect(evts[1]).toEqual(['my-evt', []])
+    expect(evts[2]).toEqual(['my-evt2', ['a', 'b']])
+  })
+})
+
+describe('one-time time fx', () => {
+  it('should work', () => {
+    jest.useFakeTimers()
+
+    const userCredentials = { id: 123, username: 'mullet-man' }
+    const ls = () => {
+      let data = { user: JSON.stringify(userCredentials) }
+      return {
+        getItem: (k) => data[k],
+        setItem: (k, v) => data[k] = v,
+        removeItem: (k) => delete data[k]
+      }
+    }
+
+    const deserializeLSUser = userStr => {
+      if (!userStr) return null
+      const user = JSON.parse(userStr)
+      return updateIn(['username'], x => x.toUpperCase(), user)
+    }
+    const lsKey = k => ls => ls.getItem(k)
+    const getUserStr = lsKey('user')
+    const getLocalStorageUser = derive([getUserStr], deserializeLSUser)
+
+    const getUser = R.prop('user')
+
+    const replace = jest.fn()
+
+    const makeAutologoutFn = (env) => () => {
+      const { dispatch } = env.fx
+      const { localStorage, timers } = env.state
+      if (!localStorage.getItem('user')) {
+        dispatch(env, ['force-log-out'])
+        const id = timers['autoLogout'].id
+        expect(typeof id === 'number').toEqual(true)
+        clearInterval(id)
+      }
+    }
+
+    const autoLogout = (env) => {
+      const { state: { timers } } = env
+      const fn = jest.fn(makeAutologoutFn(env))
+      timers.autoLogout = { id: setInterval(fn, 1000 / 60), fn }
+    }
+
+    const { env, setState } = createStore({
+      state: { db: {}, localStorage: ls(), timers: {} },
+      fx: { replace, autoLogout },
+      eventFx: { 'force-log-out': [() => [['db', R.dissoc('user')], ['replace', ['/']]]] }
+    })
+    const logOut = ({ state }) => {
+      if (getUser(state.db) && !getLocalStorageUser(state.localStorage)) {
+        throw new Error(
+          'localStorage and db state are out of sync, which may be intentional. '
+          + 'User may have been logged out by another tab, but is logged in here until next page refresh.'
+        )
+      }
+      state.localStorage.removeItem('user')
+      setState(R.dissoc('user'))
+    }
+
+    env.fx.autoLogout(env)
+    const ticksBeforeLogout = 42
+    setTimeout(() => logOut(env), 1000 / 60 * ticksBeforeLogout)
+
+    jest.runTimersToTime(1000)
+    expect(env.state.timers.autoLogout.fn).toHaveBeenCalledTimes(ticksBeforeLogout + 1)
+    expect(replace).toHaveBeenCalledTimes(1)
+    // I feel like we incur more mental burden with "always on" effects than we'd like at this stage
+    // It can be mysterious why they happen, because they just sort of ...happen.
+    //
+    // We can reduce what's going on in this case:
+    // A particular effect (dispatch force-log-out) obtains when a predicate (.getItem user === falsy)
+    // is true for a particular stateful thing (localStorage)
+    // the function runs 60 times per second
+    // the function produces an effect at most once: when the predicate obtains, the rule is no longer applicable
+    //
+    // In the general case:
+    // a particular effect or set of effects can result
+    // a particular predicate function may gate the result
+    // particular stateful things may be affected
+    // the function runs every X ms
+    // its effects may happen 0 or more times as the result of some state
+    // the function may be destroyed as a result of some state
+    //
+    // dispatching an event helps provide more information since we have better tracking of events than raw effects
+    // the dispatched event or another could contain information about why the event was dispatched
+    // but would need to be encoded case-by-case
+  })
+})
+describe('preEventFx', () => {
   it('should work!', () => {
     const userCredentials = { id: 123, username: 'mullet-man' }
 
@@ -185,11 +301,11 @@ describe('preFx', () => {
 
     const localStorage = ls()
 
-    const { env, regPreFx,  regEventFx, regFx, dispatch } =
-      createStore({ state: { db: {}, localStorage } } )
+    const { env, regPreEventFx, regEventFx, regFx, dispatch } =
+      createStore({ state: { db: {}, localStorage } })
 
     const deserializeLSUser = jest.fn(userStr => {
-      if (!userStr)  return null
+      if (!userStr) return null
       const user = JSON.parse(userStr)
       return updateIn(['username'], x => x.toUpperCase(), user)
     })
@@ -236,7 +352,7 @@ describe('preFx', () => {
     }
     regFx('redirect', redirect)
 
-    regPreFx('user', ({ state: { db, localStorage } }) => {
+    regPreEventFx('user', ({ state: { db, localStorage } }) => {
 
       return getLocalStorageUser(localStorage)
 
@@ -266,12 +382,13 @@ describe('preFx', () => {
     getLocalStorageUser(env.state.localStorage)
     expect(deserializeLSUser).toHaveBeenCalledTimes(1)
 
-    expect(()=>logOut(env)).not.toThrow()
+    expect(() => logOut(env)).not.toThrow()
 
-    logIn(env,R.assoc('username','fred',userCredentials))
+    logIn(env, R.assoc('username', 'fred', userCredentials))
 
     // derive needs called with a new reference
-    expect(getLocalStorageUser(Object.assign({},env.state.localStorage)).username).toEqual('FRED')
+    expect(getLocalStorageUser(Object.assign({}, env.state.localStorage)).username)
+      .toEqual('FRED')
     expect(deserializeLSUser).toHaveBeenCalledTimes(2)
   })
 })

@@ -10,38 +10,8 @@ export const regEventFxRaw = (env, type, fn) => {
   env.eventFx[type] = [...env.eventFx[type] || [], fn]
 }
 
-export const regPreFxRaw = (env, type, fn) => {
-  env.preFx[type] = fn
-}
-
-const processEventEffects = (env, event) => {
-  const type = event[0]
-  const args = event.slice(1)
-  /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
-  const eventHandlers = env.eventFx[type]
-  if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
-  let count = 0
-
-  eventHandlers.forEach(handler => {
-    const preFx = Object.entries(env.preFx).reduce((a, [k, f]) => {
-      a[k] = f(env)
-      return a
-    }, { eventName: type })
-
-    const effects = handler({ ...env.state, ...preFx }, ...args)
-
-    if (!effects) return
-    const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
-    processEffects(env, effectsList)
-
-    env.eventListeners.forEach(f => f(type, payload, effects, count))
-    count++
-  })
-}
-
-const checkType = (op, type) => {
-  if (typeof (type) !== 'string') throw new Error(`${op} requires a string as the fx key`)
-  if (type.length === 0) throw new Error(`${op} fx key cannot be a zero-length string`)
+export const regPreEventFxRaw = (env, type, fn) => {
+  env.preEventFx[type] = fn
 }
 
 export const processEffects = (env, effects) => {
@@ -53,11 +23,35 @@ export const processEffects = (env, effects) => {
   })
 }
 
+export const processEventEffects = (env, event) => {
+  const type = event[0]
+  const args = event.slice(1)
+  env.eventListeners.forEach(f => f(type, args))
+  /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
+  const eventHandlers = env.eventFx[type]
+  if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
+
+  const preEventFx = Object.entries(env.preEventFx).reduce((a, [k, f]) => {
+    a[k] = f(env)
+    return a
+  }, { eventName: type })
+
+  eventHandlers.forEach(handler => {
+    const effects = handler({ ...env.state, ...preEventFx }, ...args)
+    if (!effects) return
+    const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
+    processEffects(env, effectsList)
+  })
+}
+
+const checkType = (op, type) => {
+  if (typeof (type) !== 'string') throw new Error(`${op} requires a string as the fx key`)
+  if (type.length === 0) throw new Error(`${op} fx key cannot be a zero-length string`)
+}
+
 export const identityEnv = () => ({
   state: { db: {}, dispatch: { depth: 0 } },
-  preFx: {
-    user: ({ localStorage }) => localStorage?localStorage.get('user'):'user'
-  },
+  preEventFx: {},
   fx: {
     db: (env, newStateOrReducer) => {
       if (typeof newStateOrReducer !== 'function') {
@@ -92,7 +86,7 @@ export const identityEnv = () => ({
       }
     }
   },
-  events: [],
+  events: {},
   eventFx: {},
   dbListeners: [],
   eventListeners: [],
@@ -114,7 +108,6 @@ export const createStore = (args = identityEnv()) => {
     }
   }, {}))
 
-
   return {
     env,
     dispatch: (...event) => { env.fx.dispatch(env, event) },
@@ -128,9 +121,9 @@ export const createStore = (args = identityEnv()) => {
       checkType('regFx', type)
       env.fx[type] = fn
     },
-    regPreFx: (type, fn) => {
-      checkType('regPreFx', type)
-      env.preFx[type] = fn
+    regPreEventFx: (type, fn) => {
+      checkType('regPreEventFx', type)
+      env.preEventFx[type] = fn
     },
     subscribeToState: fn => env.dbListeners.push(fn)
   }
