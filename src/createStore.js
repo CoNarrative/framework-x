@@ -1,6 +1,7 @@
 // import hoistStatics from 'hoist-non-react-statics'
 // import mergeDeepRight from 'ramda/es/mergeDeepRight'
-import { mergeDeepRight } from 'ramda'
+import { concat, append, mergeDeepRight } from 'ramda'
+
 
 export const regFxRaw = (env, type, fn) => {
   env.fx[type] = fn
@@ -23,6 +24,41 @@ export const processEffects = (env, effects) => {
   })
 }
 
+//
+
+const parseEventEffects = (env, event) => {
+  const type = event[0]
+  const args = event.slice(1)
+  // env.eventListeners.forEach(f => f(type, args))
+  /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
+  const eventHandlers = env.eventFx[type]
+  if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
+
+  const preEventFx = Object.entries(env.preEventFx).reduce((a, [k, f]) => {
+    a[k] = f(env)
+    return a
+  }, { eventName: type })
+
+  return eventHandlers.reduce((a1, handler) => {
+    const effects = handler({ ...env.state, ...preEventFx }, ...args)
+    if (!effects) return a1
+
+    const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
+    return append(effectsList.reduce((a, [k, v]) =>
+        k !== 'dispatch'
+        ? append([k, v], a)
+        : concat(parseEventEffects(env, v), a),
+      []), a1)
+    //  :(
+    //  return append({
+    //    [type]: effectsList.reduce((a, [k, v]) =>
+    //      k !== 'dispatch'
+    //      ? append([k, v], a)
+    //      : append(parseEventEffects(env, v), a1),
+    //      [])
+    //  },a1)
+  }, [])
+}
 export const processEventEffects = (env, event) => {
   const type = event[0]
   const args = event.slice(1)
@@ -75,7 +111,9 @@ export const identityEnv = () => ({
 
       try {
         env.state.dispatch.depth += 1
-        processEventEffects(env, finalEvent)
+        const effects = parseEventEffects(env, finalEvent)
+        console.log('fx', JSON.stringify(effects, null, 2))
+        // processEventEffects(env, finalEvent)
       } finally {
         // always make sure it decrements back even if fx throws error
         env.state.dispatch.depth -= 1
