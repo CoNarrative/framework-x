@@ -2,22 +2,24 @@
 path: /intro
 ---
 
-# Framework-X: Reasonable global state management for React apps
-> Side effects may include other effects.
+# Framework-X: Reasonable global state for React
 
-Framework-X is a Javascript framework that processes definitions of cause and effect. Applications map events to
-descriptions of the effects they entail -- a state change, a function, or another event. 
+Framework-X is a Javascript framework that processes events and descriptions of their effects, allowing immutable state
+transformations and side effects to be written alongside one another as pure functions.
 
-When an application dispatches an event, the framework calls functions the application has associated it with the event.
-Each function receives a context argument and the event's arguments. The context includes the current immutable state
-object; applications may extended context to include other values. The framework interprets the function's return value
-as an ordered map. Each key corresponds to a map of effects the application has registered. The framework iterates over
-the map's entries in order, invoking the registered effect function for the key with the map entry's value. is provides
-a description of effects as data back to the framework, which are then applied The framework then applies them by
-invoking built-in functions to perform immutable state updates
+Framework-X is based on `re-frame` and shares key features with Redux in its emphasis on global immutable state and
+event dispatch, but has the most in common with `re-frame` the framework upon which it's based.
 
-Some of this may may sound familiar to readers who have used Redux. Framework-X has even more in common with re-frame,
-upon which it's based.
+Framework-X has been used in mid-size production applications for about 1.5 years and is being open sourced today under
+the MIT license. 
+
+
+## How it works
+ 
+Whenever an event is dispatched, the framework calls registered handlers with the event's arguments and the current
+global state. Instead of calling side effects or performing state updates themselves, handlers return a description of
+the all the effects for the event back to Framework-X. are then don't execute side effects receives descriptions of the
+effects it needs to execute as data. Each effect description is executed in the order defined by the handler.
 
 The model is reducible to the following: 
 
@@ -219,15 +221,14 @@ export const getVisibleTodos = derive(
     }
   }
 )
-
 ```
 
-Components can use selector functions to subscribe to state changes: 
+Components use selector functions to subscribe to state changes: 
 
 ```js
 export const EnterTodo = component('EnterTodo',
   createSub({ getNewTodoText }),
-  ({ newTodoText }) =>
+  ({ newTodoText, dispatch }) =>
     <div>
       <input
         value={newTodoText}
@@ -244,40 +245,6 @@ export const EnterTodo = component('EnterTodo',
  
 # Comparison to Redux
 
-We used Redux from the time it was released. We thought it was well designed:
-
-- Separate model and view
-- Immutable state transformations on a single state value
-- Clear place for business logic that can be expressed with ordinary functions with `react-redux`
-- Derived state calculated simply and efficiently with `reselect`
-- Messaging to decouple what happens in our application from the way its effects are represented in a
-  Javascript object
-- Message types/names that described the system we were building, what
-  the app does
-
-
-As we continued to use it, there were some things we thought could be
-better:
-- We were writing a fair amount of code
-- It was difficult to follow the code for actions that were meant to
-  trigger an API call
-- We turned to third-party middleware libraries in hopes of making our
-  code more capable of expressing additional consequences for some
-  events, like a state change and an API call
-- If we wanted to add a key to the state, we had to write a new reducer
-  (using `combineReducers`)
-- Action creators gave us a place to specify an action's arguments but
-  hid the the event's name it dispatched throughout the codebase
-- There was no clear way to access the global state inside a reducer function (using `combineReducers`)
-- There were times when it seemed more natural to respond to an event
-  when it was handled in the reducer by dispatching another event,
-  instead of figuring out how to produce the same result with middleware
-
-
-Some of these we were able to find adequate solutions for. For others,
-it seemed the best we could do was move the problem around. Ultimately,
-we found our core issues with Redux stemmed from the way it defines
-reducers.
 
 
 [From Redux's documentation](https://redux.js.org/basics/reducers#handling-actions)
@@ -298,23 +265,22 @@ reducers.
 >
 > ***Note**: Emphasis is Redux's.*
 
-We agree reducing functions should be pure in the sense they shouldn't
-mutate the global state. But we find fewer reasons in theory and
-practice that an event's effects should be separated in this way.
+Framework-X satisfies these requirements while stiWe agree reducing functions should be pure in this way. But we find
+fewer reasons in theory and practice that an event's effects should be separated in this way.
 
-The consequences of enforcing it have entailed that all effects apart
-from a new state value are specified in Redux's middleware. This comes
-with some complexity:
-
-- Events that are handled in the reducer may be handled here also
+The consequences of calling reducer code directly entail that events can't be handled in one place with a pure function.
+This requires the existence of something like Redux's middleware, so that reducers can be pure functions and middleware
+can execute side effects. This works, but comes with some cost:
+- All events pass through middleware 
+- Individual middleware may operate on some events but not others
+- Some middleware look for a particular key on the event and do
+  something if it's present based on arbitrary logic
+- Events that are handled in middleware may also be handled in a reducer
 - Middleware may mutate the event. Any changes are visible to subsequent
   middlewares and reducers. Middleware is executed in the order it was
   registered.
-- All events pass through middleware 
-- Individual middleware may operate on some events but not others
 - Middleware is unable to specify a state update directly
-- Some middleware look for a particular key on the event and do
-  something if it's present based on arbitrary logic
+
 - Middleware may be a third-party library with its own API
 
 
