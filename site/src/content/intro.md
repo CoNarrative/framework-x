@@ -11,7 +11,7 @@ descriptions of the effects they entail -- a state change, a function, or anothe
 When an application dispatches an event, the framework calls functions the application has associated it with the event.
 Each function receives a context argument and the event's arguments. The context includes the current immutable state
 object; applications may extended context to include other values. The framework interprets the function's return value
-as an ordered map. Each key corresponds to a map of effect the application has registered. The framework iterates over
+as an ordered map. Each key corresponds to a map of effects the application has registered. The framework iterates over
 the map's entries in order, invoking the registered effect function for the key with the map entry's value. is provides
 a description of effects as data back to the framework, which are then applied The framework then applies them by
 invoking built-in functions to perform immutable state updates
@@ -24,14 +24,13 @@ The model is reducible to the following:
 0. There is a context.
 1. There are events.
 2. There are effects. 
-3. Events have effects: a state change, the execution of a function, or
-   other events.
+3. Events have effects -- a state change, the execution of a function, or other events -- that affect the context.
 
 
 We'll highlight its differences from [Redux](https://redux.js.org/) and other forms of state
 management for React, discuss the motivations and philosophy behind it, and attempt to show its design is reasonable. 
    
-By "reasonable", we generally mean Framework-X tends to be:
+By "reasonable", we generally mean Framework-X strives to be easy to follow and fair in what it asks from developers.:
 1. **Logical** Applications define causes and their effects. The
    framework lets developers associate an event name with a list of
    effects that are executed in order whenever the event occurs.
@@ -42,11 +41,10 @@ By "reasonable", we generally mean Framework-X tends to be:
    creates for them, or fill in holes the framework doesn't.
 4. **Approachable** The API is small and defined in terms of simple
    functions. There are few framework-specific concepts.
-5. **Flexible** The framework's design permits global state access and
-   event dispatch from all components and event handlers and avoids
-   making developers feel unnecessarily restricted when writing code.
-6. **Composable** Events and effects are expressed as data structures. 
-   They can be manipulated with Javascript the same as any other data.
+5. **Flexible** The framework's design permits global state access and event dispatch from all components and event
+   handlers. Developers should not feel unnecessarily restricted when writing code.
+6. **Composable** The API is functional and data-driven. Data structures representing events and effects can be combined
+   and uncombined the same as any JSON data.
 7. **Extensible** You can add your own effects and use them from event
    handlers. You can redefine built-in effects like `db` and `dispatch`
    if you choose. Because effects are data structures, it's easy to
@@ -58,16 +56,12 @@ By "reasonable", we generally mean Framework-X tends to be:
 
 
 
-# Code
+# Events
 
-> Note: These examples use [Ramda](https://ramdajs.com/) (`R.`). We
-> enjoy using it but it's not required.
-
-Events have names. We typically export objects for application events
-modeled as constants that resolve to strings:
+Events are modeled as an event name and optional payload argument:
 
 ```js
-export const evt = {
+const evt = {
   INITIALIZE_DB: 'initialize-db',
   ROUTE_CHANGED: 'route/changed',
   NAV_TO: 'nav/to',
@@ -84,96 +78,68 @@ export const evt = {
   SHOW_NOTIFICATION: 'notification/show',
   HIDE_NOTIFICATION: 'notification/hide',
 }
+
+const {
+  dispatch,
+  getState,
+  setState,
+  subscribeToState,
+  regFx,
+  regEventFx
+} = createStore()
+
+dispatch(evt.INITIALIZE_DB, {
+  todos: [],
+  visibilityFilter: visibilityFilter.ALL,
+  newTodoText: '',
+  notifications: []
+})
+
 ```
 
-Events are dispatched with an optional payload argument.
+
+# Event effects
+
+Applications use `regEventFx` to describe the effects events should have.
 
 ```js
-dispatch(evt.ADD_TODO, 'Use framework-x')
-```
-
-Applications use `regEventFx` to associate events with their effects. 
-
-```js
-regEventFx(evt.ADD_TODO, ({ db }, _, text) => {
-  // Use the current state directly and define the next one
-  // const nextDb = Object.assign({}, db,  {todos: db.todos.concat({text, done: false})})
+regEventFx(evt.ADD_TODO, ({ db }, text) => {
   return [
-    // Return the next state as a value
-    // ['db', nextDb]
-    
-    // Alternatively, supply a function describing the transformation 
-    // ("reducer"). `framework-x` will call this with the current state for you
     ['db', updateIn(['todos'], R.append({ text, done: false }))]
   ]
 })
 ```
 
-It has access to the current global state (`{db}`). State is immutable, and the next state is always a function of the current one. The `db` effect, when executed
-by the framework, will set the next state to the value provided or if it receives a function it will call the function
-with the current state and set the next state to the value the function returns:
+The return value only defines what should happen to the `db`. This allows side effects to be written as pure functions.
 
-We can easily define additional effects for this event, like resetting
-the todo input's text whenever a new todo is added:
-
+We can use this to indicate `ADD_TODO` should dispatch another event without actually dispatching it.
 
 ```js
-regEventFx(evt.ADD_TODO, ({ db }, _, text) => {
+regEventFx(evt.SET_TODO_TEXT, (_,  text) => {
   return [
-    // first add the todo
-    // ['db', updateIn(['todos'], R.append({ text, done: false }))]
-    // Then set 'newTodoText' to an empty string in the global state
-    // ['db', R.assoc('newTodoText', '')]
-    
-    // perform both transformations as one operation (`R.pipe` combines the functions)
-    ['db', R.pipe(
-      updateIn(['todos'], R.append({ text, done: false })),
-      R.assoc('newTodoText', '')
-    )]
+    ['db', R.assoc('newTodoText', text)]
   ]
 })
-```
 
-Often, you'll already have an event that sets the todo input text. The
-todo input component dispatches this event whenever the input field
-changes.
-
-
-```js
-regEventFx(evt.SET_TODO_TEXT, (_, __, text) => {
-  // single effects can be safely represented by an object instead of an array
-  return {
-    db: R.assoc('newTodoText', text)
-  }
-})
-```
-
-We can make use of this by dispatching `SET_TODO_TEXT` from `ADD_TODO`
-and achieve the same result:
-
-```js
 regEventFx(evt.ADD_TODO, ({ db }, _, text) => {
   return [
-    // first add the todo
     ['db', updateIn(['todos'], R.append({ text, done: false }))]
-    // then set the todo text to an empty string
     ['dispatch', evt.SET_TODO_TEXT, '']
   ]
 })
 ```
 
-What if we want `ADD_TODO` to have other effects? Say we wanted to show
-a notification:
 
+Dispatching `SET_TODO_TEXT` as part of `ADD_TODO` achieves the same result as writing the state transformation together,
+without sacrificing pure functions:
+
+This pattern can be extended to add other side effects easily and declaratively: 
 
 ```js
 regEventFx(evt.ADD_TODO, ({ db }, _, text) => {
   return [
-    // first add the todo
     ['db', updateIn(['todos'], R.append({ text, done: false }))]
-    // then set the todo text to an empty string
     ['dispatch', evt.SET_TODO_TEXT, '']
-    // then show a success notification that says "Todo added." for 5 seconds
     ['dispatch', evt.SHOW_NOTIFICATION, {
       id: 'todo-added-' + Date.now().toString(),
       type: 'success',
@@ -216,18 +182,47 @@ regEventFx(evt.HIDE_NOTIFICATION, ({ db }, _, { id }) => {
 })
 ```
 
-Selector functions in Framework-X are the same as using Redux with
-`reselect`. They're memoized functions that return derived values from
-the state. Some selectors may access a key of the global state and
-return it unmodified:
+# Derived values
+
+Framework-X uses memoized functions called selectors to return derived values from the state.
+
+The most basic selectors provide a raw value from the global state: 
 
 ```js
-export const getNewTodoText = R.path(['newTodoText'])
-// Without Ramda: (db) => db.newTodoText
+export const getAllTodos = R.path(['todos'])
 ```
 
-Components use selector functions to subscribe to state changes and 
-return markup:
+Other selectors that depend on `getAllTodos` receive `db.todos` and avoid recomputing if it hasn't changed:
+
+```js
+export const getAllTodos = R.path(['todos'])
+
+export const getDoneTodos = derive([getAllTodos], R.filter(R.prop('done')))
+
+export const getNotDoneTodos = derive([getAllTodos], R.reject(R.prop('done')))
+
+export const getVisibilityFilter = derive([getRouteParams], R.propOr(visibilityFilter.ALL, 'filter'))
+
+export const getVisibleTodos = derive(
+  [getVisibilityFilter, getAllTodos, getDoneTodos, getNotDoneTodos],
+  (filter, all, done, notDone) => {
+    switch (filter) {
+      case visibilityFilter.DONE:
+        return done
+      case visibilityFilter.NOT_DONE:
+        return notDone
+      case visibilityFilter.ALL:
+        return all
+      default:
+        console.error('unhandled visibility filter', filter)
+        return all
+    }
+  }
+)
+
+```
+
+Components can use selector functions to subscribe to state changes: 
 
 ```js
 export const EnterTodo = component('EnterTodo',
@@ -247,18 +242,16 @@ export const EnterTodo = component('EnterTodo',
 ```
 
  
-# Motivations
+# Comparison to Redux
 
-We used Redux from the time it was released. We thought it was well
-designed:
+We used Redux from the time it was released. We thought it was well designed:
 
 - Separate model and view
 - Immutable state transformations on a single state value
-- Clear place for business logic that can be expressed with ordinary
-  functions with `react-redux` 
+- Clear place for business logic that can be expressed with ordinary functions with `react-redux`
 - Derived state calculated simply and efficiently with `reselect`
-- Messaging pattern that decouples what happens in our application from
-  the way its effects are represented in a Javascript object
+- Messaging to decouple what happens in our application from the way its effects are represented in a
+  Javascript object
 - Message types/names that described the system we were building, what
   the app does
 
