@@ -19,17 +19,18 @@ const Container = styled.div({
 })
 
 const Search = () => (
-  <DimensionalBox rootCss={{alignItems: 'center',}} width={280} height={39}>
+  <DimensionalBox rootCss={{alignItems: 'center',}} width={280}>
     <div css={{ display: 'flex', alignItems: 'center', paddingLeft: 10,}}>
       <img css={{ paddingBottom: 4, }} src={SearchIcon}/>
       <input
         css={{
           marginLeft: 1,
-          height: 30,
+          height: 32,
           marginBottom: 5,
           padding: 0,
+          paddingTop: 6,
           paddingLeft: 10,
-          width: 248,
+          width: 236,
           backgroundColor: 'rgba(255,255,255,0)',
           border: 'none',
           outline: 'none',

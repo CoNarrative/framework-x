@@ -31,9 +31,9 @@ const Ul = ({children}) => <div>{children}</div>
 
 const Li = ({children}) => <div>{children}</div>
 
-const Pre = ({children}) => <DimensionalBox rootCss={{alignItems: 'center', marginBottom: 40, }} width={720} height={400}><pre css={{ margin: 0 }}>{children}</pre></DimensionalBox>
+const Pre = ({children}) => <DimensionalBox rootCss={{alignItems: 'center', marginBottom: 40 }} width={720}><pre css={{ margin: 0, overflow: 'auto', width: '100%', padding: '12px 0', paddingLeft: 24, }}>{children}</pre></DimensionalBox>
 
-const Code = ({children}) => <div>{children}</div>
+const Code = ({children}) => <code className={'language-jsx'}>{children}</code>
 
 const P = ({children}) => <p css={{ fontSize: 17, marginBottom: 12, marginTop: 0, lineHeight: '1.6rem', }}>{children}</p>
 
@@ -56,7 +56,7 @@ const renderAst = new RehypeReact({
     p: P,
     // li: Li,
     pre: Pre,
-    // code: Code,
+    code: Code,
     blockquote: Blockquote,
   },
 }).Compiler
