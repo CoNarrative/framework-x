@@ -21,8 +21,7 @@ regFx('route', args => pushNamedRoute.apply(null, args))
 regFx('redirect', args => replaceNamedRoute.apply(null, args))
 
 const getRouteEffects = ({ db, match, type, route, query, prevRoute }) => {
-  const initialLoad = type === 'INITIAL'
-  if (initialLoad && isLoggedIn()) {
+  if (type === 'INITIAL' && isLoggedIn()) {
     dispatch(evt.API_REQUEST, [evt.GET_USER, api.auth.current()])
   }
 

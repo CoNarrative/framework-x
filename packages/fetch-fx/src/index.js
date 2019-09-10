@@ -46,6 +46,6 @@ const fetchFx = curry(({ dispatch, fetch },
   })()
 })
 
-export const createFx = ({ dispatch, fetch = window.fetch }) =>
+export const createFx = ({ dispatch, fetch = fetch }) =>
   fetchFx({ dispatch, fetch })
 
