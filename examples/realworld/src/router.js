@@ -1,4 +1,3 @@
-import * as queryString from 'query-string'
 import * as R from 'ramda'
 import { createHashHistory } from 'history'
 import { createRouter } from 'framework-x'
