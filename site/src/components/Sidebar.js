@@ -5,6 +5,8 @@ import * as theme from '../theme'
 import {DimensionalBox} from "./DimensionalBox";
 import SearchIcon from '../assets/icons/search.svg'
 import {whenSmallScreen} from "../theme";
+import {whenTablet} from "../theme";
+import Chevron from '../assets/icons/chevron.svg'
 
 const Container = styled.div({
   color: theme.darkGrey,
@@ -21,13 +23,22 @@ const Container = styled.div({
   [whenSmallScreen]: {
     paddingLeft: 20,
     marginRight: 40,
-  }
+  },
+
+  [whenTablet]: {
+    position: 'fixed',
+    width: 284,
+    paddingTop: 0,
+    top: 88,
+    right: 32,
+    marginRight: 0,
+  },
 })
 
 const Search = () => (
   <DimensionalBox rootCss={{alignItems: 'center',}} width={280}>
-    <div css={{ display: 'flex', alignItems: 'center', paddingLeft: 10,}}>
-      <img css={{ paddingBottom: 4, }} src={SearchIcon}/>
+    <div css={{display: 'flex', alignItems: 'center', paddingLeft: 10,}}>
+      <img css={{paddingBottom: 4,}} src={SearchIcon}/>
       <input
         css={{
           marginLeft: 1,
@@ -49,9 +60,13 @@ const Search = () => (
   </DimensionalBox>
 )
 
-const Topic = ({active, topic, subtopics}) => (
-  <div css={{marginBottom: '1.2rem'}}>
-    <h3 css={{color: active ? theme.darkTeal : theme.black, marginBottom: '0.8rem', marginTop: 0, }}>
+const Topic = ({active, topic, subtopics, rootCss, mobile}) => (
+  <div css={{marginBottom: '1.2rem', ...rootCss}}>
+    <h3 css={{
+      color: active ? theme.darkTeal : theme.black,
+      marginBottom: mobile ? 0 : '0.8rem',
+      marginTop: 0,
+    }}>
       {topic}
     </h3>
     <div css={{paddingLeft: '0.9rem'}}>
@@ -63,13 +78,57 @@ const Topic = ({active, topic, subtopics}) => (
     </div>
   </div>
 )
-export const Sidebar = () => (
-  <Container>
-    {/*<Search/>*/}
-    <div css={{flexShrink: 0, flexGrow: 1, paddingLeft: 20,}}>
-      <Topic active topic={'Topic #1'} subtopics={['Subtopic 1', 'Subtopic 2', 'Subtopic 3']}/>
-      <Topic topic={'Topic #2'}/>
-      <Topic topic={'Topic #3'} subtopics={['Subtopic 1', 'Subtopic 2']}/>
-    </div>
-  </Container>
-)
+
+export class Sidebar extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      dropdownExpanded: false
+    }
+  }
+
+  expandDropdown = () => (
+    this.setState({dropdownExpanded: !this.state.dropdownExpanded})
+  )
+
+  render() {
+    return (
+      <Container>
+        {/*<Search/>*/}
+        <div css={{flexShrink: 0, flexGrow: 1, paddingLeft: 20, [whenTablet]: {display: 'none'}}}>
+          <Topic active topic={'Topic #1'} subtopics={['Subtopic 1', 'Subtopic 2', 'Subtopic 3']}/>
+          <Topic topic={'Topic #2'}/>
+          <Topic topic={'Topic #3'} subtopics={['Subtopic 1', 'Subtopic 2']}/>
+        </div>
+        <DimensionalBox handleHeight={true}>
+          <div css={{
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+          }}>
+            <div
+              onClick={this.expandDropdown}
+              css={{
+                display: 'flex',
+                alignItems: 'center',
+                paddingLeft: 20,
+                paddingRight: 20,
+                justifyContent: 'space-between',
+                width: '100%',
+                cursor: 'pointer',
+              }}>
+              <Topic mobile active topic={'Topic #1'}
+                     rootCss={{marginBottom: 'unset', paddingTop: 12, paddingBottom: 12,}}/>
+              <img css={{height: 8,}} src={Chevron}/>
+            </div>
+            <div css={{borderTop: '1px solid ' + theme.black, paddingLeft: 20, paddingRight: 20, paddingTop: 20, display: this.state.dropdownExpanded ? 'block' : 'none'}}>
+              <Topic topic={'Topic #1'} subtopics={['Subtopic 1', 'Subtopic 2', 'Subtopic 3']}/>
+              <Topic topic={'Topic #2'}/>
+              <Topic topic={'Topic #3'} subtopics={['Subtopic 1', 'Subtopic 2']}/>
+            </div>
+          </div>
+        </DimensionalBox>
+      </Container>
+    )
+  }
+}

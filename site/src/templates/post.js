@@ -8,6 +8,7 @@ import styled from '@emotion/styled'
 import * as theme from '../theme'
 import {DimensionalBox} from "../components/DimensionalBox";
 import {whenSmallScreen} from "../theme";
+import {whenTablet} from "../theme";
 
 const H1 = ({children}) => <h1 css={{
   fontSize: 40,
@@ -89,6 +90,8 @@ const Container = styled.div({
   height: '100%',
   overflow: 'auto',
   justifyContent: 'center',
+  position: 'relative',
+
   '& > :last-child': {
     maxWidth: 720,
     display: 'flex',
@@ -96,7 +99,12 @@ const Container = styled.div({
 
     [whenSmallScreen]: {
       maxWidth: 'calc(100vw - 420px)',
-    }
+    },
+
+    [whenTablet]: {
+      maxWidth: 'calc(100vw - 64px)',
+      paddingTop: 64,
+    },
   }
 })
 

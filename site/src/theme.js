@@ -10,5 +10,5 @@ export const lightBlue = '#EBF2F9'
 export const darkBlue = '#6B9DD0'
 
 export const whenSmallScreen = '@media only screen and (max-width: 1200px)'
-export const whenTablet = '@media only screen and (max-width: 800px)'
+export const whenTablet = '@media only screen and (max-width: 960px)'
 export const whenMobile = '@media only screen and (max-width: 600px)'

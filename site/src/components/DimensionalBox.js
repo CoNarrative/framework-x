@@ -20,7 +20,7 @@ const Box = styled.div(props => ({
   paddingTop: 1,
   paddingLeft: 1,
   height: 'auto',
-  width: '100%',
+  width: props.width ? props.width : '100%',
   // maxWidth: props.maxWidth,
   position: 'relative',
   ...props.rootCss,
@@ -71,16 +71,20 @@ export class DimensionalBox extends React.Component {
 
   }
 
-  onResize = (e) => {
-    this.setState({width: e})
+  onResize = (width, height) => {
+    console.log(width)
+    console.log(height)
+    this.setState({height: height + 7})
+    this.setState({width: width})
   }
   render() {
-    let {rootCss, maxWidth, color, children} = this.props
+    let {rootCss, width, maxWidth, color, children, handleHeight} = this.props
+    let fixedWidth = width
 
     return (
-      <ReactResizeDetector handleWidth onResize={this.onResize} render={({ width, height }) => (
-        <Box rootCss={rootCss} maxWidth={maxWidth} ref={(divElement) => this.divElement = divElement}>
-          <SvgBox width={this.state.width + 7} height={this.state.height} color={color}/>
+      <ReactResizeDetector handleWidth handleHeight={handleHeight} onResize={this.onResize} render={({ width, height }) => (
+        <Box rootCss={rootCss} width={fixedWidth} maxWidth={maxWidth} ref={(divElement) => this.divElement = divElement}>
+          <SvgBox width={fixedWidth ? fixedWidth : this.state.width + 7} height={this.state.height} color={color}/>
           {children}
         </Box>
       )}>
