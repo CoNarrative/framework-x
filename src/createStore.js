@@ -1,6 +1,7 @@
 // import hoistStatics from 'hoist-non-react-statics'
 // import mergeDeepRight from 'ramda/es/mergeDeepRight'
 import { concat, append, mergeDeepRight } from 'ramda'
+import * as R from 'ramda'
 
 
 export const regFxRaw = (env, type, fn) => {
@@ -15,7 +16,7 @@ export const regPreEventFxRaw = (env, type, fn) => {
   env.preEventFx[type] = fn
 }
 
-export const processEffects = (env, effects) => {
+export const runEffects = (env, effects) => {
   effects.forEach(([key, value]) => {
     const effect = env.fx[key]
     if (!effect) throw new Error(`No fx handler for effect "${key}". Try registering a handler using "regFx('${key}', ({ effect }) => ({...some side-effect})"`)
@@ -26,10 +27,9 @@ export const processEffects = (env, effects) => {
 
 //
 
-const parseEventEffects = (env, event) => {
+const parseEventEffects = (env, event ) => {
   const type = event[0]
   const args = event.slice(1)
-  // env.eventListeners.forEach(f => f(type, args))
   /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
   const eventHandlers = env.eventFx[type]
   if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
@@ -39,24 +39,18 @@ const parseEventEffects = (env, event) => {
     return a
   }, { eventName: type })
 
-  return eventHandlers.reduce((a1, handler) => {
+  return eventHandlers.reduce((hr, handler) => {
     const effects = handler({ ...env.state, ...preEventFx }, ...args)
-    if (!effects) return a1
+    if (!effects) return hr
 
     const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
-    return append(effectsList.reduce((a, [k, v]) =>
-        k !== 'dispatch'
-        ? append([k, v], a)
-        : concat(parseEventEffects(env, v), a),
-      []), a1)
-    //  :(
-    //  return append({
-    //    [type]: effectsList.reduce((a, [k, v]) =>
-    //      k !== 'dispatch'
-    //      ? append([k, v], a)
-    //      : append(parseEventEffects(env, v), a1),
-    //      [])
-    //  },a1)
+    return R.append(
+      R.prepend(['notifyEventListeners', event], effectsList)
+       .reduce((eventEffects, [k, v]) => {
+         return k !== 'dispatch'
+                ? append([k, v], eventEffects)
+                : [...eventEffects.concat(...parseEventEffects(env, v))]
+       }, []), hr)
   }, [])
 }
 export const processEventEffects = (env, event) => {
@@ -76,7 +70,7 @@ export const processEventEffects = (env, event) => {
     const effects = handler({ ...env.state, ...preEventFx }, ...args)
     if (!effects) return
     const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
-    processEffects(env, effectsList)
+    runEffects(env, effectsList)
   })
 }
 
@@ -100,6 +94,7 @@ export const identityEnv = () => ({
         }
       }
     },
+    notifyEventListeners: (env, event) => env.eventListeners.forEach(f => f(event)),
     dispatch: (env, event) => {
       const finalEvent = Array.isArray(event[0]) ? event[0] : event
       if (!finalEvent[0]) throw new Error('Dispatch requires a valid event key')
@@ -111,8 +106,10 @@ export const identityEnv = () => ({
 
       try {
         env.state.dispatch.depth += 1
-        const effects = parseEventEffects(env, finalEvent)
+        // effects by handler
+        const effects = R.chain(R.identity,parseEventEffects(env, finalEvent,))
         console.log('fx', JSON.stringify(effects, null, 2))
+        runEffects(env,effects)
         // processEventEffects(env, finalEvent)
       } finally {
         // always make sure it decrements back even if fx throws error
