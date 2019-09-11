@@ -50,7 +50,7 @@ export const connect = selector => WrappedComponent => {
       {injectedProps => <WrappedComponent {...props} {...injectedProps} />}
     </Subscribe>
   }
-  ConnectedComponent.displayName = `Connect(${WrappedComponent.displayName ||
+  ConnectedComponent.displayName = `FxConnect(${WrappedComponent.displayName ||
                                               WrappedComponent.name || '-'})`
   return ConnectedComponent
 }

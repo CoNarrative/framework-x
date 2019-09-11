@@ -21,7 +21,7 @@ const connectFn = (name, config, renderFn) => {
   }
 
   return class ComponentSubscriptionWrapper extends Component {
-    static displayName = `ConnectedComponent(${name})`
+    static displayName = `FxComponent(${name})`
     _sub = {
       ownProps: null,
       extractedProps: null,
