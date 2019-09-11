@@ -35,12 +35,13 @@ const MainContent = ({starCount, downloadCount}) =>
       </div>
 
       <div css={{maxWidth: `300px`, marginBottom: `1.45rem`}}>
-        <DimensionalBox rootCss={{alignItems: 'center',}} width={520} height={39}>
+        <DimensionalBox rootCss={{alignItems: 'center',}} width={520}>
           <div css={{
             display: 'flex',
             justifyContent: 'center',
             width: '100%',
-            paddingBottom: 6,
+            paddingTop: 6,
+            paddingBottom: 12,
             '& > :not(:last-child)': {marginRight: 64}
           }}>
             <span>License: MIT</span>

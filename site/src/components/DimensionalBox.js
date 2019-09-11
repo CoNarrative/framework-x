@@ -1,7 +1,10 @@
 import React from "react"
+import ReactDOM from 'react-dom'
 import {jsx} from '@emotion/core'
 import styled from '@emotion/styled'
 import * as theme from '../theme'
+import ReactResizeDetector from 'react-resize-detector';
+
 
 const Svg = styled.svg({
   position: 'absolute',
@@ -16,8 +19,9 @@ const Box = styled.div(props => ({
   fontSize: 14,
   paddingTop: 1,
   paddingLeft: 1,
-  height: props.height ? props.height : 'auto',
-  width: props.width - 7,
+  height: 'auto',
+  width: '100%',
+  // maxWidth: props.maxWidth,
   position: 'relative',
   ...props.rootCss,
 }))
@@ -61,17 +65,26 @@ export class DimensionalBox extends React.Component {
 
   componentDidMount() {
     const height = this.divElement.clientHeight + 7
-    this.setState({ height })
+    const width = this.divElement.clientWidth
+    this.setState({height})
+    this.setState({width})
+
   }
 
+  onResize = (e) => {
+    this.setState({width: e})
+  }
   render() {
-    let {rootCss, width, height, color, children} = this.props
+    let {rootCss, maxWidth, color, children} = this.props
 
     return (
-      <Box rootCss={rootCss} width={width} ref={ (divElement) => this.divElement = divElement}>
-        <SvgBox width={width} height={this.state.height} color={color}/>
-        {children}
-      </Box>
+      <ReactResizeDetector handleWidth onResize={this.onResize} render={({ width, height }) => (
+        <Box rootCss={rootCss} maxWidth={maxWidth} ref={(divElement) => this.divElement = divElement}>
+          <SvgBox width={this.state.width + 7} height={this.state.height} color={color}/>
+          {children}
+        </Box>
+      )}>
+      </ReactResizeDetector>
     );
   }
 }

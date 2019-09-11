@@ -12,7 +12,7 @@ effects, colocation of state transformations and far-reaching consequences for s
 productivity.
 
 
-Key features:
+#### Key features:
 1. **State is a just another side effect.** You don't write
    different code for updating the state than you would an API call.
 2. **Events are first-class.** You can respond to an event with another
@@ -76,7 +76,7 @@ All functions passed to `derive` or `createSub` are memoized using
 `reselect`. The selector pattern encourages a few valuable
 things:
 
-- Single source of truth
+- **Single source of truth**
 
   Defining a function in one place to get commonly-accessed values from
   the global state.
@@ -86,7 +86,7 @@ things:
   depend on it will not break so long as the selector returns the same
   kind of value it has been.
   
-- Explicit dataflow 
+- **Explicit dataflow** 
 
   An application that uses selectors, `createSub`
   and `derive` encodes a dependency graph necessary to carry out all
@@ -95,7 +95,7 @@ things:
   avoid recalculating `derive` inputs that have not changed from one
   state transition to the next.
   
-- Understanding and readability
+- **Understanding and readability**
  
   The above example makes plain how "visible todos" is defined in the
   todo app. `derive`'s arguments tell us what it depends on: a value for
@@ -128,12 +128,12 @@ things:
   out selectors later is a good approach.
   
   
-- Separates required information from information that can be derived
-  off of it, avoiding writing back to state when it's not necessary.
+- **Separates required information from information that can be derived
+  off of it, avoiding writing back to state when it's not necessary.**
 
-- Selectors can be used outside components.
+- **Selectors can be used outside components.**
 
-- Runtime performance 
+- **Runtime performance** 
 
   Calling a selector twice in a row with an identical state object is
   virtually free. A cached value is returned if the equality check

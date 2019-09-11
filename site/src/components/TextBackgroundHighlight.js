@@ -10,12 +10,12 @@ import * as theme from '../theme'
 // portion of the text's width
 
 const HighlightStyle = styled.div( props => ({
-  width: '110%',
+  width: props.h1 ?  '78%' : '110%',
   position: 'absolute',
   top: 0,
   bottom: '0.2rem',
-  left: '-5%',
-  right: '-5%',
+  left: props.h1 ? '-16%' : '-5%',
+  right: props.h1 ? 'unset' : '-5%',
   backgroundColor: props.code ? theme.lightGrey : theme.lightTeal,
   zIndex: -1
 }))
@@ -26,4 +26,4 @@ const Container = styled.div( props => ({
   ...props.rootCss
 }))
 
-export const Highlight = ({ children, code, rootCss }) => <Container rootCss={rootCss}><HighlightStyle code={code}/><div>{children}</div></Container>
+export const Highlight = ({ children, code, rootCss, h1 }) => <Container rootCss={rootCss}><HighlightStyle h1={h1} code={code}/><div>{children}</div></Container>

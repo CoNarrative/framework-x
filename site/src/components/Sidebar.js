@@ -4,6 +4,7 @@ import styled from '@emotion/styled'
 import * as theme from '../theme'
 import {DimensionalBox} from "./DimensionalBox";
 import SearchIcon from '../assets/icons/search.svg'
+import {whenSmallScreen} from "../theme";
 
 const Container = styled.div({
   color: theme.darkGrey,
@@ -16,6 +17,11 @@ const Container = styled.div({
   flexDirection: 'column',
   paddingTop: 64,
   marginRight: 96,
+
+  [whenSmallScreen]: {
+    paddingLeft: 20,
+    marginRight: 40,
+  }
 })
 
 const Search = () => (
@@ -45,7 +51,7 @@ const Search = () => (
 
 const Topic = ({active, topic, subtopics}) => (
   <div css={{marginBottom: '1.2rem'}}>
-    <h3 css={{color: active ? theme.lightTeal : theme.black, marginBottom: '0.8rem'}}>
+    <h3 css={{color: active ? theme.darkTeal : theme.black, marginBottom: '0.8rem', marginTop: 0, }}>
       {topic}
     </h3>
     <div css={{paddingLeft: '0.9rem'}}>
@@ -59,8 +65,8 @@ const Topic = ({active, topic, subtopics}) => (
 )
 export const Sidebar = () => (
   <Container>
-    <Search/>
-    <div css={{marginTop: 40, flexShrink: 0, flexGrow: 1, paddingLeft: 20,}}>
+    {/*<Search/>*/}
+    <div css={{flexShrink: 0, flexGrow: 1, paddingLeft: 20,}}>
       <Topic active topic={'Topic #1'} subtopics={['Subtopic 1', 'Subtopic 2', 'Subtopic 3']}/>
       <Topic topic={'Topic #2'}/>
       <Topic topic={'Topic #3'} subtopics={['Subtopic 1', 'Subtopic 2']}/>

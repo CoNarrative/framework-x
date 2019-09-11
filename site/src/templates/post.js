@@ -7,10 +7,25 @@ import {Sidebar} from '../components/Sidebar'
 import styled from '@emotion/styled'
 import * as theme from '../theme'
 import {DimensionalBox} from "../components/DimensionalBox";
+import {whenSmallScreen} from "../theme";
 
-const H1 = ({children}) => <h1><Highlight>{children}</Highlight></h1>
+const H1 = ({children}) => <h1 css={{
+  fontSize: 40,
+  alignSelf: 'flex-start',
+  '& > div > div > code ': {
+    fontSize: '2rem !important',
+    color: theme.red,
+    fontFamily: 'Basier Square Mono !important',
+  }
+}}><Highlight h1>{children}</Highlight></h1>
 
-const H2 = ({children}) => <div>{children}</div>
+const H2 = ({children}) => <h2 css={{
+  '& > code': {
+    fontSize: '1.14rem !important',
+    color: theme.red,
+    fontFamily: 'Basier Square Mono !important',
+  }
+}}>{children}</h2>
 
 const H3 = ({children}) =>
   <h3 css={{
@@ -25,22 +40,30 @@ const H3 = ({children}) =>
     }
   }}><Highlight code>{children}</Highlight></h3>
 
-const H4 = ({children}) => <h4 css={{ fontSize: 17, textTransform: 'capitalize', marginBottom: 12, }}>{children}</h4>
+const H4 = ({children}) => <h4 css={{fontSize: 17, textTransform: 'capitalize', marginBottom: 12,}}>{children}</h4>
 
 const Ul = ({children}) => <div>{children}</div>
 
-const Li = ({children}) => <div>{children}</div>
+const Li = ({children}) => <li css={{lineHeight: '24px', marginBottom: 12,}}>{children}</li>
 
-const Pre = ({children}) => <DimensionalBox rootCss={{alignItems: 'center', marginBottom: 40 }} width={720}><pre css={{ margin: 0, overflow: 'auto', width: '100%', padding: '12px 0', paddingLeft: 24, }}>{children}</pre></DimensionalBox>
+const Pre = ({children}) => <DimensionalBox rootCss={{alignItems: 'center', marginBottom: 40}} maxWidth={720}>
+  <pre css={{margin: 0, overflow: 'auto', width: '100%', padding: '12px 0', paddingLeft: 24,}}>{children}</pre>
+</DimensionalBox>
 
 const Code = ({children}) => <code className={'language-jsx'}>{children}</code>
 
-const P = ({children}) => <p css={{ fontSize: 17, marginBottom: 12, marginTop: 0, lineHeight: '1.6rem', }}>{children}</p>
+const P = ({children}) => <p
+  css={{fontSize: 16, marginBottom: 12, marginTop: 0, lineHeight: '1.6rem', marginLeft: '2.2rem',}}>{children}</p>
 
 const Blockquote = ({children}) =>
-  <div css={{ display: 'flex', marginBottom: 20, }}>
-    <div css={{ flexShrink: 0, width: 4, backgroundColor: theme.darkBlue, }}/>
-    <div css={{ flexGrow: 1, backgroundColor: theme.lightBlue, padding: '4px 12px', '& > p': { margin: 0, fontSize: 15, color: theme.darkGrey, lineHeight: '1.4rem' } }}>
+  <div css={{display: 'flex', marginBottom: 20,}}>
+    <div css={{flexShrink: 0, width: 4, backgroundColor: theme.darkBlue,}}/>
+    <div css={{
+      flexGrow: 1,
+      backgroundColor: theme.lightBlue,
+      padding: '4px 12px',
+      '& > p': {margin: 0, fontSize: 15, color: theme.darkGrey, lineHeight: '1.4rem'}
+    }}>
       {children}
     </div>
   </div>
@@ -49,12 +72,12 @@ const renderAst = new RehypeReact({
   createElement: React.createElement,
   components: {
     h1: H1,
-    // h2: H2,
+    h2: H2,
     h3: H3,
     h4: H4,
     // ul: Ul,
     p: P,
-    // li: Li,
+    li: Li,
     pre: Pre,
     code: Code,
     blockquote: Blockquote,
@@ -66,6 +89,15 @@ const Container = styled.div({
   height: '100%',
   overflow: 'auto',
   justifyContent: 'center',
+  '& > :last-child': {
+    maxWidth: 720,
+    display: 'flex',
+    flexDirection: 'column',
+
+    [whenSmallScreen]: {
+      maxWidth: 'calc(100vw - 420px)',
+    }
+  }
 })
 
 export default class Template extends React.Component {
@@ -88,12 +120,7 @@ export default class Template extends React.Component {
       <Layout>
         <Container>
           <Sidebar/>
-          <div css={{display: 'flex', justifyContent: 'center',}}>
-            <h1>{frontmatter.title}</h1>
-            <div css={{maxWidth: 720,}}>
-              {renderAst(htmlAst)}
-            </div>
-          </div>
+          {renderAst(htmlAst)}
         </Container>
       </Layout>
     )
