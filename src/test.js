@@ -28,6 +28,41 @@ it('should reduce a simple event', () => {
     requires: []
   })
 })
+it('should process db effects and make reductions available to non-listeners', () => {
+  const { regEventFx, dispatch, getState,subscribeToState } = createStore()
+  let nNotifications = 0
+  const nEvents = 5
+  const reduced = { 'messages': R.times((n) => 'event-' + n, nEvents) }
+  const reductions = n => R.map((n2) => 'event-' + n2, R.range(0, n))
+
+  subscribeToState(db => {
+    expect(db).toEqual(reduced)
+    nNotifications += 1
+  })
+
+  R.map(n => {
+    regEventFx('event-' + n, ({ db}) => {
+      if (n > 0) {
+        try {
+          expect(db.messages).toEqual(reductions(n))
+        } catch (e){
+          console.log('e',e)
+        }
+      }
+      return [
+        ['db', updateIn(['messages'], R.append('event-'+n))]
+      ].concat(
+        n < nEvents - 1
+        ? [['dispatch', ['event-' + R.inc(n)]]]
+        : []
+      )
+    })
+  }, R.range(0, nEvents))
+
+  dispatch('event-0')
+  expect(getState()).toEqual(reduced)
+  expect(nNotifications).toEqual(1)
+})
 it('should process dispatch child event synchronously', () => {
   const { regEventFx, reduceDispatch } = createStore()
   regEventFx(evt.MESSAGE, (_, message) => [
