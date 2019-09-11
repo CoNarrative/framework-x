@@ -128,9 +128,7 @@ export const createStore = (baseReg, initialState = {}) => {
         if (!fxr) {
           throw new Error(`No fx handler for effect "${fxType}". Try registering a handler using "regFx('${fxType}', ({ effect }) => ({...some side-effect})"`)
         }
-        const nextAcc = fxr(acc, fxPayload)
-        // console.log('NEXT ACC', nextAcc)
-        return nextAcc
+        return fxr(acc, fxPayload)
       },
       acc
     )
@@ -178,7 +176,7 @@ export const createStore = (baseReg, initialState = {}) => {
         let context = {
           db: acc.db,
           eventType: type
-          // fixme. Dynamically add helpers, etc.
+          // fixme. Dynamically add static/global helpers, etc.
         }
         if (needsSuppliers) {
           const thisBag = acc.supplied[acc.supplyIndex || 0]
@@ -288,6 +286,7 @@ export const createStore = (baseReg, initialState = {}) => {
     reduceDispatchSupply,
     getDispatchDepth,
     regSupplier,
-    regAfter
+    regAfter,
+    reduceFx
   }
 }
