@@ -35,10 +35,10 @@ export const createStore = (baseReg, initialState = {}) => {
    * Underlying reducer that participates in reduceDispatch
    * can return more fx requests now
    * @param fxType
-   * @param reduce (reg, acc, payload)
+   * @param reducer
    */
   const regFx = (fxType, reducer) => {
-    checkType('regFxImmediate', fxType)
+    checkType('regFx', fxType)
     reg.fxReg[fxType] = reducer
   }
 
@@ -52,11 +52,11 @@ export const createStore = (baseReg, initialState = {}) => {
    */
   const afterFx = (acc, afterFn) =>
     afterFn == null
-      ? acc2 =>
-        afterFx(acc2, acc)
-      : Object.assign({}, acc, {
-        afterFx: acc.afterFx.concat(afterFn)
-      })
+    ? acc2 =>
+      afterFx(acc2, acc)
+    : Object.assign({}, acc, {
+      afterFx: acc.afterFx.concat(afterFn)
+    })
 
   const regEventFx = (type, fn, fn2) => {
     let requires = []
@@ -114,7 +114,7 @@ export const createStore = (baseReg, initialState = {}) => {
     Object.entries(requirementsBag).reduce(
       (acc, [key, [requireType, ...args]]) => {
         const supplier = reg.supplierReg[requireType]
-        if (!supplier) throw new Error(`EventFx request "${requireType}" but that was not registered using regSupplier`)
+        if (!supplier) throw new Error(`EventFx requested "${requireType}" that was not registered using regSupplier`)
         return { ...acc, [key]: supplier.apply(null, args) }
       }, {}
     )
@@ -197,7 +197,7 @@ export const createStore = (baseReg, initialState = {}) => {
         acc = Object.assign({}, acc, {
           lastEventType: type
         }, needsSuppliers
-          ? { supplyIndex: (acc.supplyIndex || 0) + 1 } : {})
+           ? { supplyIndex: (acc.supplyIndex || 0) + 1 } : {})
         return reduceFx(acc, fx)
       },
       acc
@@ -213,27 +213,24 @@ export const createStore = (baseReg, initialState = {}) => {
   const reduceDispatchSupply = (type, payload) => {
     let loop = 0
     let supplied = []
-    let result = null
+    let reduced = null
     let insufficient = false
     // a loop seems natural as this is an unknown number of iterations
+    const createAccum = (init) => ({ requires: [], afterFx: [], ...init })
     do {
-      result = reduceDispatchStateless({
-        db,
-        requires: [],
-        supplied,
-        afterFx: []
-      }, [type, payload])
-      insufficient = result.requires.length > result.supplied.length
+      reduced = reduceDispatchStateless(createAccum({ db, supplied, }), [type, payload])
+      insufficient = reduced.requires.length > reduced.supplied.length
       if (insufficient) {
-        const needToSupply = result.requires.slice(result.supplied.length, result.requires.length)
+        const needToSupply = reduced.requires.slice(reduced.supplied.length, reduced.requires.length)
         supplied = needToSupply.reduce((acc, block) => {
           const thisBag = satisfy(block)
           return [...acc, thisBag]
-        }, result.supplied)
+        }, reduced.supplied)
         loop++
       }
     } while (loop < 32 && insufficient)
-    return result
+    console.log('DONE', reduced)
+    return reduced
   }
 
   /**
@@ -248,11 +245,11 @@ export const createStore = (baseReg, initialState = {}) => {
     if (!event[0]) throw new Error('Dispatch requires at least a valid event key')
     const [type, payload] = finalEvent
     dispatchDepth = dispatchDepth + 1
-    const result = reduceDispatchSupply(type, payload)
+    const reduced = reduceDispatchSupply(type, payload)
     dispatchDepth = dispatchDepth - 1
 
     /* notify listeners which will EXECUTE side-effects */
-    reg.afterReg.forEach(after => after(result, type, payload))
+    reg.afterReg.forEach(after => after(reduced, type, payload))
   }
 
   /** DEFAULT CORE REGISTRATIONS **/
@@ -275,6 +272,7 @@ export const createStore = (baseReg, initialState = {}) => {
   /**
    * dispatch and receive new db and instructions
    *
+   * @param type
    * @param payload
    * @returns {(function(*=, *=): function(*=, *=): *)|*}
    */
