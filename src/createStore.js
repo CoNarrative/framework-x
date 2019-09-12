@@ -76,10 +76,10 @@ export const createStore = (baseReg, initialState = {}) => {
     reg.supplierReg[type] = supplierFn
   }
 
-  const regBefore = beforeFn => {
+  const regBefore = (id, beforeFn) => {
     reg.beforeReg = [...reg.afterReg, beforeFn]
   }
-  const regAfter = (afterFn) => {
+  const regAfter = (id, afterFn) => {
     reg.afterReg = [...reg.afterReg, afterFn]
   }
 
@@ -257,15 +257,20 @@ export const createStore = (baseReg, initialState = {}) => {
 
   /** DEFAULT CORE REGISTRATIONS **/
   // These two are core so we always have these. They can be overridden as desired.
-  regBefore(acc => Object.assign({}, acc, { afterFx: [] }))
+  // regBefore('db', acc => Object.assign({}, acc, { db }))
+  // regBefore('afterFx', acc => Object.assign({}, acc, { afterFx: [] }))
+  // regBefore('require', acc => Object.assign({}, acc, {
+  //   requires: [],
+  //   supplied: []
+  // }))
   regFx('db', (acc, newStateOrReducer) =>
     Object.assign({}, acc, { db: nextDb(acc.db, newStateOrReducer) })
   )
   regFx('dispatch', reduceDispatchStateless)
   // set global state and notify if dirty
-  regAfter(result => setState(result.db))
+  regAfter('db', result => setState(result.db))
   // process generic afterfx
-  regAfter(({ afterFx }) => afterFx.forEach(after => after()))
+  regAfter('afterFx', ({ afterFx }) => afterFx.forEach(after => after()))
 
   /**
    * dispatch and receive new db and instructions
