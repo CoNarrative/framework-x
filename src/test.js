@@ -106,11 +106,11 @@ describe('core db and dispatch', () => {
 })
 describe('custom fx', () => {
   it('should permit custom fx and those can chain', () => {
-    const { regFx, regEventFx, afterFx, reduceDispatch } = createStore()
+    const { regFx, regEventFx, reduceDispatch } = createStore()
     let afterCntr = 0
-    regFx('custom', acc => afterFx(acc, () => {
+    regFx('custom', () => {
       afterCntr++
-    }))
+    })
     regEventFx(evt.MESSAGE, (_, message) => [
       dbFx(updateIn(['messages'], R.append(message))),
       dispatchFx(evt.SUBEVENT, message),
