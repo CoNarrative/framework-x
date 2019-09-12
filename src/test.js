@@ -23,7 +23,6 @@ it('should reduce a simple event', () => {
     'afterFx': [],
     'db': { 'message': 'hello' },
     'lastEventType': 'message',
-    'stateIsDirty': true,
     supplied: [],
     requires: []
   })
@@ -78,7 +77,6 @@ it('should process dispatch child event synchronously', () => {
     'afterFx': [],
     'db': { 'messages': ['hello', 'sub hello', 'end'] },
     'lastEventType': 'subevent',
-    'stateIsDirty': true,
     supplied: [],
     requires: []
   })
@@ -101,7 +99,6 @@ it('should update db as it goes', () => {
     'afterFx': [],
     'db': { 'messages': ['hello', 'sub hello', 'end'] },
     'lastEventType': 'subevent',
-    'stateIsDirty': true,
     supplied: [],
     requires: []
   })
@@ -126,7 +123,6 @@ describe('custom fx', () => {
     expect(R.omit(['afterFx'], result)).toEqual({
       'db': { 'messages': ['hello', 'sub hello', 'end'] },
       'lastEventType': 'subevent',
-      'stateIsDirty': true,
       supplied: [],
       requires: []
     })
@@ -179,7 +175,6 @@ describe('custom fx', () => {
     expect(R.omit(['afterFx'], result)).toEqual({
       'db': { 'messages': ['hello', 'sub hello', 'end'], foo: 'bar' },
       'lastEventType': 'subevent',
-      'stateIsDirty': true,
       supplied: [],
       requires: []
     })
@@ -221,7 +216,6 @@ describe('supplies coeffects', () => {
         done: true,
         id: '88'
       },
-      stateIsDirty: true,
       requires: [{ id: ['id'] }],
       supplied: [{ id: '88' }],
       supplyIndex: 1

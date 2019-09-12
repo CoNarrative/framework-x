@@ -92,6 +92,8 @@ export const createStore = (baseReg, initialState = {}) => {
     if (dispatchDepth > 0) {
       console.warn('Do not call setState from an eventFx. In an fx, you can just return db fx')
     }
+    // ignore if same
+    if (nextDb === db) return
     db = nextDb
     notifyState(db)
   }
@@ -186,7 +188,7 @@ export const createStore = (baseReg, initialState = {}) => {
         acc = Object.assign({}, acc, {
           lastEventType: type
         }, needsSuppliers
-          ? { supplyIndex: (acc.supplyIndex || 0) + 1 } : {})
+           ? { supplyIndex: (acc.supplyIndex || 0) + 1 } : {})
         return reduceFx(acc, fx)
       },
       acc
@@ -240,21 +242,20 @@ export const createStore = (baseReg, initialState = {}) => {
     const result = reduceDispatchSupply(type, payload)
     dispatchDepth = dispatchDepth - 1
 
-    /* EXECUTE side-effects */
+    /* notify listeners which will EXECUTE side-effects */
     reg.afterReg.forEach(after => after(result, type, payload))
-    result.afterFx.forEach(after => after())
   }
 
+  /** DEFAULT CORE REGISTRATIONS **/
   // These two are core so we always have these. They can be overridden as desired.
   regFxImmediate('db', (acc, newStateOrReducer) =>
-    Object.assign({}, acc, { db: nextDb(acc.db, newStateOrReducer), stateIsDirty: true })
+    Object.assign({}, acc, { db: nextDb(acc.db, newStateOrReducer) })
   )
   regFxImmediate('dispatch', reduceDispatchStateless)
-  regAfter((result) => {
-    if (result.stateIsDirty) {
-      setState(result.db)
-    }
-  })
+  // set global state and notify if dirty
+  regAfter(result => setState(result.db))
+  // process generic afterfx
+  regAfter(({ afterFx }) => afterFx.forEach(after => after()))
 
   /**
    * dispatch and receive new db and instructions
