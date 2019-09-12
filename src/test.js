@@ -104,11 +104,11 @@ it('should update db as it goes', () => {
 })
 describe('custom fx', () => {
   it('should permit custom fx and those can chain', () => {
-    const { regFx, regEventFx, reduceDispatch } = createStore()
+    const { regFx, regEventFx, afterFx, reduceDispatch } = createStore()
     let afterCntr = 0
-    regFx('custom', () => {
+    regFx('custom', acc => afterFx(acc, () => {
       afterCntr++
-    })
+    }))
     regEventFx(evt.MESSAGE, (_, message) => [
       dbFx(updateIn(['messages'], R.append(message))),
       dispatchFx(evt.SUBEVENT, message),
@@ -130,7 +130,7 @@ describe('custom fx', () => {
   })
 
   it('should notify subscribers only once and apply afterFx', () => {
-    const { regEventFx, regFx, dispatch, subscribeToState } = createStore()
+    const { regEventFx, regFx, afterFx, dispatch, subscribeToState } = createStore()
     let stateCntr = 0
     let state = null
     let afterCntr = 0
@@ -138,9 +138,9 @@ describe('custom fx', () => {
       stateCntr++
       state = newState
     })
-    regFx('custom', () => {
+    regFx('custom', afterFx(() => {
       afterCntr++
-    })
+    }))
     regEventFx(evt.MESSAGE, (_, message) => [
       dbFx(R.assoc('message', message)),
       dispatchFx(evt.SUBEVENT, message),
@@ -159,8 +159,8 @@ describe('custom fx', () => {
   })
 
   it('should permit custom immediate fx to change db', () => {
-    const { regFxImmediate, regEventFx, reduceDispatch, reduceFx } = createStore()
-    regFxImmediate('custom', acc => reduceFx(acc, [dbFx(R.assoc('foo','bar'))]))
+    const { regFx, regEventFx, reduceDispatch, reduceFx } = createStore()
+    regFx('custom', acc => reduceFx(acc, [dbFx(R.assoc('foo','bar'))]))
     regEventFx(evt.MESSAGE, (_, message) => [
       dbFx(updateIn(['messages'], R.append(message))),
       dispatchFx(evt.SUBEVENT, message),

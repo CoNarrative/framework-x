@@ -27,6 +27,7 @@ export const createStore = (baseReg, initialState = {}) => {
     fxReg: {},
     eventFxReg: {},
     supplierReg: {},
+    beforeReg: [],
     afterReg: []
   }
 
@@ -36,25 +37,26 @@ export const createStore = (baseReg, initialState = {}) => {
    * @param fxType
    * @param reduce (reg, acc, payload)
    */
-  const regFxImmediate = (fxType, reducer) => {
+  const regFx = (fxType, reducer) => {
     checkType('regFxImmediate', fxType)
     reg.fxReg[fxType] = reducer
   }
 
   /**
-   * Normal fx signature
-   * @param fxType
-   * @param perform
+   * fx helper that applies a generic "afterfx" for post processing
+   * does backward currying - with arity 1, it returns a function that
+   * receives an accumulator bag
+   * @param acc
+   * @param afterFn
+   * @returns {any}
    */
-  const regFx = (fxType, afterFxr) => {
-    checkType('regFx', fxType)
-    // defer until later, and ignore anything it returns
-    const reducer = (acc, fxPayload) =>
-      Object.assign({}, acc, {
-        afterFx: acc.afterFx.concat(() => afterFxr(acc, fxPayload))
+  const afterFx = (acc, afterFn) =>
+    afterFn == null
+      ? acc2 =>
+        afterFx(acc2, acc)
+      : Object.assign({}, acc, {
+        afterFx: acc.afterFx.concat(afterFn)
       })
-    reg.fxReg[fxType] = reducer
-  }
 
   const regEventFx = (type, fn, fn2) => {
     let requires = []
@@ -74,6 +76,9 @@ export const createStore = (baseReg, initialState = {}) => {
     reg.supplierReg[type] = supplierFn
   }
 
+  const regBefore = beforeFn => {
+    reg.beforeReg = [...reg.afterReg, beforeFn]
+  }
   const regAfter = (afterFn) => {
     reg.afterReg = [...reg.afterReg, afterFn]
   }
@@ -132,7 +137,9 @@ export const createStore = (baseReg, initialState = {}) => {
         if (!fxr) {
           throw new Error(`No fx handler for effect "${fxType}". Try registering a handler using "regFx('${fxType}', ({ effect }) => ({...some side-effect})"`)
         }
-        return fxr(acc, fxPayload)
+        // if fxr returns null, then just continue to use the same acc
+        // as a convenience to the fx implementor
+        return fxr(acc, fxPayload) || acc
       },
       acc
     )
@@ -190,7 +197,7 @@ export const createStore = (baseReg, initialState = {}) => {
         acc = Object.assign({}, acc, {
           lastEventType: type
         }, needsSuppliers
-           ? { supplyIndex: (acc.supplyIndex || 0) + 1 } : {})
+          ? { supplyIndex: (acc.supplyIndex || 0) + 1 } : {})
         return reduceFx(acc, fx)
       },
       acc
@@ -250,10 +257,11 @@ export const createStore = (baseReg, initialState = {}) => {
 
   /** DEFAULT CORE REGISTRATIONS **/
   // These two are core so we always have these. They can be overridden as desired.
-  regFxImmediate('db', (acc, newStateOrReducer) =>
+  regBefore(acc => Object.assign({}, acc, { afterFx: [] }))
+  regFx('db', (acc, newStateOrReducer) =>
     Object.assign({}, acc, { db: nextDb(acc.db, newStateOrReducer) })
   )
-  regFxImmediate('dispatch', reduceDispatchStateless)
+  regFx('dispatch', reduceDispatchStateless)
   // set global state and notify if dirty
   regAfter(result => setState(result.db))
   // process generic afterfx
@@ -282,13 +290,14 @@ export const createStore = (baseReg, initialState = {}) => {
     notifyState,
     regEventFx,
     regFx,
-    regFxImmediate,
+    afterFx,
     subscribeToState,
     reduceDispatchStateless,
     reduceDispatch,
     reduceDispatchSupply,
     getDispatchDepth,
     regSupplier,
+    regBefore,
     regAfter,
     reduceFx
   }
