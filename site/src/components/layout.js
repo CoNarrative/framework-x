@@ -27,7 +27,9 @@ const Layout = ({ children, rootCss }) => {
     <>
       <Navigation siteTitle={data.site.siteMetadata.title} />
       <Sidebar rootCss={{
+        display: 'none',
         [whenMobile]: {
+          display: 'flex',
           top: 64,
           right: 0,
           left: 0,
