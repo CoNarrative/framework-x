@@ -46,11 +46,13 @@ export const createStore = (baseReg, initialState = {}) => {
    * @param fxType
    * @param perform
    */
-  const regFx = (fxType, standardFxr) => {
+  const regFx = (fxType, afterFxr) => {
     checkType('regFx', fxType)
     // defer until later, and ignore anything it returns
-    const reducer = (acc, [type, payload]) =>
-      Object.assign({}, acc, { afterFx: acc.afterFx.concat(() => standardFxr(acc, payload)) })
+    const reducer = (acc, fxPayload) =>
+      Object.assign({}, acc, {
+        afterFx: acc.afterFx.concat(() => afterFxr(acc, fxPayload))
+      })
     reg.fxReg[fxType] = reducer
   }
 

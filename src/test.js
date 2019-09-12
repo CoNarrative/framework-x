@@ -15,7 +15,6 @@ const dispatchFx = (type, payload) => ['dispatch', [type, payload]]
 it('should reduce a simple event', () => {
   const { regEventFx, reduceDispatch } = createStore()
   regEventFx(evt.MESSAGE, (_, message) => {
-    console.log('enter eventFx', message)
     return [dbFx(R.assoc('message', message))]
   })
   const result = reduceDispatch(evt.MESSAGE, 'hello')
@@ -260,9 +259,6 @@ describe('supplies coeffects', () => {
     subscribeToState(newState => {
       stateCntr++
       state = newState
-    })
-    regAfter((result) => {
-      console.log(result)
     })
     regFx('custom', () => {
       afterCntr++
