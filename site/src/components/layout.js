@@ -9,6 +9,8 @@ import React from "react"
 import PropTypes from "prop-types"
 import { useStaticQuery, graphql } from "gatsby"
 import Header, {Navigation} from "./Navigation"
+import {whenMobile} from "../theme";
+import {Sidebar} from "./Sidebar";
 
 const Layout = ({ children, rootCss }) => {
   const data = useStaticQuery(graphql`
@@ -24,6 +26,16 @@ const Layout = ({ children, rootCss }) => {
   return (
     <>
       <Navigation siteTitle={data.site.siteMetadata.title} />
+      <Sidebar rootCss={{
+        [whenMobile]: {
+          top: 64,
+          right: 0,
+          left: 0,
+          paddingLeft: 0,
+          marginRight: 0,
+          width: 'unset',
+        },
+      }}/>
       <div
         css={{
           margin: `0 auto`,
@@ -33,7 +45,12 @@ const Layout = ({ children, rootCss }) => {
           display: 'flex',
           flexDirection: 'column',
           overflow: 'auto',
-          ...rootCss
+
+          [whenMobile]: {
+            height: 'calc(100vh - 112px)',
+          },
+
+          ...rootCss,
         }}
       >
         <React.Fragment>{children}</React.Fragment>

@@ -9,6 +9,7 @@ import * as theme from '../theme'
 import {DimensionalBox} from "../components/DimensionalBox";
 import {whenSmallScreen} from "../theme";
 import {whenTablet} from "../theme";
+import {whenMobile} from "../theme";
 
 const H1 = ({children}) => <h1 css={{
   fontSize: 40,
@@ -17,7 +18,11 @@ const H1 = ({children}) => <h1 css={{
     fontSize: '2rem !important',
     color: theme.red,
     fontFamily: 'Basier Square Mono !important',
-  }
+  },
+
+  [whenMobile]: {
+    fontSize: '2.04rem'
+  },
 }}><Highlight h1>{children}</Highlight></h1>
 
 const H2 = ({children}) => <h2 css={{
@@ -38,23 +43,36 @@ const H3 = ({children}) =>
       background: 'unset !important',
       fontFamily: 'Basier Square Mono !important',
       fontSize: 'unset',
-    }
+    },
+    [whenMobile]: {
+      fontSize: '1.02rem'
+    },
   }}><Highlight code>{children}</Highlight></h3>
 
 const H4 = ({children}) => <h4 css={{fontSize: 17, textTransform: 'capitalize', marginBottom: 12,}}>{children}</h4>
 
 const Ul = ({children}) => <div>{children}</div>
 
-const Li = ({children}) => <li css={{lineHeight: '24px', marginBottom: 12,}}>{children}</li>
+const Li = ({children}) => <li
+  css={{lineHeight: '24px', marginBottom: 12, [whenMobile]: {fontSize: 14,}}}>{children}</li>
 
-const Pre = ({children}) => <DimensionalBox rootCss={{alignItems: 'center', marginBottom: 40}} maxWidth={720}>
+const Pre = ({children}) => <div css={{marginBottom: 40}}><DimensionalBox handleHeight={true}
+                                                                          rootCss={{alignItems: 'center'}}
+                                                                          maxWidth={720}>
   <pre css={{margin: 0, overflow: 'auto', width: '100%', padding: '12px 0', paddingLeft: 24,}}>{children}</pre>
-</DimensionalBox>
+</DimensionalBox></div>
 
 const Code = ({children}) => <code className={'language-jsx'}>{children}</code>
 
 const P = ({children}) => <p
-  css={{fontSize: 16, marginBottom: 12, marginTop: 0, lineHeight: '1.6rem', marginLeft: '2.2rem',}}>{children}</p>
+  css={{
+    fontSize: 16,
+    marginBottom: 12,
+    marginTop: 0,
+    lineHeight: '1.6rem',
+    marginLeft: '2.2rem',
+    [whenMobile]: {marginLeft: 0, fontSize: 14}
+  }}>{children}</p>
 
 const Blockquote = ({children}) =>
   <div css={{display: 'flex', marginBottom: 20,}}>
@@ -63,7 +81,19 @@ const Blockquote = ({children}) =>
       flexGrow: 1,
       backgroundColor: theme.lightBlue,
       padding: '4px 12px',
-      '& > p': {margin: 0, fontSize: 15, color: theme.darkGrey, lineHeight: '1.4rem'}
+      '& > p': {
+        margin: 0,
+        fontSize: 15,
+        color: theme.darkGrey,
+        lineHeight: '1.4rem',
+        [whenMobile]: {
+          fontSize: 13,
+          lineHeight: '1.1rem',
+        },
+      },
+      [whenMobile]: {
+        padding: '8px 12px',
+      }
     }}>
       {children}
     </div>
@@ -89,6 +119,7 @@ const Container = styled.div({
   display: 'flex',
   height: '100%',
   overflow: 'auto',
+  overflowX: 'hidden',
   justifyContent: 'center',
   position: 'relative',
 
@@ -104,6 +135,15 @@ const Container = styled.div({
     [whenTablet]: {
       maxWidth: 'calc(100vw - 64px)',
       paddingTop: 64,
+    },
+
+    [whenMobile]: {
+      maxWidth: 'calc(100vw - 32px)',
+      paddingTop: 0,
+    },
+
+    '& > :last-child': {
+      paddingBottom: 80,
     },
   }
 })
@@ -127,7 +167,7 @@ export default class Template extends React.Component {
     return (
       <Layout>
         <Container>
-          <Sidebar/>
+          <Sidebar rootCss={{[whenMobile]: {display: 'none'}}}/>
           {renderAst(htmlAst)}
         </Container>
       </Layout>
