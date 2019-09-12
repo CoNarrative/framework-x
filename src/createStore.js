@@ -37,26 +37,24 @@ export const createStore = (baseReg, initialState = {}) => {
    * @param fxType
    * @param reducer
    */
-  const regFx = (fxType, reducer) => {
-    checkType('regFx', fxType)
+  const regReduceFx = (fxType, reducer) => {
+    checkType('regReduceFx', fxType)
     reg.fxReg[fxType] = reducer
   }
 
   /**
-   * fx helper that applies a generic "afterfx" for post processing
-   * does backward currying - with arity 1, it returns a function that
-   * receives an accumulator bag
-   * @param acc
-   * @param afterFn
-   * @returns {any}
+   * Ordinary signature for registering true side effects
+   * that do not themselves feed back into plan reduction
    */
-  const afterFx = (acc, afterFn) =>
-    afterFn == null
-    ? acc2 =>
-      afterFx(acc2, acc)
-    : Object.assign({}, acc, {
-      afterFx: acc.afterFx.concat(afterFn)
-    })
+  const regFx = (fxType, simpleFx) => {
+    checkType('regFx', fxType)
+    const reducer = (acc, fxPayload) =>
+      Object.assign({}, acc, { afterFx: acc.afterFx.concat([[fxType, fxPayload]]) })
+    // just going to cheat and put the actual call in the handler so as to avoid
+    // setting up another registry or modifying the simplicity of the current one
+    reducer.fxr = simpleFx
+    regReduceFx(fxType, reducer)
+  }
 
   const regEventFx = (type, fn, fn2) => {
     let requires = []
@@ -197,7 +195,7 @@ export const createStore = (baseReg, initialState = {}) => {
         acc = Object.assign({}, acc, {
           lastEventType: type
         }, needsSuppliers
-           ? { supplyIndex: (acc.supplyIndex || 0) + 1 } : {})
+          ? { supplyIndex: (acc.supplyIndex || 0) + 1 } : {})
         return reduceFx(acc, fx)
       },
       acc
@@ -218,7 +216,7 @@ export const createStore = (baseReg, initialState = {}) => {
     // a loop seems natural as this is an unknown number of iterations
     const createAccum = (init) => ({ requires: [], afterFx: [], ...init })
     do {
-      reduced = reduceDispatchStateless(createAccum({ db, supplied, }), [type, payload])
+      reduced = reduceDispatchStateless(createAccum({ db, supplied }), [type, payload])
       insufficient = reduced.requires.length > reduced.supplied.length
       if (insufficient) {
         const needToSupply = reduced.requires.slice(reduced.supplied.length, reduced.requires.length)
@@ -229,7 +227,6 @@ export const createStore = (baseReg, initialState = {}) => {
         loop++
       }
     } while (loop < 32 && insufficient)
-    console.log('DONE', reduced)
     return reduced
   }
 
@@ -260,14 +257,15 @@ export const createStore = (baseReg, initialState = {}) => {
   //   requires: [],
   //   supplied: []
   // }))
-  regFx('db', (acc, newStateOrReducer) =>
+  regReduceFx('db', (acc, newStateOrReducer) =>
     Object.assign({}, acc, { db: nextDb(acc.db, newStateOrReducer) })
   )
-  regFx('dispatch', reduceDispatchStateless)
+  regReduceFx('dispatch', reduceDispatchStateless)
   // set global state and notify if dirty
   regAfter('db', result => setState(result.db))
   // process generic afterfx
-  regAfter('afterFx', ({ afterFx }) => afterFx.forEach(after => after()))
+  regAfter('afterFx', ({ afterFx }) =>
+    afterFx.forEach(([type, payload]) => reg.fxReg[type].fxr(payload)))
 
   /**
    * dispatch and receive new db and instructions
@@ -292,8 +290,8 @@ export const createStore = (baseReg, initialState = {}) => {
     setState,
     notifyState,
     regEventFx,
+    regReduceFx,
     regFx,
-    afterFx,
     subscribeToState,
     reduceDispatchStateless,
     reduceDispatch,

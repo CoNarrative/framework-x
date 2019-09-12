@@ -12,94 +12,96 @@ export const updateIn = R.curry((ks, f, m) =>
 const dbFx = reducerOrState => ['db', reducerOrState]
 const dispatchFx = (type, payload) => ['dispatch', [type, payload]]
 
-it('should reduce a simple event', () => {
-  const { regEventFx, reduceDispatch } = createStore()
-  regEventFx(evt.MESSAGE, (_, message) => {
-    return [dbFx(R.assoc('message', message))]
-  })
-  const result = reduceDispatch(evt.MESSAGE, 'hello')
-  expect(result).toEqual({
-    'afterFx': [],
-    'db': { 'message': 'hello' },
-    'lastEventType': 'message',
-    supplied: [],
-    requires: []
-  })
-})
-it('should process db effects and make reductions available to non-listeners', () => {
-  const { regEventFx, dispatch, getState, subscribeToState } = createStore()
-  let nNotifications = 0
-  const nEvents = 5
-  const reduced = { 'messages': R.times((n) => 'event-' + n, nEvents) }
-  const reductions = n => R.map((n2) => 'event-' + n2, R.range(0, n))
-
-  subscribeToState(db => {
-    expect(db).toEqual(reduced)
-    nNotifications += 1
-  })
-
-  R.map(n => {
-    regEventFx('event-' + n, ({ db }) => {
-      if (n > 0) {
-        try {
-          expect(db.messages).toEqual(reductions(n))
-        } catch (e) {
-          console.log('e', e)
-        }
-      }
-      return [
-        ['db', updateIn(['messages'], R.append('event-' + n))]
-      ].concat(
-        n < nEvents - 1
-        ? [['dispatch', ['event-' + R.inc(n)]]]
-        : []
-      )
+describe('core db and dispatch', () => {
+  it('should reduce a simple event', () => {
+    const { regEventFx, reduceDispatch } = createStore()
+    regEventFx(evt.MESSAGE, (_, message) => {
+      return [dbFx(R.assoc('message', message))]
     })
-  }, R.range(0, nEvents))
+    const result = reduceDispatch(evt.MESSAGE, 'hello')
+    expect(result).toEqual({
+      'afterFx': [],
+      'db': { 'message': 'hello' },
+      'lastEventType': 'message',
+      supplied: [],
+      requires: []
+    })
+  })
+  it('should process db effects and make reductions available to non-listeners', () => {
+    const { regEventFx, dispatch, getState, subscribeToState } = createStore()
+    let nNotifications = 0
+    const nEvents = 5
+    const reduced = { 'messages': R.times((n) => 'event-' + n, nEvents) }
+    const reductions = n => R.map((n2) => 'event-' + n2, R.range(0, n))
 
-  dispatch('event-0')
-  expect(getState()).toEqual(reduced)
-  expect(nNotifications).toEqual(1)
-})
-it('should process dispatch child event synchronously', () => {
-  const { regEventFx, reduceDispatch } = createStore()
-  regEventFx(evt.MESSAGE, (_, message) => [
-    dbFx(updateIn(['messages'], R.append(message))),
-    dispatchFx(evt.SUBEVENT, message),
-    dbFx(updateIn(['messages'], R.append('end')))
-  ])
-  regEventFx(evt.SUBEVENT, (_, message) => [
-    dbFx(updateIn(['messages'], R.append(`sub ${message}`)))
-  ])
-  const result = reduceDispatch(evt.MESSAGE, 'hello')
-  expect(result).toEqual({
-    'afterFx': [],
-    'db': { 'messages': ['hello', 'sub hello', 'end'] },
-    'lastEventType': 'subevent',
-    supplied: [],
-    requires: []
+    subscribeToState(db => {
+      expect(db).toEqual(reduced)
+      nNotifications += 1
+    })
+
+    R.map(n => {
+      regEventFx('event-' + n, ({ db }) => {
+        if (n > 0) {
+          try {
+            expect(db.messages).toEqual(reductions(n))
+          } catch (e) {
+            console.log('e', e)
+          }
+        }
+        return [
+          ['db', updateIn(['messages'], R.append('event-' + n))]
+        ].concat(
+          n < nEvents - 1
+          ? [['dispatch', ['event-' + R.inc(n)]]]
+          : []
+        )
+      })
+    }, R.range(0, nEvents))
+
+    dispatch('event-0')
+    expect(getState()).toEqual(reduced)
+    expect(nNotifications).toEqual(1)
   })
-})
-it('should update db as it goes', () => {
-  const { regEventFx, reduceDispatch } = createStore()
-  regEventFx(evt.MESSAGE, (_, message) => [
-    dbFx(updateIn(['messages'], R.append(message))),
-    dispatchFx(evt.SUBEVENT, message),
-    dbFx(updateIn(['messages'], R.append('end')))
-  ])
-  regEventFx(evt.SUBEVENT, ({ db }, message) => {
-    expect(db.messages.length).toBe(1)
-    return [
+  it('should process dispatch child event synchronously', () => {
+    const { regEventFx, reduceDispatch } = createStore()
+    regEventFx(evt.MESSAGE, (_, message) => [
+      dbFx(updateIn(['messages'], R.append(message))),
+      dispatchFx(evt.SUBEVENT, message),
+      dbFx(updateIn(['messages'], R.append('end')))
+    ])
+    regEventFx(evt.SUBEVENT, (_, message) => [
       dbFx(updateIn(['messages'], R.append(`sub ${message}`)))
-    ]
+    ])
+    const result = reduceDispatch(evt.MESSAGE, 'hello')
+    expect(result).toEqual({
+      'afterFx': [],
+      'db': { 'messages': ['hello', 'sub hello', 'end'] },
+      'lastEventType': 'subevent',
+      supplied: [],
+      requires: []
+    })
   })
-  const result = reduceDispatch(evt.MESSAGE, 'hello')
-  expect(result).toEqual({
-    'afterFx': [],
-    'db': { 'messages': ['hello', 'sub hello', 'end'] },
-    'lastEventType': 'subevent',
-    supplied: [],
-    requires: []
+  it('should update db as it goes', () => {
+    const { regEventFx, reduceDispatch } = createStore()
+    regEventFx(evt.MESSAGE, (_, message) => [
+      dbFx(updateIn(['messages'], R.append(message))),
+      dispatchFx(evt.SUBEVENT, message),
+      dbFx(updateIn(['messages'], R.append('end')))
+    ])
+    regEventFx(evt.SUBEVENT, ({ db }, message) => {
+      expect(db.messages.length).toBe(1)
+      return [
+        dbFx(updateIn(['messages'], R.append(`sub ${message}`)))
+      ]
+    })
+    const result = reduceDispatch(evt.MESSAGE, 'hello')
+    expect(result).toEqual({
+      'afterFx': [],
+      'db': { 'messages': ['hello', 'sub hello', 'end'] },
+      'lastEventType': 'subevent',
+      supplied: [],
+      requires: []
+    })
   })
 })
 describe('custom fx', () => {
@@ -119,18 +121,18 @@ describe('custom fx', () => {
       ['custom', 'yep']
     ])
     const result = reduceDispatch(evt.MESSAGE, 'hello')
-    expect(R.omit(['afterFx'], result)).toEqual({
+    expect(result).toEqual({
       'db': { 'messages': ['hello', 'sub hello', 'end'] },
       'lastEventType': 'subevent',
       supplied: [],
-      requires: []
+      requires: [],
+      afterFx: [['custom', 'yep']]
     })
-    expect(result.afterFx.length).toBe(1)
     expect(afterCntr).toEqual(0)
   })
 
   it('should notify subscribers only once and apply afterFx', () => {
-    const { regEventFx, regFx, afterFx, dispatch, subscribeToState } = createStore()
+    const { regEventFx, regFx, dispatch, subscribeToState } = createStore()
     let stateCntr = 0
     let state = null
     let afterCntr = 0
@@ -138,9 +140,9 @@ describe('custom fx', () => {
       stateCntr++
       state = newState
     })
-    regFx('custom', afterFx(() => {
+    regFx('custom', () => {
       afterCntr++
-    }))
+    })
     regEventFx(evt.MESSAGE, (_, message) => [
       dbFx(R.assoc('message', message)),
       dispatchFx(evt.SUBEVENT, message),
@@ -159,8 +161,8 @@ describe('custom fx', () => {
   })
 
   it('should permit custom immediate fx to change db', () => {
-    const { regFx, regEventFx, reduceDispatch, reduceFx } = createStore()
-    regFx('custom', acc => reduceFx(acc, [dbFx(R.assoc('foo','bar'))]))
+    const { regReduceFx, regEventFx, reduceDispatch, reduceFx } = createStore()
+    regReduceFx('custom', acc => reduceFx(acc, [dbFx(R.assoc('foo', 'bar'))]))
     regEventFx(evt.MESSAGE, (_, message) => [
       dbFx(updateIn(['messages'], R.append(message))),
       dispatchFx(evt.SUBEVENT, message),
@@ -171,11 +173,12 @@ describe('custom fx', () => {
       ['custom', 'yep']
     ])
     const result = reduceDispatch(evt.MESSAGE, 'hello')
-    expect(R.omit(['afterFx'], result)).toEqual({
+    expect(result).toEqual({
       'db': { 'messages': ['hello', 'sub hello', 'end'], foo: 'bar' },
       'lastEventType': 'subevent',
       supplied: [],
-      requires: []
+      requires: [],
+      afterFx: []
     })
     expect(result.afterFx.length).toBe(0)
   })
@@ -222,7 +225,7 @@ describe('supplies coeffects', () => {
   })
 
   it('dispatch should auto-supply coeffects', () => {
-    const { regEventFx, dispatch, regSupplier, getState, regAfter } = createStore()
+    const { regEventFx, dispatch, regSupplier, getState } = createStore()
     regEventFx(evt.MESSAGE, { id }, ({ id }) => [
       dbFx(R.assoc('id', id)),
       dbFx(R.assoc('done', true))
@@ -237,7 +240,7 @@ describe('supplies coeffects', () => {
   })
 
   it('dispatch should auto-supply coeffects', () => {
-    const { regEventFx, dispatch, regSupplier, getState, regAfter } = createStore()
+    const { regEventFx, dispatch, regSupplier, getState } = createStore()
     regEventFx(evt.MESSAGE, { id }, ({ id }) => [
       dbFx(R.assoc('id', id)),
       dbFx(R.assoc('done', true))
