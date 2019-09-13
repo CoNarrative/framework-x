@@ -70,7 +70,7 @@ export const createStore = (baseReg, initialState = {}) => {
     // Process IMMEDIATE effects by reducing over them
     return effectsList.reduce(
       (acc, [fxType, fxPayload]) => {
-        console.log(acc)
+        // console.log(acc)
         if (acc.fault) {
           // todo: actual shortcutting reduce! Ramda has one. Would have to be loop
           return acc
@@ -147,7 +147,7 @@ export const createStore = (baseReg, initialState = {}) => {
       acc = Object.assign({}, acc, {
         lastFxType: type
       }, needsSuppliers
-         ? { supplyIndex: (acc.supplyIndex || 0) + 1 } : {})
+        ? { supplyIndex: (acc.supplyIndex || 0) + 1 } : {})
       return reduceFx(acc, fx)
     }
 
@@ -161,13 +161,15 @@ export const createStore = (baseReg, initialState = {}) => {
    * Ordinary signature for registering true side effects
    * that do not themselves feed back into plan reduction
    */
-  const regSideFx = (fxType, simpleFx) => {
+  const regSideFx = (fxType, sideFxr) => {
     checkType('regSideFx', fxType)
-    const reducer = (acc, fxPayload) =>
-      Object.assign({}, acc, { sideFx: acc.sideFx.concat([[fxType, fxPayload]]) })
+    const reducer = (acc, fxPayload) => {
+      console.log('in sidefx reducer', fxType, acc)
+      return Object.assign({}, acc, { sideFx: acc.sideFx.concat([[fxType, fxPayload]]) })
+    }
     // just going to cheat and put the actual call in the handler so as to avoid
     // setting up another registry or modifying the simplicity of the current one
-    reducer.fxr = simpleFx
+    reg.sideFx[fxType] = sideFxr
     regReduceFx(fxType, reducer)
   }
 
@@ -230,7 +232,7 @@ export const createStore = (baseReg, initialState = {}) => {
     let result = null
     let insufficient = false
     // a loop seems natural as this is an unknown number of iterations
-    const createAccum = (init) => ({ requires: [], afterFx: [], ...init })
+    const createAccum = (init) => ({ requires: [], sideFx: [], ...init })
     do {
       result = reduceFx(createAccum({ db, supplied }), [[type, payload]])
       insufficient = result.requires.length > result.supplied.length
@@ -250,7 +252,7 @@ export const createStore = (baseReg, initialState = {}) => {
    * dispatch reduce and execute side effects
    * @param event
    */
-  const fx = (...event) => {
+  const doFx = (...event) => {
     if (dispatchDepth > 0) {
       console.warn('Do not call dispatch from an eventFx. In an fx, you can just return dispatch fx')
     }
@@ -262,10 +264,10 @@ export const createStore = (baseReg, initialState = {}) => {
     dispatchDepth = dispatchDepth - 1
 
     /* reduce result with afterfx (for batch ops, etc.) */
-    const finalResult = collapseToSideFx(reduced)
+    const sideFx = collapseToSideFx(reduced)
 
     // EXECUTE SIDE FX
-    finalResult.sideFx.forEach(([type, payload]) => reg.sideFx[type](payload))
+    sideFx.forEach(([type, payload]) => reg.sideFx[type](payload))
   }
 
   /** DEFAULT CORE REGISTRATIONS **/
@@ -283,7 +285,7 @@ export const createStore = (baseReg, initialState = {}) => {
   return {
     reg,
     stateListeners,
-    fx,
+    doFx,
     getState,
     setState,
     notifyState,

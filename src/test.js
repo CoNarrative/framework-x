@@ -11,7 +11,8 @@ export const updateIn = R.curry((ks, f, m) =>
   R.assocPath(ks, f(R.path(ks, m)), m)
 )
 const dbFx = reducerOrState => ['db', reducerOrState]
-const dispatchFx = (type, payload) => ['dispatch', [type, payload]]
+// dispatch is now just an inline helper
+const subFx = (type, payload) => [type, payload]
 
 describe('core db and dispatch', () => {
   it('should reduce a simple event', () => {
@@ -73,33 +74,60 @@ describe('core db and dispatch', () => {
     )
   })
 })
-describe('custom fx', () => {
-  it('should permit custom fx and those can chain', () => {
-    const { regFx, regEventFx, reduceDispatch } = createStore()
+describe('setState sidefx', ()=>{
+  it('should notify subscribers only once and apply afterFx', () => {
+    const { regFx, regSideFx, doFx, subscribeToState } = createStore()
+    let stateCntr = 0
+    let state = null
     let afterCntr = 0
-    regFx('custom', () => {
+    subscribeToState(newState => {
+      stateCntr++
+      state = newState
+    })
+    regSideFx('custom', () => {
       afterCntr++
     })
-    regEventFx(fx.MESSAGE, (_, message) => [
+    regFx(fx.MESSAGE, (_, message) => [
+      dbFx(R.assoc('message', message)),
+      subFx(fx.HELPER, message),
+      dbFx(R.assoc('done', true))
+    ])
+    regFx(fx.HELPER, (_, message) => [
+      ['custom', 'yep'],
+      dbFx(updateIn(['messages'], R.append(`sub ${message}`)))
+    ])
+    doFx(fx.MESSAGE, 'hello')
+    expect(stateCntr).toEqual(1)
+    expect(afterCntr).toEqual(1)
+    expect(state).toEqual({
+      'done': true, 'message': 'hello', 'messages': ['sub hello']
+    })
+  })
+})
+describe('other side fx', () => {
+  it('should record sideFx', () => {
+    const { regFx, regSideFx, reduceFxToEnd } = createStore()
+    let afterCntr = 0
+
+    regFx(fx.MESSAGE, (_, message) => [
       dbFx(updateIn(['messages'], R.append(message))),
-      dispatchFx(fx.HELPER, message),
+      subFx(fx.HELPER, message),
       dbFx(updateIn(['messages'], R.append('end')))
     ])
-    regEventFx(fx.HELPER, (_, message) => [
+    regFx(fx.HELPER, (_, message) => [
       dbFx(updateIn(['messages'], R.append(`sub ${message}`))),
       ['custom', 'yep']
     ])
-    const result = reduceDispatch(fx.MESSAGE, 'hello')
-    expect(result).toEqual({
-      'db': { 'messages': ['hello', 'sub hello', 'end'] },
-      'lastEventType': 'subevent',
-      supplied: [],
-      requires: [],
-      afterFx: [['custom', 'yep']]
+    regSideFx('custom', () => {
+      afterCntr++
     })
+    const sideFx = reduceFxToEnd(fx.MESSAGE, 'hello')
+    expect(sideFx).toEqual([
+      ['custom', 'yep'],
+      ['setState', {messages: ['hello', 'sub hello', 'end']}
+      ]])
     expect(afterCntr).toEqual(0)
   })
-
   it('should notify subscribers only once and apply afterFx', () => {
     const { regEventFx, regFx, dispatch, subscribeToState } = createStore()
     let stateCntr = 0
@@ -114,7 +142,7 @@ describe('custom fx', () => {
     })
     regEventFx(fx.MESSAGE, (_, message) => [
       dbFx(R.assoc('message', message)),
-      dispatchFx(fx.HELPER, message),
+      subFx(fx.HELPER, message),
       dbFx(R.assoc('done', true))
     ])
     regEventFx(fx.HELPER, (_, message) => [
@@ -134,7 +162,7 @@ describe('custom fx', () => {
     regReduceFx('custom', acc => reduceFx(acc, [dbFx(R.assoc('foo', 'bar'))]))
     regEventFx(fx.MESSAGE, (_, message) => [
       dbFx(updateIn(['messages'], R.append(message))),
-      dispatchFx(fx.HELPER, message),
+      subFx(fx.HELPER, message),
       dbFx(updateIn(['messages'], R.append('end')))
     ])
     regEventFx(fx.HELPER, (_, message) => [
@@ -238,7 +266,7 @@ describe('supplies coeffects', () => {
     regSupplier('id', () => idCounter++)
     regEventFx(fx.MESSAGE, ({ id }), ({ id }, message) => [
       dbFx(R.assoc('message', { id, message })),
-      dispatchFx(fx.HELPER, message),
+      subFx(fx.HELPER, message),
       dbFx(R.assoc('done', true))
     ])
     regEventFx(fx.HELPER, ({ id }), ({ id }, message) => [
@@ -285,9 +313,9 @@ describe('supplies coeffects', () => {
     })
     regEventFx(fx.MESSAGE, (_, message) => [
       ['writeKey', ['id', 'fooId']],
-      dispatchFx(fx.HELPER),
+      subFx(fx.HELPER),
       ['writeKey', ['id', 'barId']],
-      dispatchFx(fx.HELPER),
+      subFx(fx.HELPER),
       dbFx(R.assoc('done', true))
     ])
     regEventFx(fx.HELPER,
