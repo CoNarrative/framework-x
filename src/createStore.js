@@ -62,10 +62,11 @@ export const createStore = (baseReg, initialState = {}) => {
    */
   function reduceFx(acc = initialAcc(), effectOrEffects) {
     if (!effectOrEffects) return acc
-    // Accepts either map or array
-    // const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
-    const effectsList =
-      Array.isArray(effectOrEffects[0]) ? effectOrEffects : [effectOrEffects]
+    // Accepts either map or array of effects
+    const effectsList = Array.isArray(effectOrEffects) ? effectOrEffects : Object.entries(effectOrEffects)
+    // // Accepts an array of effects
+    // const effectsList =
+    //   Array.isArray(effectsListA[0]) ? effectsListA : [effectsListA]
 
     // Process IMMEDIATE effects by reducing over them
     return effectsList.reduce(
@@ -103,7 +104,7 @@ export const createStore = (baseReg, initialState = {}) => {
    * @returns {*}
    */
   const reduceFxToEnd = (type,
-    payload) => collapseToSideFx(reduceFx(undefined, [type, payload]))
+    payload) => collapseToSideFx(reduceFx(undefined, [[type, payload]]))
 
   /**
    * Composite fx defined in terms of other fx

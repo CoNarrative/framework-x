@@ -175,7 +175,7 @@ describe('coeffects', () => {
     regFreeFx(fx.MESSAGE, { id }, () => {
       throw new Error('Should never get to me (at least how we are handling coeffects now)')
     })
-    const next = reduceFx(undefined, [fx.MESSAGE, 'hello'])
+    const next = reduceFx(undefined, [[fx.MESSAGE, 'hello']])
 
     expect(next).toEqual({
       db: {}, fault: true, sideFx: [], requires: [{ id: ['id'] }], supplied: []
@@ -193,7 +193,7 @@ describe('coeffects', () => {
       requires: [],
       supplied: [{ id: '88' }],
       sideFx: []
-    }, [fx.MESSAGE, 'hello'])
+    }, [[fx.MESSAGE, 'hello']])
 
     expect(R.omit(['lastFxType'], next)).toEqual({
       db: {
