@@ -61,11 +61,10 @@ const Search = () => (
   </DimensionalBox>
 )
 
-const TableOfContents = styled.div( props => ({
+const Content = styled.div(props => ({
   flexShrink: 0,
   flexGrow: 1,
   paddingLeft: 20,
-  [whenTablet]: {display: 'none'},
 
   '& ul': {
     listStyleType: 'none',
@@ -76,7 +75,7 @@ const TableOfContents = styled.div( props => ({
     listStyleType: 'none',
   },
 
-  // First Header Text
+  // First Header Container
   '& > ul > li': {
     marginBottom: '0.8rem',
   },
@@ -109,6 +108,14 @@ const TableOfContents = styled.div( props => ({
     fontFamily: 'Basier Square Mono',
     fontSize: '0.8rem',
   },
+
+  [whenTablet]: {
+    '& > ul > li > p > a': {
+      fontSize: '1rem',
+    },
+  },
+
+  ...props.rootCss,
 }))
 
 const Topic = ({active, topic, subtopics, rootCss, mobile}) => (
@@ -130,7 +137,7 @@ const Topic = ({active, topic, subtopics, rootCss, mobile}) => (
   </div>
 )
 
-export class Sidebar extends React.Component {
+export class TableOfContents extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -157,7 +164,8 @@ export class Sidebar extends React.Component {
     return (
       <Container rootCss={rootCss}>
         {/*<Search/>*/}
-        <TableOfContents dangerouslySetInnerHTML={{__html: this.state.tableOfContents}}/>
+        <Content rootCss={{[whenTablet]: {display: 'none'},}}
+                         dangerouslySetInnerHTML={{__html: this.state.tableOfContents}}/>
         <DimensionalBox handleHeight={true}
                         rootCss={{display: 'none', [whenTablet]: {display: 'flex'}, [whenMobile]: {display: 'none'}}}>
           <div css={{
@@ -176,20 +184,15 @@ export class Sidebar extends React.Component {
                 width: '100%',
                 cursor: 'pointer',
               }}>
-              <Topic mobile active topic={'Topic #1'}
+              <Topic mobile topic={'Table of Contents'}
                      rootCss={{marginBottom: 'unset', paddingTop: 12, paddingBottom: 12,}}/>
               <img css={{height: 8,}} src={Chevron}/>
             </div>
             <div css={{
               borderTop: '1px solid ' + theme.black,
-              paddingLeft: 20,
-              paddingRight: 20,
-              paddingTop: 20,
               display: this.state.dropdownExpanded ? 'block' : 'none'
             }}>
-              <Topic topic={'Topic #1'} subtopics={['Subtopic 1', 'Subtopic 2', 'Subtopic 3']}/>
-              <Topic topic={'Topic #2'}/>
-              <Topic topic={'Topic #3'} subtopics={['Subtopic 1', 'Subtopic 2']}/>
+              <Content dangerouslySetInnerHTML={{__html: this.state.tableOfContents}}/>
             </div>
           </div>
         </DimensionalBox>
@@ -209,21 +212,16 @@ export class Sidebar extends React.Component {
               height: 48,
               backgroundColor: 'white',
             }}>
-            <Topic mobile active topic={'Topic #1'}
+            <Topic mobile topic={'Table of Contents'}
                    rootCss={{marginBottom: 'unset', paddingTop: 12, paddingBottom: 12,}}/>
             <img css={{height: 8,}} src={Chevron}/>
           </div>
           <div css={{
             borderBottom: '1px solid ' + theme.black,
             backgroundColor: 'white',
-            paddingLeft: 20,
-            paddingRight: 20,
-            paddingTop: 20,
             display: this.state.dropdownExpanded ? 'block' : 'none',
           }}>
-            <Topic topic={'Topic #1'} subtopics={['Subtopic 1', 'Subtopic 2', 'Subtopic 3']}/>
-            <Topic topic={'Topic #2'}/>
-            <Topic topic={'Topic #3'} subtopics={['Subtopic 1', 'Subtopic 2']}/>
+            <Content dangerouslySetInnerHTML={{__html: this.state.tableOfContents}}/>
           </div>
         </div>
       </Container>

@@ -3,7 +3,7 @@ import {graphql} from 'gatsby'
 import RehypeReact from 'rehype-react'
 import Layout from '../components/layout'
 import {Highlight} from '../components/TextBackgroundHighlight'
-import {Sidebar} from '../components/Sidebar'
+import {TableOfContents} from '../components/TableOfContents'
 import styled from '@emotion/styled'
 import * as theme from '../theme'
 import {DimensionalBox} from "../components/DimensionalBox";
@@ -157,6 +157,7 @@ const Container = styled.div({
 })
 
 export default class Template extends React.Component {
+
   componentDidMount() {
     const hash = window.decodeURI(window.location.hash.replace('#', ''))
     if (hash !== '') {
@@ -173,9 +174,9 @@ export default class Template extends React.Component {
     const {frontmatter, htmlAst, tableOfContents} = markdownRemark
 
     return (
-      <Layout>
+      <Layout tableOfContents={tableOfContents}>
         <Container>
-          <Sidebar tableOfContents={tableOfContents} rootCss={{[whenMobile]: {display: 'none'}}}/>
+          <TableOfContents tableOfContents={tableOfContents} rootCss={{[whenMobile]: {display: 'none'}}}/>
           {renderAst(htmlAst)}
         </Container>
       </Layout>
