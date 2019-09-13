@@ -1,8 +1,12 @@
 // import hoistStatics from 'hoist-non-react-statics'
 // import mergeDeepRight from 'ramda/es/mergeDeepRight'
-import { concat, append, mergeDeepRight } from 'ramda'
+import { prepend, append, mergeDeepRight, chain, identity } from 'ramda'
 import * as R from 'ramda'
 
+const checkType = (op, type) => {
+  if (typeof (type) !== 'string') throw new Error(`${op} requires a string as the fx key`)
+  if (type.length === 0) throw new Error(`${op} fx key cannot be a zero-length string`)
+}
 
 export const regFxRaw = (env, type, fn) => {
   env.fx[type] = fn
@@ -25,9 +29,64 @@ export const runEffects = (env, effects) => {
   })
 }
 
-//
 
-const parseEventEffects = (env, event ) => {
+// const parseEventEffects = (env, event) => {
+//   const type = event[0]
+//   const args = event.slice(1)
+//   /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
+//   const eventHandlers = env.eventFx[type]
+//   if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
+//
+//   const preEventFx = Object.entries(env.preEventFx).reduce((a, [k, f]) => {
+//     a[k] = f(env)
+//     return a
+//   }, { eventName: type })
+//
+//   return eventHandlers.reduce((hr, handler) => {
+//     const effects = handler({ ...env.state, ...preEventFx }, ...args)
+//     if (!effects) return hr
+//
+//     const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
+//     return R.append(
+//       R.prepend(['notifyEventListeners', event], effectsList)
+//        .reduce((eventEffects, [k, v]) => {
+//          return k !== 'dispatch'
+//                 ? append([k, v], eventEffects)
+//                 : [...eventEffects.concat(...parseEventEffects(env, v))]
+//        }, []), hr)
+//   }, [])
+// }
+
+// export const processEventEffects = (env, event) => {
+//   const type = event[0]
+//   const args = event.slice(1)
+//   env.eventListeners.forEach(f => f(type, args))
+//   /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
+//   const eventHandlers = env.eventFx[type]
+//   if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
+//
+//   const preEventFx = Object.entries(env.preEventFx).reduce((a, [k, f]) => {
+//     a[k] = f(env)
+//     return a
+//   }, { eventName: type })
+//
+//   eventHandlers.forEach(handler => {
+//     const effects = handler({ ...env.state, ...preEventFx }, ...args)
+//     if (!effects) return
+//     const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
+//     runEffects(env, effectsList)
+//   })
+// }
+
+
+const createAccum = env => ({ state: Object.assign({},env.state), effectsList: [] })
+
+const assignAccum = env => {
+  env.acc = createAccum(env)
+  return env
+}
+
+const reduceEventEffects = (env, event) => {
   const type = event[0]
   const args = event.slice(1)
   /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
@@ -40,48 +99,45 @@ const parseEventEffects = (env, event ) => {
   }, { eventName: type })
 
   return eventHandlers.reduce((hr, handler) => {
-    const effects = handler({ ...env.state, ...preEventFx }, ...args)
-    if (!effects) return hr
+    const effects = handler({ ...env.acc.state, ...preEventFx }, ...args)
+    if (!effects) {
+      return prepend([['notifyEventListeners',event]],hr)
+    }
 
     const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
-    return R.append(
-      R.prepend(['notifyEventListeners', event], effectsList)
+
+    return append(
+      prepend(['notifyEventListeners', event], effectsList)
        .reduce((eventEffects, [k, v]) => {
-         return k !== 'dispatch'
-                ? append([k, v], eventEffects)
-                : [...eventEffects.concat(...parseEventEffects(env, v))]
+         // todo. should be any in category that answers "do you need the reduction? do you affect the reduction?"
+         if (k === 'db') {
+           env.fxr[k](env, v)
+           return append([k, v], eventEffects)
+         } else if (k === 'dispatch') {
+           return [...eventEffects.concat(...reduceEventEffects(env, v))]
+         } else {
+           return append([k, v], eventEffects)
+         }
        }, []), hr)
   }, [])
-}
-export const processEventEffects = (env, event) => {
-  const type = event[0]
-  const args = event.slice(1)
-  env.eventListeners.forEach(f => f(type, args))
-  /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
-  const eventHandlers = env.eventFx[type]
-  if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
-
-  const preEventFx = Object.entries(env.preEventFx).reduce((a, [k, f]) => {
-    a[k] = f(env)
-    return a
-  }, { eventName: type })
-
-  eventHandlers.forEach(handler => {
-    const effects = handler({ ...env.state, ...preEventFx }, ...args)
-    if (!effects) return
-    const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
-    runEffects(env, effectsList)
-  })
-}
-
-const checkType = (op, type) => {
-  if (typeof (type) !== 'string') throw new Error(`${op} requires a string as the fx key`)
-  if (type.length === 0) throw new Error(`${op} fx key cannot be a zero-length string`)
 }
 
 export const identityEnv = () => ({
   state: { db: {}, dispatch: { depth: 0 } },
   preEventFx: {},
+  fxr: {
+    db: ({ acc }, newStateOrReducer) => {
+      if (typeof newStateOrReducer !== 'function') {
+        acc.state.db = newStateOrReducer
+      } else {
+        acc.state.db = newStateOrReducer(acc.state.db)
+        if (typeof acc.state.db === 'function') {
+          throw new Error('db fxReg request was a reducer function that returned a function. '
+                          + 'If you are using ramda, you probably didn\'t finish currying all the args')
+        }
+      }
+    }
+  },
   fx: {
     db: (env, newStateOrReducer) => {
       if (typeof newStateOrReducer !== 'function') {
@@ -107,10 +163,10 @@ export const identityEnv = () => ({
       try {
         env.state.dispatch.depth += 1
         // effects by handler
-        const effects = R.chain(R.identity,parseEventEffects(env, finalEvent,))
-        console.log('fx', JSON.stringify(effects, null, 2))
-        runEffects(env,effects)
-        // processEventEffects(env, finalEvent)
+        const effects = chain(identity, reduceEventEffects(assignAccum(env), finalEvent))
+        runEffects(env, effects)
+      } catch (e) {
+        console.error('dispatch error', e)
       } finally {
         // always make sure it decrements back even if fx throws error
         env.state.dispatch.depth -= 1

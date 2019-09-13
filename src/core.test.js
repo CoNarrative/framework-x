@@ -117,12 +117,11 @@ describe('core dispatch flow', () => {
       regEventFx('event-' + n, ({ db, eventName }) => {
         if (n > 0) {
           try {
-            // expect(db.messages).toEqual(reductions(n))
-          } catch (e){
-            console.log('e',e)
+            expect(db.messages).toEqual(reductions(n))
+          } catch (e) {
+            console.log('e', e)
           }
         }
-        console.log('okkkkkkkkk', n)
         return [
           ['db', updateIn(['messages'], R.append(eventName))]
         ].concat(
@@ -181,7 +180,10 @@ describe('event stream', () => {
     let evts = []
     const { dispatch } = createStore({
       state: { db: {} },
-      eventListeners: [(...x) => evts.push(x)],
+      eventListeners: [(...x) => {
+        // spereading for devtools thing test
+        evts.push(Array.isArray(x[0]) ? x[0] : x)
+      }],
       eventFx: {
         'my-evt': [() => [['dispatch', ['my-evt2', 'a', 'b']]]],
         'my-evt2': [() => {}]
@@ -197,8 +199,8 @@ describe('event stream', () => {
     expect(Object.keys(devtoolsEvent[1])).toEqual(['setState', 'subs', 'state'])
     expect(devtoolsEvent[2]).toEqual({})
 
-    expect(evts[1]).toEqual(['my-evt', []])
-    expect(evts[2]).toEqual(['my-evt2', ['a', 'b']])
+    expect(evts[1]).toEqual(['my-evt'])
+    expect(evts[2]).toEqual(['my-evt2', 'a', 'b'])
   })
 })
 
