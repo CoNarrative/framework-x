@@ -11,7 +11,7 @@ import {whenSmallScreen} from "../theme";
 import {whenTablet} from "../theme";
 import {whenMobile} from "../theme";
 
-const H1 = ({children}) => <h1 css={{
+const H1 = ({id, children}) => <h1 id={id} css={{
   fontSize: 40,
   alignSelf: 'flex-start',
   '& > div > div > code ': {
@@ -25,7 +25,7 @@ const H1 = ({children}) => <h1 css={{
   },
 }}><Highlight h1>{children}</Highlight></h1>
 
-const H2 = ({children}) => <h2 css={{
+const H2 = ({id, children}) => <h2 id={id} css={{
   '& > code': {
     fontSize: '1.14rem !important',
     color: theme.red,
@@ -33,8 +33,8 @@ const H2 = ({children}) => <h2 css={{
   }
 }}>{children}</h2>
 
-const H3 = ({children}) =>
-  <h3 css={{
+const H3 = ({id, children}) =>
+  <h3 id={id} css={{
     fontSize: '1.14rem',
     marginTop: '4rem',
     display: 'flex',
