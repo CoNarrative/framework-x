@@ -8,7 +8,6 @@ import {whenSmallScreen} from "../theme";
 import {whenTablet} from "../theme";
 import Chevron from '../assets/icons/chevron.svg'
 import {whenMobile} from "../theme";
-import root from "../../.cache/root";
 
 const Container = styled.div(props => ({
   color: theme.darkGrey,
