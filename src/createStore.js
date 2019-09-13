@@ -247,7 +247,7 @@ export const createStore = (baseReg, initialState = {}) => {
     let result = null
     let insufficient = false
     // a loop seems natural as this is an unknown number of iterations
-    const createAccum = (init) => ({ requires: [], sideFx: [], ...init })
+    const createAccum = (init) => ({ requires: [], sideFx: [], initialFx: [type, payload], ...init })
     do {
       result = reduceFx(createAccum({ db, supplied }), [[type, payload]])
       insufficient = result.requires.length > result.supplied.length
@@ -280,6 +280,7 @@ export const createStore = (baseReg, initialState = {}) => {
 
     // EXECUTE SIDE FX
     sideFx.forEach(([type, payload]) => reg.sideFx[type](payload))
+    return sideFx
   }
 
   /** DEFAULT CORE REGISTRATIONS **/
@@ -315,7 +316,7 @@ export const createStore = (baseReg, initialState = {}) => {
     reduceFx,
     // compatibility
     regEventFx: regFreeFx,
-    dispatch: doFx,
+    dispatch: function() { doFx.apply(null, arguments) },
     regFx: regSideFx
   }
 }

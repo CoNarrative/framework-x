@@ -74,9 +74,9 @@ describe('core db and dispatch', () => {
     )
   })
 })
-describe('setState sidefx', () => {
+describe('setState built-in sidefx', () => {
   it('should notify subscribers only once', () => {
-    const { regFreeFx, regSideFx, doFx, subscribeToState } = createStore()
+    const { regFreeFx, doFx, subscribeToState } = createStore()
     let stateCntr = 0
     let state = null
     subscribeToState(newState => {
@@ -93,7 +93,7 @@ describe('setState sidefx', () => {
     })
   })
 })
-describe('other side fx', () => {
+describe('other sidefx', () => {
   it('should record custom sideFx', () => {
     const { regFreeFx, regSideFx, reduceFxToEnd } = createStore()
     let afterCntr = 0
@@ -145,9 +145,30 @@ describe('other side fx', () => {
       'done': true, 'message': 'hello', 'messages': ['sub hello']
     })
   })
+  it('of course lets you add in custom notification fx', () => {
+    const { regFreeFx, regSideFx, regAppendFx, doFx } = createStore()
+    let debug = null
+    regSideFx('debug', payload => {
+      debug = payload
+    })
+    regFreeFx(fx.MESSAGE, (_, message) => [
+      subFx(fx.HELPER, message),
+      dbFx(R.assoc('done', true))
+    ])
+    regFreeFx(fx.HELPER, (_, message) => [
+      dbFx(updateIn(['messages'], R.append(`sub ${message}`)))
+    ])
+    regAppendFx('debug', R.prop('initialFx'))
+    const sideFx = doFx(fx.MESSAGE, 'hello')
+    expect(sideFx).toEqual([
+      ['setState', {done: true, messages: ['sub hello']}],
+      ['debug', ['message', 'hello']]
+    ])
+    expect(debug).toEqual(['message', 'hello'])
+  })
 })
 
-describe('supplies coeffects', () => {
+describe('coeffects', () => {
   const id = ['id']
   it('should block and ask for coeffects', () => {
     const { regFreeFx, reduceFx } = createStore()
@@ -277,7 +298,7 @@ describe('supplies coeffects', () => {
     const result = reduceFxSupply(fx.MESSAGE)
 
     expect(result).toEqual([
-      ['setState', {'done': true, 'ids': ['fooId', 'barId']}],
+      ['setState', { 'done': true, 'ids': ['fooId', 'barId'] }],
       ['writeKeys', [['id', 'barId']]]
     ])
     expect(localStorage).toEqual({})
