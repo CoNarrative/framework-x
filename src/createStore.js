@@ -112,7 +112,7 @@ export const createStore = (baseReg, initialState = {}) => {
    * @param fn
    * @param fn2
    */
-  const regShortFx = (type, fn, fn2) => {
+  const regFreeFx = (type, fn, fn2) => {
     let requires = []
     // when second argument is an object, it is a requirements request
     if (typeof fn === 'object') {
@@ -182,9 +182,23 @@ export const createStore = (baseReg, initialState = {}) => {
   const regBefore = (id, beforeFn) => {
     reg.beforeReg = [...reg.afterReg, beforeFn]
   }
+  /**
+   * add a reducer that runs at the end of a doFx
+   * its job is to receive the accumulator and either
+   * a) add missing side effects that are implicitly in the accumulator but not
+   *    explicitly in the sideFx list (e.g. convert {db} -> ['setState', db]
+   * b) squash side effects for batching (e.g. convert all graphQl fragments into one)
+   * c) add custom notifiers (like to notify a debug tool)
+   * @param id
+   * @param afterFn
+   */
   const regAfter = (id, afterFn) => {
     reg.afterReg = [...reg.afterReg, afterFn]
   }
+  /* helper for regAfter */
+  const regAppendFx = (id, getPayload) =>
+    regAfter(id, acc =>
+      Object.assign({}, acc, { sideFx: [...acc.sideFx, [id, getPayload(acc)]] }))
 
   /* state definition */
   const stateListeners = []
@@ -246,7 +260,7 @@ export const createStore = (baseReg, initialState = {}) => {
         loop++
       }
     } while (loop < 32 && insufficient)
-    return result
+    return collapseToSideFx(result)
   }
 
   /**
@@ -261,11 +275,8 @@ export const createStore = (baseReg, initialState = {}) => {
     if (!event[0]) throw new Error('Dispatch requires at least a valid event key')
     const [type, payload] = finalEvent
     dispatchDepth = dispatchDepth + 1
-    const reduced = reduceFxSupply(type, payload)
+    const sideFx = reduceFxSupply(type, payload)
     dispatchDepth = dispatchDepth - 1
-
-    /* reduce result with afterfx (for batch ops, etc.) */
-    const sideFx = collapseToSideFx(reduced)
 
     // EXECUTE SIDE FX
     sideFx.forEach(([type, payload]) => reg.sideFx[type](payload))
@@ -280,7 +291,7 @@ export const createStore = (baseReg, initialState = {}) => {
 
   // add set state to end of side fx
   // fixme. should probably just do as needed
-  regAfter('db', acc => Object.assign({}, acc, { sideFx: [...acc.sideFx, ['setState', acc.db]] }))
+  regAppendFx('setState', acc => acc.db)
   regSideFx('setState', (db) => setState(db))
 
   return {
@@ -291,7 +302,7 @@ export const createStore = (baseReg, initialState = {}) => {
     setState,
     notifyState,
     regReduceFx,
-    regShortFx,
+    regFreeFx,
     regSideFx,
     subscribeToState,
     reduceFxToEnd,
@@ -300,6 +311,11 @@ export const createStore = (baseReg, initialState = {}) => {
     regSupplier,
     regBefore,
     regAfter,
-    reduceFx
+    regAppendFx,
+    reduceFx,
+    // compatibility
+    regEventFx: regFreeFx,
+    dispatch: doFx,
+    regFx: regSideFx
   }
 }
