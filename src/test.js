@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import * as R from 'ramda'
 import { createStore } from './createStore'
 
@@ -52,8 +53,8 @@ describe('core db and dispatch', () => {
           ['db', updateIn(['messages'], R.append('event-' + n))]
         ].concat(
           n < nEvents - 1
-          ? [['dispatch', ['event-' + R.inc(n)]]]
-          : []
+            ? [['dispatch', ['event-' + R.inc(n)]]]
+            : []
         )
       })
     }, R.range(0, nEvents))
@@ -184,7 +185,6 @@ describe('custom fx', () => {
   })
 })
 
-
 describe('supplies coeffects', () => {
   const id = ['id']
   it('should block and ask for coeffects', () => {
@@ -281,10 +281,73 @@ describe('supplies coeffects', () => {
     expect(stateCntr).toEqual(1)
     expect(afterCntr).toEqual(1)
     expect(state).toEqual({
-      'done': true, 'message': {
+      'done': true,
+      'message': {
         id: 10,
         message: 'hello'
-      }, 'messages': ['sub hello 11']
+      },
+      'messages': ['sub hello 11']
+    })
+  })
+
+  it('should pass in accumulator and args to coeffect (simulated localStorage)', () => {
+    const { regEventFx, regAfter, regReduceFx, regSupplier, reduceDispatchSupply, dispatch } = createStore()
+
+    /** SETUP LOCAL STORAGE **/
+    const localStorage = {}
+    /* persist in unit-of-work cache */
+    regReduceFx('writeKey', (acc, [key, value]) =>
+      R.assocPath(['localStorage', key], value, acc))
+    /* flush all local storage keys when done */
+    // NOTE: This way we lose the "afterFx in order" and have to know that "localStorage"
+    // is a set of instructions in its own right
+    // this is an example of a batch operation -- for local storage not needed, but
+    // for graphql, etc. could be useful
+    regAfter('writeKey', R.pipe(
+      R.prop('localStorage'),
+      R.toPairs,
+      R.forEach(([key, value]) => {
+        localStorage[key] = value
+      })
+    ))
+    /* return from unit-of-work cache or do side-effecty read */
+    /* the point of the cache is not perf but to pick up any unit-of-work writeKey */
+    regSupplier('readKey', (acc, key) => {
+      return R.path(['localStorage', key], acc) || localStorage[key]
+    })
+    regEventFx(evt.MESSAGE, (_, message) => [
+      ['writeKey', ['id', 'fooId']],
+      dispatchFx(evt.SUBEVENT),
+      ['writeKey', ['id', 'barId']],
+      dispatchFx(evt.SUBEVENT),
+      dbFx(R.assoc('done', true))
+    ])
+    regEventFx(evt.SUBEVENT,
+      ({ id: ['readKey', 'id'] }),
+      ({ id }) => [
+        dbFx(updateIn(['ids'], R.append(id)))
+      ])
+
+    /** GO **/
+    const result = reduceDispatchSupply(evt.MESSAGE)
+    expect(result).toEqual({
+      requires: [{ id: ['readKey', 'id'] }, { id: ['readKey', 'id'] }],
+      afterFx: [],
+      db: { ids: ['fooId', 'barId'], done: true },
+      supplied:
+          [{
+            id: 'fooId'
+          }, {
+            id: 'barId'
+          }],
+      lastEventType: 'subevent',
+      localStorage: { id: 'barId' },
+      supplyIndex: 2
+    })
+    expect(localStorage).toEqual({})
+    dispatch(evt.MESSAGE)
+    expect(localStorage).toEqual({
+      'id': 'barId'
     })
   })
 })

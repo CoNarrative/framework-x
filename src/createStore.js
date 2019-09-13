@@ -103,19 +103,7 @@ export const createStore = (baseReg, initialState = {}) => {
     notifyState(db)
   }
 
-  /**
-   * Satisfy a requirements bag
-   * @param requirementsBag
-   * @returns {{}}
-   */
-  const satisfy = (requirementsBag) =>
-    Object.entries(requirementsBag).reduce(
-      (acc, [key, [requireType, ...args]]) => {
-        const supplier = reg.supplierReg[requireType]
-        if (!supplier) throw new Error(`EventFx requested "${requireType}" that was not registered using regSupplier`)
-        return { ...acc, [key]: supplier.apply(null, args) }
-      }, {}
-    )
+
 
   /**
    * Takes a list of effects and reduces them.
@@ -131,6 +119,11 @@ export const createStore = (baseReg, initialState = {}) => {
     // Process IMMEDIATE effects by reducing over them
     return effectsList.reduce(
       (acc, [fxType, fxPayload]) => {
+        if (acc.requires.length > acc.supplied.length) {
+          // exit early if we need supplied things
+          // todo: actual shortcutting reduce! Ramda has one
+          return acc
+        }
         const fxr = reg.fxReg[fxType]
         if (!fxr) {
           throw new Error(`No fx handler for effect "${fxType}". Try registering a handler using "regFx('${fxType}', ({ effect }) => ({...some side-effect})"`)
@@ -202,6 +195,20 @@ export const createStore = (baseReg, initialState = {}) => {
     )
   }
 
+
+  /**
+   * Satisfy a requirements bag
+   * @param requirementsBag
+   * @returns {{}}
+   */
+  const supply = (dispatchAcc, requirementsBag) =>
+    Object.entries(requirementsBag).reduce(
+      (acc, [key, [requireType, ...args]]) => {
+        const supplier = reg.supplierReg[requireType]
+        if (!supplier) throw new Error(`EventFx requested "${requireType}" that was not registered using regSupplier`)
+        return { ...acc, [key]: supplier.apply(null, [dispatchAcc].concat([args])) }
+      }, {}
+    )
   /**
    * IMPURE version that satisfies dynamic input values but does
    * not execute side-effects.
@@ -211,23 +218,23 @@ export const createStore = (baseReg, initialState = {}) => {
   const reduceDispatchSupply = (type, payload) => {
     let loop = 0
     let supplied = []
-    let reduced = null
+    let result = null
     let insufficient = false
     // a loop seems natural as this is an unknown number of iterations
     const createAccum = (init) => ({ requires: [], afterFx: [], ...init })
     do {
-      reduced = reduceDispatchStateless(createAccum({ db, supplied }), [type, payload])
-      insufficient = reduced.requires.length > reduced.supplied.length
+      result = reduceDispatchStateless(createAccum({ db, supplied }), [type, payload])
+      insufficient = result.requires.length > result.supplied.length
       if (insufficient) {
-        const needToSupply = reduced.requires.slice(reduced.supplied.length, reduced.requires.length)
+        const needToSupply = result.requires.slice(result.supplied.length, result.requires.length)
         supplied = needToSupply.reduce((acc, block) => {
-          const thisBag = satisfy(block)
+          const thisBag = supply(result, block)
           return [...acc, thisBag]
-        }, reduced.supplied)
+        }, result.supplied)
         loop++
       }
     } while (loop < 32 && insufficient)
-    return reduced
+    return result
   }
 
   /**
