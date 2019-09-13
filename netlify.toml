@@ -9,4 +9,4 @@
   publish = "site/public"
 
   # Default build command.
-  command = "npm run build"
+  command = "NODE_ENV=production npm run build"
