@@ -174,7 +174,7 @@ export default class Template extends React.Component {
     const {frontmatter, htmlAst, tableOfContents} = markdownRemark
 
     return (
-      <Layout tableOfContents={tableOfContents}>
+      <Layout showToc={true} tableOfContents={tableOfContents}>
         <Container>
           <TableOfContents tableOfContents={tableOfContents} rootCss={{[whenMobile]: {display: 'none'}}}/>
           {renderAst(htmlAst)}

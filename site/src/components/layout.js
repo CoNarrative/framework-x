@@ -15,10 +15,17 @@ import {TableOfContents} from "./TableOfContents";
 class Layout extends React.Component {
   constructor(props) {
     super(props)
+    this.state = {
+      expanded: false,
+    }
+  }
+
+  isHamburgerMenuExpanded = (isExpanded) => {
+    this.setState({expanded: isExpanded})
   }
 
   render() {
-    const {children, rootCss, tableOfContents} = this.props
+    const {children, rootCss, tableOfContents, showToc} = this.props
   //   const data = useStaticQuery(graphql`
   //   query SiteTitleQuery {
   //     site {
@@ -31,12 +38,12 @@ class Layout extends React.Component {
     return (
       <React.Fragment>
         {/*<Navigation siteTitle={data.site.siteMetadata.title}/>*/}
-        <Navigation/>
+        <Navigation isHamburgerMenuExpanded={this.isHamburgerMenuExpanded}/>
         <TableOfContents tableOfContents={tableOfContents} rootCss={{
           display: 'none',
           [whenMobile]: {
-            display: 'flex',
-            top: 64,
+            display: showToc ? 'flex' : 'none',
+            top: this.state.expanded ? 112 : 64,
             right: 0,
             left: 0,
             paddingLeft: 0,
