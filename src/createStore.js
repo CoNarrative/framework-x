@@ -112,7 +112,7 @@ export const createStore = (baseReg, initialState = {}) => {
    * @param fn
    * @param fn2
    */
-  const regFx = (type, fn, fn2) => {
+  const regShortFx = (type, fn, fn2) => {
     let requires = []
     // when second argument is an object, it is a requirements request
     if (typeof fn === 'object') {
@@ -163,10 +163,11 @@ export const createStore = (baseReg, initialState = {}) => {
    */
   const regSideFx = (fxType, sideFxr) => {
     checkType('regSideFx', fxType)
-    const reducer = (acc, fxPayload) => {
-      console.log('in sidefx reducer', fxType, acc)
-      return Object.assign({}, acc, { sideFx: acc.sideFx.concat([[fxType, fxPayload]]) })
-    }
+    // the default reducer for a sidefx simply adds it to a sidefx list
+    // NOTE: could be eliminated if we didn't want to enforce registration of fx
+    // we could just add this as the default reducer above
+    const reducer = (acc, fxPayload) =>
+      Object.assign({}, acc, { sideFx: acc.sideFx.concat([[fxType, fxPayload]]) })
     // just going to cheat and put the actual call in the handler so as to avoid
     // setting up another registry or modifying the simplicity of the current one
     reg.sideFx[fxType] = sideFxr
@@ -290,7 +291,7 @@ export const createStore = (baseReg, initialState = {}) => {
     setState,
     notifyState,
     regReduceFx,
-    regFx,
+    regShortFx,
     regSideFx,
     subscribeToState,
     reduceFxToEnd,

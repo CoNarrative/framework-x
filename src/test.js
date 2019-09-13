@@ -16,15 +16,15 @@ const subFx = (type, payload) => [type, payload]
 
 describe('core db and dispatch', () => {
   it('should reduce a simple event', () => {
-    const { regFx, reduceFxToEnd } = createStore()
-    regFx(fx.MESSAGE, (_, message) => {
+    const { regShortFx, reduceFxToEnd } = createStore()
+    regShortFx(fx.MESSAGE, (_, message) => {
       return [dbFx(R.assoc('message', message))]
     })
     const sideFx = reduceFxToEnd(fx.MESSAGE, 'hello')
     expect(sideFx).toEqual([['setState', { message: 'hello' }]])
   })
   // it('should process db effects and make reductions available to non-listeners', () => {
-  //   const { regEventFx, dispatch, getState, subscribeToState } = createStore()
+  //   const { regShortFx, dispatch, getState, subscribeToState } = createStore()
   //   let nNotifications = 0
   //   const nEvents = 5
   //   const reduced = { 'messages': R.times((n) => 'event-' + n, nEvents) }
@@ -36,7 +36,7 @@ describe('core db and dispatch', () => {
   //   })
   //
   //   R.map(n => {
-  //     regEventFx('event-' + n, ({ db }) => {
+  //     regShortFx('event-' + n, ({ db }) => {
   //       if (n > 0) {
   //         try {
   //           expect(db.messages).toEqual(reductions(n))
@@ -59,13 +59,13 @@ describe('core db and dispatch', () => {
   //   expect(nNotifications).toEqual(1)
   // })
   it('should process dispatch child event synchronously and update db along the way', () => {
-    const { regFx, reduceFxToEnd } = createStore()
-    regFx(fx.MESSAGE, (_, message) => [
+    const { regShortFx, reduceFxToEnd } = createStore()
+    regShortFx(fx.MESSAGE, (_, message) => [
       dbFx(updateIn(['messages'], R.append(message))),
       [fx.HELPER, message],
       dbFx(updateIn(['messages'], R.append('end')))
     ])
-    regFx(fx.HELPER, (_, message) => [
+    regShortFx(fx.HELPER, (_, message) => [
       dbFx(updateIn(['messages'], R.append(`sub ${message}`)))
     ])
     const sideFx = reduceFxToEnd(fx.MESSAGE, 'hello')
@@ -75,46 +75,35 @@ describe('core db and dispatch', () => {
   })
 })
 describe('setState sidefx', ()=>{
-  it('should notify subscribers only once and apply afterFx', () => {
-    const { regFx, regSideFx, doFx, subscribeToState } = createStore()
+  it('should notify subscribers only once', () => {
+    const { regShortFx, regSideFx, doFx, subscribeToState } = createStore()
     let stateCntr = 0
     let state = null
-    let afterCntr = 0
     subscribeToState(newState => {
       stateCntr++
       state = newState
     })
-    regSideFx('custom', () => {
-      afterCntr++
-    })
-    regFx(fx.MESSAGE, (_, message) => [
-      dbFx(R.assoc('message', message)),
-      subFx(fx.HELPER, message),
-      dbFx(R.assoc('done', true))
-    ])
-    regFx(fx.HELPER, (_, message) => [
-      ['custom', 'yep'],
-      dbFx(updateIn(['messages'], R.append(`sub ${message}`)))
+    regShortFx(fx.MESSAGE, (_, message) => [
+      dbFx(R.assoc('message', message))
     ])
     doFx(fx.MESSAGE, 'hello')
     expect(stateCntr).toEqual(1)
-    expect(afterCntr).toEqual(1)
     expect(state).toEqual({
-      'done': true, 'message': 'hello', 'messages': ['sub hello']
+      'message': 'hello'
     })
   })
 })
 describe('other side fx', () => {
-  it('should record sideFx', () => {
-    const { regFx, regSideFx, reduceFxToEnd } = createStore()
+  it('should record custom sideFx', () => {
+    const { regShortFx, regSideFx, reduceFxToEnd } = createStore()
     let afterCntr = 0
 
-    regFx(fx.MESSAGE, (_, message) => [
+    regShortFx(fx.MESSAGE, (_, message) => [
       dbFx(updateIn(['messages'], R.append(message))),
       subFx(fx.HELPER, message),
       dbFx(updateIn(['messages'], R.append('end')))
     ])
-    regFx(fx.HELPER, (_, message) => [
+    regShortFx(fx.HELPER, (_, message) => [
       dbFx(updateIn(['messages'], R.append(`sub ${message}`))),
       ['custom', 'yep']
     ])
@@ -128,8 +117,8 @@ describe('other side fx', () => {
       ]])
     expect(afterCntr).toEqual(0)
   })
-  it('should notify subscribers only once and apply afterFx', () => {
-    const { regEventFx, regFx, dispatch, subscribeToState } = createStore()
+  it('should handle mix of setState and other sideFx', () => {
+    const { regShortFx, regSideFx, doFx, subscribeToState } = createStore()
     let stateCntr = 0
     let state = null
     let afterCntr = 0
@@ -137,92 +126,69 @@ describe('other side fx', () => {
       stateCntr++
       state = newState
     })
-    regFx('custom', () => {
+    regSideFx('custom', () => {
       afterCntr++
     })
-    regEventFx(fx.MESSAGE, (_, message) => [
+    regShortFx(fx.MESSAGE, (_, message) => [
       dbFx(R.assoc('message', message)),
       subFx(fx.HELPER, message),
       dbFx(R.assoc('done', true))
     ])
-    regEventFx(fx.HELPER, (_, message) => [
+    regShortFx(fx.HELPER, (_, message) => [
       ['custom', 'yep'],
       dbFx(updateIn(['messages'], R.append(`sub ${message}`)))
     ])
-    dispatch(fx.MESSAGE, 'hello')
+    doFx(fx.MESSAGE, 'hello')
     expect(stateCntr).toEqual(1)
     expect(afterCntr).toEqual(1)
     expect(state).toEqual({
       'done': true, 'message': 'hello', 'messages': ['sub hello']
     })
   })
-
-  it('should permit custom immediate fx to change db', () => {
-    const { regReduceFx, regEventFx, reduceDispatch, reduceFx } = createStore()
-    regReduceFx('custom', acc => reduceFx(acc, [dbFx(R.assoc('foo', 'bar'))]))
-    regEventFx(fx.MESSAGE, (_, message) => [
-      dbFx(updateIn(['messages'], R.append(message))),
-      subFx(fx.HELPER, message),
-      dbFx(updateIn(['messages'], R.append('end')))
-    ])
-    regEventFx(fx.HELPER, (_, message) => [
-      dbFx(updateIn(['messages'], R.append(`sub ${message}`))),
-      ['custom', 'yep']
-    ])
-    const result = reduceDispatch(fx.MESSAGE, 'hello')
-    expect(result).toEqual({
-      'db': { 'messages': ['hello', 'sub hello', 'end'], foo: 'bar' },
-      'lastEventType': 'subevent',
-      supplied: [],
-      requires: [],
-      afterFx: []
-    })
-    expect(result.afterFx.length).toBe(0)
-  })
 })
 
 describe('supplies coeffects', () => {
   const id = ['id']
   it('should block and ask for coeffects', () => {
-    const { regEventFx, reduceDispatch } = createStore()
-    regEventFx(fx.MESSAGE, { id }, () => {
+    const { regShortFx, reduceFx } = createStore()
+    regShortFx(fx.MESSAGE, { id }, () => {
       throw new Error('Should never get to me (at least how we are handling coeffects now)')
     })
-    const next = reduceDispatch(fx.MESSAGE, 'hello')
+    const next = reduceFx(undefined, [fx.MESSAGE, 'hello'])
 
     expect(next).toEqual({
-      afterFx: [], db: {}, requires: [{ id: ['id'] }], supplied: []
+      db: {}, fault: true, sideFx:[], requires: [{ id: ['id'] }], supplied: []
     })
   })
 
   it('should work all the way through if supplied coeffects', () => {
-    const { regEventFx, reduceDispatchStateless } = createStore()
-    regEventFx(fx.MESSAGE, { id }, ({ id }) => [
+    const { regShortFx, reduceFx } = createStore()
+    regShortFx(fx.MESSAGE, { id }, ({ id }) => [
       dbFx(R.assoc('id', id)),
       dbFx(R.assoc('done', true))
     ])
-    const next = reduceDispatchStateless({
+    const next = reduceFx({
       db: {},
       requires: [],
       supplied: [{ id: '88' }],
-      afterFx: []
+      sideFx: []
     }, [fx.MESSAGE, 'hello'])
 
-    expect(R.omit(['lastEventType'], next)).toEqual({
-      afterFx: [],
+    expect(R.omit(['lastFxType'], next)).toEqual({
       db: {
         done: true,
         id: '88'
       },
       requires: [{ id: ['id'] }],
       supplied: [{ id: '88' }],
+      sideFx: [],
       supplyIndex: 1
     })
   })
 
   it('dispatch should auto-supply coeffects', () => {
-    const { regEventFx, dispatch, regSupplier, getState } = createStore()
-    regEventFx(fx.MESSAGE, { id }, ({ id }) => [
+    const { regShortFx, dispatch, regSupplier, getState } = createStore()
+    regShortFx(fx.MESSAGE, { id }, ({ id }) => [
       dbFx(R.assoc('id', id)),
       dbFx(R.assoc('done', true))
     ])
@@ -236,8 +202,8 @@ describe('supplies coeffects', () => {
   })
 
   it('dispatch should auto-supply coeffects', () => {
-    const { regEventFx, dispatch, regSupplier, getState } = createStore()
-    regEventFx(fx.MESSAGE, { id }, ({ id }) => [
+    const { regShortFx, dispatch, regSupplier, getState } = createStore()
+    regShortFx(fx.MESSAGE, { id }, ({ id }) => [
       dbFx(R.assoc('id', id)),
       dbFx(R.assoc('done', true))
     ])
@@ -251,7 +217,7 @@ describe('supplies coeffects', () => {
   })
 
   it('dispatch should auto-supply deep coeffects', () => {
-    const { regEventFx, regFx, regSupplier, regAfter, dispatch, subscribeToState } = createStore()
+    const { regShortFx, regSupplier, regAfter, dispatch, subscribeToState } = createStore()
     let stateCntr = 0
     let state = null
     let afterCntr = 0
@@ -259,17 +225,17 @@ describe('supplies coeffects', () => {
       stateCntr++
       state = newState
     })
-    regFx('custom', () => {
+    regShortFx('custom', () => {
       afterCntr++
     })
     let idCounter = 10
     regSupplier('id', () => idCounter++)
-    regEventFx(fx.MESSAGE, ({ id }), ({ id }, message) => [
+    regShortFx(fx.MESSAGE, ({ id }), ({ id }, message) => [
       dbFx(R.assoc('message', { id, message })),
       subFx(fx.HELPER, message),
       dbFx(R.assoc('done', true))
     ])
-    regEventFx(fx.HELPER, ({ id }), ({ id }, message) => [
+    regShortFx(fx.HELPER, ({ id }), ({ id }, message) => [
       ['custom', 'yep'],
       dbFx(updateIn(['messages'], R.append(`sub ${message} ${id}`)))
     ])
@@ -287,7 +253,7 @@ describe('supplies coeffects', () => {
   })
 
   it('should pass in accumulator and args to coeffect (simulated localStorage)', () => {
-    const { regEventFx, regAfter, regReduceFx, regSupplier, reduceDispatchSupply, dispatch } = createStore()
+    const { regShortFx, regAfter, regReduceFx, regSupplier, reduceDispatchSupply, dispatch } = createStore()
 
     /** SETUP LOCAL STORAGE **/
     const localStorage = {}
@@ -311,14 +277,14 @@ describe('supplies coeffects', () => {
     regSupplier('readKey', (acc, key) => {
       return R.path(['localStorage', key], acc) || localStorage[key]
     })
-    regEventFx(fx.MESSAGE, (_, message) => [
+    regShortFx(fx.MESSAGE, (_, message) => [
       ['writeKey', ['id', 'fooId']],
       subFx(fx.HELPER),
       ['writeKey', ['id', 'barId']],
       subFx(fx.HELPER),
       dbFx(R.assoc('done', true))
     ])
-    regEventFx(fx.HELPER,
+    regShortFx(fx.HELPER,
       ({ id: ['readKey', 'id'] }),
       ({ id }) => [
         dbFx(updateIn(['ids'], R.append(id)))
