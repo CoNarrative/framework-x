@@ -51,6 +51,9 @@ const H3 = ({children}) =>
 
 const H4 = ({children}) => <h4 css={{fontSize: 17, textTransform: 'capitalize', marginBottom: 12,}}>{children}</h4>
 
+// used to hide Table of Contents
+const H6 = ({children}) => null
+
 const Ul = ({children}) => <div>{children}</div>
 
 const Li = ({children}) => <li
@@ -106,6 +109,7 @@ const renderAst = new RehypeReact({
     h2: H2,
     h3: H3,
     h4: H4,
+    h6: H6,
     // ul: Ul,
     p: P,
     li: Li,
@@ -142,6 +146,10 @@ const Container = styled.div({
       paddingTop: 0,
     },
 
+    '& > :first-child': {
+      paddingTop: 48,
+    },
+
     '& > :last-child': {
       paddingBottom: 80,
     },
@@ -162,12 +170,12 @@ export default class Template extends React.Component {
   render() {
     const {data} = this.props
     const {markdownRemark} = data
-    const {frontmatter, htmlAst} = markdownRemark
+    const {frontmatter, htmlAst, tableOfContents} = markdownRemark
 
     return (
       <Layout>
         <Container>
-          <Sidebar rootCss={{[whenMobile]: {display: 'none'}}}/>
+          <Sidebar tableOfContents={tableOfContents} rootCss={{[whenMobile]: {display: 'none'}}}/>
           {renderAst(htmlAst)}
         </Container>
       </Layout>
@@ -179,6 +187,7 @@ export const pageQuery = graphql`
   query($path: String!) {
     markdownRemark(frontmatter: { path: { eq: $path } }) {
       htmlAst
+      tableOfContents(heading: "Table of Contents", pathToSlugField: "frontmatter.path", maxDepth: 3)
       frontmatter {
         path
         title

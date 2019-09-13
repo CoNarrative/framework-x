@@ -2,6 +2,8 @@
 path: /learn
 ---
 
+###### Table of Contents
+
 # Overview
 
 Framework-x shares much of its API and design with Clojurescript's

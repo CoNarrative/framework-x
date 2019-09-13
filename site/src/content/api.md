@@ -2,7 +2,9 @@
 path: /api
 ---
 
-### `createStore`
+###### Table of Contents
+
+## `createStore`
 > Creates an instance of a `framework-x` store
 
 
@@ -16,7 +18,7 @@ Middleware receives every event that returns an effect after it's
 applied.
 
 
-### `dispatch`
+## `dispatch`
 
 > Sends a message with an optional payload
 
@@ -27,7 +29,7 @@ dispatch('todo/add')
 dispatch('todo/add', payload)
 ```
 
-### `regEventFx`
+## `regEventFx`
 
 > Registers a function that is called when an event is `dispatch`ed. 
 
@@ -74,7 +76,7 @@ You can register multiple handlers for the same event. They run in the
 order they were registered.
 
 
-### `createSub`
+## `createSub`
 
 > Provides a component with a subscription to the `db`
 
@@ -107,7 +109,7 @@ const Todos = component("TodosList",  createSub({ getAllTodos }),
 )
 ```
 
-### `component`
+## `component`
 
 >  Ties a subscription to a render function
 
@@ -141,7 +143,7 @@ export const TodosList = component('TodosList',
 )
 ```
 
-### `getState`
+## `getState`
 > Returns the current state
 
 type: Function 
@@ -149,7 +151,7 @@ type: Function
 arguments: `()`
 
 
-### `setState`
+## `setState`
 > Sets the state to the value provided. If called with a function, sets
 > the state to the result of calling the function the current state.
 
@@ -159,7 +161,7 @@ type: Function
 arguments: `(newStateOrReducer: {[k:any]: any} | (db)=> {[k:any]: any})`
 
 
-### `Provider`
+## `Provider`
 > Enables `component` subscriptions
 
 type: React.Component
@@ -180,7 +182,7 @@ ReactDOM.render(
   document.getElementById('root'))
 ```
 
-### `createRouter`
+## `createRouter`
 > Returns client-side routing functions for the provided routes
 
 arguments: `(history: history.History, routes: RouteDef[])` 

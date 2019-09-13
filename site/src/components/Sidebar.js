@@ -10,12 +10,11 @@ import Chevron from '../assets/icons/chevron.svg'
 import {whenMobile} from "../theme";
 import root from "../../.cache/root";
 
-const Container = styled.div( props => ({
+const Container = styled.div(props => ({
   color: theme.darkGrey,
   width: 320,
   position: 'sticky',
   top: 0,
-  paddingLeft: 48,
   flexShrink: 0,
   display: 'flex',
   flexDirection: 'column',
@@ -24,8 +23,7 @@ const Container = styled.div( props => ({
   zIndex: 10,
 
   [whenSmallScreen]: {
-    paddingLeft: 20,
-    marginRight: 40,
+    marginRight: 48,
   },
 
   [whenTablet]: {
@@ -64,6 +62,56 @@ const Search = () => (
   </DimensionalBox>
 )
 
+const TableOfContents = styled.div( props => ({
+  flexShrink: 0,
+  flexGrow: 1,
+  paddingLeft: 20,
+  [whenTablet]: {display: 'none'},
+
+  '& ul': {
+    listStyleType: 'none',
+    paddingLeft: 0,
+  },
+
+  '& li': {
+    listStyleType: 'none',
+  },
+
+  // First Header Text
+  '& > ul > li': {
+    marginBottom: '0.8rem',
+  },
+
+  // First Header Text
+  '& > ul > li > p > a': {
+    color: props.active ? theme.darkTeal : theme.black,
+    marginBottom: props.mobile ? 0 : '0.8rem',
+    marginTop: 0,
+    textDecoration: 'none',
+    fontSize: '1.2rem',
+    fontWeight: 600,
+    fontFamily: 'Animosa',
+  },
+
+  // Nested list items container
+  '& > ul > li > ul > li': {
+    marginBottom: '0.8rem',
+    paddingLeft: '1.2rem',
+    letterSpacing: '-0.03rem',
+  },
+
+  // Nested list items last container
+  '& > ul > li > ul > li:last-child': {
+    marginBottom: '1.6rem',
+  },
+
+  // Nested list items text
+  '& > ul > li > ul > li > a': {
+    fontFamily: 'Basier Square Mono',
+    fontSize: '0.8rem',
+  },
+}))
+
 const Topic = ({active, topic, subtopics, rootCss, mobile}) => (
   <div css={{marginBottom: '1.2rem', ...rootCss}}>
     <h3 css={{
@@ -87,7 +135,16 @@ export class Sidebar extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      dropdownExpanded: false
+      dropdownExpanded: false,
+      tableOfContents: ''
+    }
+  }
+
+  componentDidMount() {
+    let replaceLeftArrow = this.props.tableOfContents
+    if (replaceLeftArrow !== undefined) {
+      replaceLeftArrow = replaceLeftArrow.replace(/&#x3C;/g, '<')
+      this.setState({tableOfContents: replaceLeftArrow})
     }
   }
 
@@ -97,14 +154,11 @@ export class Sidebar extends React.Component {
 
   render() {
     const {rootCss} = this.props
+
     return (
       <Container rootCss={rootCss}>
         {/*<Search/>*/}
-        <div css={{flexShrink: 0, flexGrow: 1, paddingLeft: 20, [whenTablet]: {display: 'none'}}}>
-          <Topic active topic={'Topic #1'} subtopics={['Subtopic 1', 'Subtopic 2', 'Subtopic 3']}/>
-          <Topic topic={'Topic #2'}/>
-          <Topic topic={'Topic #3'} subtopics={['Subtopic 1', 'Subtopic 2']}/>
-        </div>
+        <TableOfContents dangerouslySetInnerHTML={{__html: this.state.tableOfContents}}/>
         <DimensionalBox handleHeight={true}
                         rootCss={{display: 'none', [whenTablet]: {display: 'flex'}, [whenMobile]: {display: 'none'}}}>
           <div css={{

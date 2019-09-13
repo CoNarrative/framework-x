@@ -2,6 +2,8 @@
 path: /differences-from-redux
 ---
 
+###### Table of Contents
+
 # Differences from redux
 
 In aggregate, no reducers, no middleware.

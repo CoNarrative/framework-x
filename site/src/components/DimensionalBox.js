@@ -72,8 +72,6 @@ export class DimensionalBox extends React.Component {
   }
 
   onResize = (width, height) => {
-    console.log(width)
-    console.log(height)
     this.setState({height: height + 7})
     this.setState({width: width})
   }
