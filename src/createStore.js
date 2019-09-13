@@ -1,3 +1,7 @@
+const assoc = (k, v, bag) => Object.assign({}, bag, { [k]: v })
+const merge = (vs, bag) => Object.assign({}, bag, vs)
+const clone = o => Object.assign({}, o)
+
 const nextDb = (db, newStateOrReducer) => {
   if (typeof (newStateOrReducer) === 'function') {
     const myNextState = newStateOrReducer(db)
@@ -23,9 +27,9 @@ function checkType(op, type) {
  */
 export const createStore = (baseReg, initialState = {}) => {
   /* registrations -- these can be passed to new stores */
-  const reg = baseReg ? Object.assign({}, baseReg) : {
-    fxReg: {},
-    eventFxReg: {},
+  const reg = baseReg ? clone(baseReg) : {
+    fx: {},
+    sideFx: {},
     supplierReg: {},
     beforeReg: [],
     afterReg: []
@@ -35,28 +39,80 @@ export const createStore = (baseReg, initialState = {}) => {
    * Underlying reducer that participates in reduceDispatch
    * can return more fx requests now
    * @param fxType
-   * @param reducer
+   * @param reducer: (acc, payload) => ....
    */
   const regReduceFx = (fxType, reducer) => {
     checkType('regReduceFx', fxType)
-    reg.fxReg[fxType] = reducer
+    reg.fx[fxType] = reducer
+  }
+
+  const initialAcc = () => ({
+    db,
+    requires: [],
+    supplied: [],
+    sideFx: []
+  })
+
+  /**
+   * Takes a single or list of effects and reduces them.
+   * Fxrs (fx handlers) can return more fx which are executed inline
+   * @param acc
+   * @param effects Array[[type, payload]]
+   * @returns {*}
+   */
+  function reduceFx(acc = initialAcc(), effectOrEffects) {
+    if (!effectOrEffects) return acc
+    // Accepts either map or array
+    // const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
+    const effectsList =
+      Array.isArray(effectOrEffects[0]) ? effectOrEffects : [effectOrEffects]
+
+    // Process IMMEDIATE effects by reducing over them
+    return effectsList.reduce(
+      (acc, [fxType, fxPayload]) => {
+        console.log(acc)
+        if (acc.fault) {
+          // todo: actual shortcutting reduce! Ramda has one. Would have to be loop
+          return acc
+        }
+        const about = reg.fx[fxType]
+        if (!about) {
+          throw new Error(`No fx handler for effect "${fxType}". Try registering a handler using "regFx('${fxType}', ({ effect }) => ({...some side-effect})"`)
+        }
+        const fxr = (typeof (about) === 'function') ? about : about.fn
+        return fxr(acc, fxPayload)
+      },
+      acc
+    )
   }
 
   /**
-   * Ordinary signature for registering true side effects
-   * that do not themselves feed back into plan reduction
+   * Applies final reduction to sidefx only
+   * as provided by after reducers
+   * @param reduced
+   * @returns {*}
    */
-  const regFx = (fxType, simpleFx) => {
-    checkType('regFx', fxType)
-    const reducer = (acc, fxPayload) =>
-      Object.assign({}, acc, { afterFx: acc.afterFx.concat([[fxType, fxPayload]]) })
-    // just going to cheat and put the actual call in the handler so as to avoid
-    // setting up another registry or modifying the simplicity of the current one
-    reducer.fxr = simpleFx
-    regReduceFx(fxType, reducer)
-  }
+  const collapseToSideFx = reduced =>
+    reg.afterReg.reduce((acc, after) => after(acc), reduced).sideFx
 
-  const regEventFx = (type, fn, fn2) => {
+  /**
+   * Helper to get a reduceFx collapsed to end
+   * just like fx() but without auto-supply
+   * @param type
+   * @param payload
+   * @returns {*}
+   */
+  const reduceFxToEnd = (type,
+    payload) => collapseToSideFx(reduceFx(undefined, [type, payload]))
+
+  /**
+   * Composite fx defined in terms of other fx
+   * (once was eventFx)
+   * @param type
+   * @param fn
+   * @param fn2
+   */
+  const regFx = (type, fn, fn2) => {
     let requires = []
     // when second argument is an object, it is a requirements request
     if (typeof fn === 'object') {
@@ -64,9 +120,55 @@ export const createStore = (baseReg, initialState = {}) => {
       fn = fn2
     }
     // todo: add type as array or function signatures
-    checkType('regEventFx', type)
-    // we allow multiple event fx for one event name
-    reg.eventFxReg[type] = [...reg.eventFxReg[type] || [], [requires, fn]]
+    checkType('regFx', type)
+
+    /* Helper that focuses on what most fxrs need */
+    const fxr = (acc, fxPayload) => {
+      /* construct context bag */
+      let context = {
+        db: acc.db,
+        fxType: type
+        // fixme. Dynamically add static/global helpers, etc.
+      }
+      const needsSuppliers = requires && Object.keys(requires).length > 0 ? 1 : 0
+      if (needsSuppliers) {
+        // console.log('ASKED for dependencies!', requires)
+        acc = Object.assign({}, acc, { requires: [...acc.requires, requires] })
+      }
+      if (acc.requires.length > acc.supplied.length) {
+        // todo: actual shortcutting reduce! Ramda has one
+        return Object.assign({}, acc, { fault: true })
+      }
+      if (needsSuppliers) {
+        const thisBag = acc.supplied[acc.supplyIndex || 0]
+        Object.assign(context, thisBag)
+      }
+      const fx = fn(context, fxPayload)
+      acc = Object.assign({}, acc, {
+        lastFxType: type
+      }, needsSuppliers
+         ? { supplyIndex: (acc.supplyIndex || 0) + 1 } : {})
+      return reduceFx(acc, fx)
+    }
+
+    reg.fx[type] = {
+      requires,
+      fn: fxr
+    }
+  }
+
+  /**
+   * Ordinary signature for registering true side effects
+   * that do not themselves feed back into plan reduction
+   */
+  const regSideFx = (fxType, simpleFx) => {
+    checkType('regSideFx', fxType)
+    const reducer = (acc, fxPayload) =>
+      Object.assign({}, acc, { sideFx: acc.sideFx.concat([[fxType, fxPayload]]) })
+    // just going to cheat and put the actual call in the handler so as to avoid
+    // setting up another registry or modifying the simplicity of the current one
+    reducer.fxr = simpleFx
+    regReduceFx(fxType, reducer)
   }
 
   const regSupplier = (type, supplierFn) => {
@@ -103,99 +205,6 @@ export const createStore = (baseReg, initialState = {}) => {
     notifyState(db)
   }
 
-
-
-  /**
-   * Takes a list of effects and reduces them.
-   * Fxrs (fx handlers) can return more fx which are executed inline
-   * @param acc
-   * @param effects
-   * @returns {*}
-   */
-  function reduceFx(acc, effects) {
-    if (!effects) return acc
-    // Accepts either map or array
-    const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
-    // Process IMMEDIATE effects by reducing over them
-    return effectsList.reduce(
-      (acc, [fxType, fxPayload]) => {
-        if (acc.requires.length > acc.supplied.length) {
-          // exit early if we need supplied things
-          // todo: actual shortcutting reduce! Ramda has one
-          return acc
-        }
-        const fxr = reg.fxReg[fxType]
-        if (!fxr) {
-          throw new Error(`No fx handler for effect "${fxType}". Try registering a handler using "regFx('${fxType}', ({ effect }) => ({...some side-effect})"`)
-        }
-        // if fxr returns null, then just continue to use the same acc
-        // as a convenience to the fx implementor
-        return fxr(acc, fxPayload) || acc
-      },
-      acc
-    )
-  }
-
-  /**
-   * A dispatch as a pure function that invokes all of the supplied helpers in the reg
-   * to produce a resultant {db, fx} bag
-   * @param acc {db:{}, fx:{}}
-   * @param type
-   * @param payload
-   * @returns {(function(*=, *=): function(*=, *=): *)|*}
-   */
-  function reduceDispatchStateless(
-    acc,
-    [type, payload] // fixme. Alex wants this to be the old ...event, signature to permit argument spreading
-  ) {
-    if (typeof type !== 'string') {
-      throw new Error('attempted to dispatch empty or invalid type argument')
-    }
-    const eventHandlers = reg.eventFxReg[type]
-    if (!eventHandlers) {
-      const message = `No event -> fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`
-      if (reg.onMissingHandler === 'ignore') {
-        // do nothing
-      } else if (reg.onMissingHandler === 'warn') {
-        console.warn(message)
-      } else {
-        throw new Error(message)
-      }
-    }
-    // fixme. Should probably just align supply with recording of events
-    // to make the whole thing simpler.
-    return eventHandlers.reduce(
-      (acc, [requires, handler]) => {
-        const needsSuppliers = requires && Object.keys(requires).length > 0 ? 1 : 0
-        if (needsSuppliers) {
-          // console.log('ASKED for dependencies!', requires)
-          acc = Object.assign({}, acc, { requires: [...acc.requires, requires] })
-        }
-        /* once we get to a position where we need more than we are supplied, we exit! */
-        if (acc.requires.length > acc.supplied.length) {
-          return acc
-        }
-        let context = {
-          db: acc.db,
-          eventType: type
-          // fixme. Dynamically add static/global helpers, etc.
-        }
-        if (needsSuppliers) {
-          const thisBag = acc.supplied[acc.supplyIndex || 0]
-          Object.assign(context, thisBag)
-        }
-        const fx = handler(context, payload)
-        acc = Object.assign({}, acc, {
-          lastEventType: type
-        }, needsSuppliers
-          ? { supplyIndex: (acc.supplyIndex || 0) + 1 } : {})
-        return reduceFx(acc, fx)
-      },
-      acc
-    )
-  }
-
-
   /**
    * Satisfy a requirements bag
    * @param requirementsBag
@@ -212,10 +221,10 @@ export const createStore = (baseReg, initialState = {}) => {
   /**
    * IMPURE version that satisfies dynamic input values but does
    * not execute side-effects.
-   * Keeps asking ordinary reduceDispatch for next state and supplies required "impurities"
+   * Keeps asking ordinary reduceFx for next state and supplies required "impurities"
    * (ids, dates, local storage, etc.) until all are supplied
    * */
-  const reduceDispatchSupply = (type, payload) => {
+  const reduceFxSupply = (type, payload) => {
     let loop = 0
     let supplied = []
     let result = null
@@ -223,7 +232,7 @@ export const createStore = (baseReg, initialState = {}) => {
     // a loop seems natural as this is an unknown number of iterations
     const createAccum = (init) => ({ requires: [], afterFx: [], ...init })
     do {
-      result = reduceDispatchStateless(createAccum({ db, supplied }), [type, payload])
+      result = reduceFx(createAccum({ db, supplied }), [[type, payload]])
       insufficient = result.requires.length > result.supplied.length
       if (insufficient) {
         const needToSupply = result.requires.slice(result.supplied.length, result.requires.length)
@@ -241,7 +250,7 @@ export const createStore = (baseReg, initialState = {}) => {
    * dispatch reduce and execute side effects
    * @param event
    */
-  const dispatch = (...event) => {
+  const fx = (...event) => {
     if (dispatchDepth > 0) {
       console.warn('Do not call dispatch from an eventFx. In an fx, you can just return dispatch fx')
     }
@@ -249,60 +258,41 @@ export const createStore = (baseReg, initialState = {}) => {
     if (!event[0]) throw new Error('Dispatch requires at least a valid event key')
     const [type, payload] = finalEvent
     dispatchDepth = dispatchDepth + 1
-    const reduced = reduceDispatchSupply(type, payload)
+    const reduced = reduceFxSupply(type, payload)
     dispatchDepth = dispatchDepth - 1
 
-    /* notify listeners which will EXECUTE side-effects */
-    reg.afterReg.forEach(after => after(reduced, type, payload))
+    /* reduce result with afterfx (for batch ops, etc.) */
+    const finalResult = collapseToSideFx(reduced)
+
+    // EXECUTE SIDE FX
+    finalResult.sideFx.forEach(([type, payload]) => reg.sideFx[type](payload))
   }
 
   /** DEFAULT CORE REGISTRATIONS **/
-  // These two are core so we always have these. They can be overridden as desired.
-  // regBefore('db', acc => Object.assign({}, acc, { db }))
-  // regBefore('afterFx', acc => Object.assign({}, acc, { afterFx: [] }))
-  // regBefore('require', acc => Object.assign({}, acc, {
-  //   requires: [],
-  //   supplied: []
-  // }))
   regReduceFx('db', (acc, newStateOrReducer) =>
     Object.assign({}, acc, { db: nextDb(acc.db, newStateOrReducer) })
   )
-  regReduceFx('dispatch', reduceDispatchStateless)
+  // regReduceFx('dispatch', reduceDispatchStateless)
   // set global state and notify if dirty
-  regAfter('db', result => setState(result.db))
-  // process generic afterfx
-  regAfter('afterFx', ({ afterFx }) =>
-    afterFx.forEach(([type, payload]) => reg.fxReg[type].fxr(payload)))
 
-  /**
-   * dispatch and receive new db and instructions
-   *
-   * @param type
-   * @param payload
-   * @returns {(function(*=, *=): function(*=, *=): *)|*}
-   */
-  const reduceDispatch = (type, payload) =>
-    reduceDispatchStateless({
-      db,
-      requires: [],
-      supplied: [],
-      afterFx: []
-    }, [type, payload])
+  // add set state to end of side fx
+  // fixme. should probably just do as needed
+  regAfter('db', acc => Object.assign({}, acc, { sideFx: [...acc.sideFx, ['setState', acc.db]] }))
+  regSideFx('setState', (db) => setState(db))
 
   return {
     reg,
     stateListeners,
-    dispatch,
+    fx,
     getState,
     setState,
     notifyState,
-    regEventFx,
     regReduceFx,
     regFx,
+    regSideFx,
     subscribeToState,
-    reduceDispatchStateless,
-    reduceDispatch,
-    reduceDispatchSupply,
+    reduceFxToEnd,
+    reduceFxSupply,
     getDispatchDepth,
     regSupplier,
     regBefore,
