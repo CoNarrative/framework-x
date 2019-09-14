@@ -153,10 +153,15 @@ export const createStore = (baseReg, initialState = {}) => {
         ? { supplyIndex: (acc.supplyIndex || 0) + 1 } : {})
       return reduceFx(acc, fx)
     }
-
+    const current = reg.fx[type]
+    if (current && !current.fn) throw new Error('Attempted to overwrite an fx reducer with a freeFx handler')
+    // combine with old one if it exists
+    const combined = current
+      ? (acc, fxPayload) => fxr(current.fn(acc, fxPayload), fxPayload)
+      : fxr
     reg.fx[type] = {
       requires,
-      fn: fxr
+      fn: combined
     }
   }
 
@@ -293,9 +298,10 @@ export const createStore = (baseReg, initialState = {}) => {
   // regReduceFx('dispatch', reduceDispatchStateless)
   // set global state and notify if dirty
 
-  // add set state to end of side fx if the db changed
+  // add setState sideFx to end of side fx if the db changed
   regAfter('setState', acc => acc.db === acc.initialDb
     ? acc : appendFx(acc, 'setState', acc.db))
+  // define what the setState fx does
   regSideFx('setState', (db) => setState(db))
 
   return {

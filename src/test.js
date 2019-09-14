@@ -73,6 +73,17 @@ describe('core db and dispatch', () => {
       [['setState', { 'messages': ['hello', 'sub hello', 'end'] }]]
     )
   })
+  it('should permit multiple handlers', () => {
+    const { regFreeFx, reduceFxToEnd } = createStore()
+    regFreeFx(fx.MESSAGE, (_, message) => {
+      return [dbFx(R.assoc('first', true))]
+    })
+    regFreeFx(fx.MESSAGE, (_, message) => {
+      return [dbFx(R.assoc('message', message))]
+    })
+    const sideFx = reduceFxToEnd(fx.MESSAGE, 'hello')
+    expect(sideFx).toEqual([['setState', { first: true, message: 'hello' }]])
+  })
 })
 describe('setState built-in sidefx', () => {
   it('should notify subscribers only once', () => {
