@@ -1,6 +1,8 @@
 const assoc = (k, v, bag) => Object.assign({}, bag, { [k]: v })
 const merge = (vs, bag) => Object.assign({}, bag, vs)
 const clone = o => Object.assign({}, o)
+const appendFx = (acc, type, payload) =>
+  Object.assign({}, acc, {sideFx: [...acc.sideFx, [type, payload]]})
 
 const nextDb = (db, newStateOrReducer) => {
   if (typeof (newStateOrReducer) === 'function') {
@@ -196,10 +198,10 @@ export const createStore = (baseReg, initialState = {}) => {
   const regAfter = (id, afterFn) => {
     reg.afterReg = [...reg.afterReg, afterFn]
   }
+
   /* helper for regAfter */
   const regAppendFx = (id, getPayload) =>
-    regAfter(id, acc =>
-      Object.assign({}, acc, { sideFx: [...acc.sideFx, [id, getPayload(acc)]] }))
+    regAfter(id, acc => appendFx(acc, id, getPayload(acc)))
 
   /* state definition */
   const stateListeners = []
@@ -248,7 +250,7 @@ export const createStore = (baseReg, initialState = {}) => {
     let result = null
     let insufficient = false
     // a loop seems natural as this is an unknown number of iterations
-    const createAccum = (init) => ({ requires: [], sideFx: [], initialFx: [type, payload], ...init })
+    const createAccum = (init) => ({ requires: [], sideFx: [], initialDb: db, initialFx: [type, payload], ...init })
     do {
       result = reduceFx(createAccum({ db, supplied }), [[type, payload]])
       insufficient = result.requires.length > result.supplied.length
@@ -291,9 +293,9 @@ export const createStore = (baseReg, initialState = {}) => {
   // regReduceFx('dispatch', reduceDispatchStateless)
   // set global state and notify if dirty
 
-  // add set state to end of side fx
-  // fixme. should probably just do as needed
-  regAppendFx('setState', acc => acc.db)
+  // add set state to end of side fx if the db changed
+  regAfter('setState', acc => acc.db === acc.initialDb
+    ? acc : appendFx(acc, 'setState', acc.db))
   regSideFx('setState', (db) => setState(db))
 
   return {
