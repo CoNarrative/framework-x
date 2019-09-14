@@ -58,26 +58,29 @@ export const createStore = (baseReg, initialState = {}) => {
   /**
    * Takes a single or list of effects and reduces them.
    * Fxrs (fx handlers) can return more fx which are executed inline
+   * Accepts either empty fx (do nothing), map or array of effects
+   * { db: {}} or ['db', {}]
+   * and if an array of effects, could be an array of an array effects
+   * [['db',{}], ['db',{}]
    * @param acc
    * @param effects Array[[type, payload]]
    * @returns {*}
    */
   function reduceFx(acc = initialAcc(), effectOrEffects) {
     if (!effectOrEffects) return acc
-    // Accepts either map or array of effects
-    const effectsList = Array.isArray(effectOrEffects) ? effectOrEffects : Object.entries(effectOrEffects)
-    // // Accepts an array of effects
-    // const effectsList =
-    //   Array.isArray(effectsListA[0]) ? effectsListA : [effectsListA]
-
-    // Process IMMEDIATE effects by reducing over them
+    const effectsList = Array.isArray(effectOrEffects)
+      ? effectOrEffects
+      : Object.entries(effectOrEffects)
     return effectsList.reduce(
-      (acc, [fxType, fxPayload]) => {
+      (acc, oneFx) => {
         // console.log(acc)
         if (acc.fault) {
           // todo: actual shortcutting reduce! Ramda has one. Would have to be loop
           return acc
         }
+        const [fxType, fxPayload] = oneFx
+        // if type is an array, that is really an inline expansion
+        if (Array.isArray(fxType)) return reduceFx(acc, oneFx)
         const about = reg.fx[fxType]
         if (!about) {
           throw new Error(`No fx handler for effect "${fxType}". Try registering a handler using "regFx('${fxType}', ({ effect }) => ({...some side-effect})"`)

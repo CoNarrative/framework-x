@@ -23,41 +23,6 @@ describe('core db and dispatch', () => {
     const sideFx = reduceFxToEnd(fx.MESSAGE, 'hello')
     expect(sideFx).toEqual([['setState', { message: 'hello' }]])
   })
-  // it('should process db effects and make reductions available to non-listeners', () => {
-  //   const { regFreeFx, dispatch, getState, subscribeToState } = createStore()
-  //   let nNotifications = 0
-  //   const nEvents = 5
-  //   const reduced = { 'messages': R.times((n) => 'event-' + n, nEvents) }
-  //   const reductions = n => R.map((n2) => 'event-' + n2, R.range(0, n))
-  //
-  //   subscribeToState(db => {
-  //     expect(db).toEqual(reduced)
-  //     nNotifications += 1
-  //   })
-  //
-  //   R.map(n => {
-  //     regFreeFx('event-' + n, ({ db }) => {
-  //       if (n > 0) {
-  //         try {
-  //           expect(db.messages).toEqual(reductions(n))
-  //         } catch (e) {
-  //           console.log('e', e)
-  //         }
-  //       }
-  //       return [
-  //         ['db', updateIn(['messages'], R.append('event-' + n))]
-  //       ].concat(
-  //         n < nEvents - 1
-  //           ? [['dispatch', ['event-' + R.inc(n)]]]
-  //           : []
-  //       )
-  //     })
-  //   }, R.range(0, nEvents))
-  //
-  //   dispatch('event-0')
-  //   expect(getState()).toEqual(reduced)
-  //   expect(nNotifications).toEqual(1)
-  // })
   it('should process dispatch child event synchronously and update db along the way', () => {
     const { regFreeFx, reduceFxToEnd } = createStore()
     regFreeFx(fx.MESSAGE, (_, message) => [
@@ -83,6 +48,17 @@ describe('core db and dispatch', () => {
     })
     const sideFx = reduceFxToEnd(fx.MESSAGE, 'hello')
     expect(sideFx).toEqual([['setState', { first: true, message: 'hello' }]])
+  })
+  it('should permit inline expansion of fx', () => {
+    // sometimes you want a helper function that may have one or more fx in it
+    // as a sort of simple macro
+    const { regFreeFx, reduceFxToEnd } = createStore()
+    const inlineExpander = () => [dbFx(R.assoc('first', true)),dbFx(R.assoc('second', true))]
+    regFreeFx(fx.MESSAGE, (_, message) => {
+      return [inlineExpander()]
+    })
+    const sideFx = reduceFxToEnd(fx.MESSAGE, 'hello')
+    expect(sideFx).toEqual([['setState', { first: true, second: true }]])
   })
 })
 describe('setState built-in sidefx', () => {
@@ -318,4 +294,41 @@ describe('coeffects', () => {
       'id': 'barId'
     })
   })
+})
+describe('alex extra', () => {
+  // it('should process db effects and make reductions available to non-listeners', () => {
+  //   const { regFreeFx, dispatch, getState, subscribeToState } = createStore()
+  //   let nNotifications = 0
+  //   const nEvents = 5
+  //   const reduced = { 'messages': R.times((n) => 'event-' + n, nEvents) }
+  //   const reductions = n => R.map((n2) => 'event-' + n2, R.range(0, n))
+  //
+  //   subscribeToState(db => {
+  //     expect(db).toEqual(reduced)
+  //     nNotifications += 1
+  //   })
+  //
+  //   R.map(n => {
+  //     regFreeFx('event-' + n, ({ db }) => {
+  //       if (n > 0) {
+  //         try {
+  //           expect(db.messages).toEqual(reductions(n))
+  //         } catch (e) {
+  //           console.log('e', e)
+  //         }
+  //       }
+  //       return [
+  //         ['db', updateIn(['messages'], R.append('event-' + n))]
+  //       ].concat(
+  //         n < nEvents - 1
+  //           ? [['dispatch', ['event-' + R.inc(n)]]]
+  //           : []
+  //       )
+  //     })
+  //   }, R.range(0, nEvents))
+  //
+  //   dispatch('event-0')
+  //   expect(getState()).toEqual(reduced)
+  //   expect(nNotifications).toEqual(1)
+  // })
 })
