@@ -1,5 +1,5 @@
 import * as R from 'ramda'
-import { createStore } from './createStore'
+import { createStore, identityEnv } from './createStore'
 import { derive } from './util'
 
 const evt = {
@@ -7,13 +7,103 @@ const evt = {
   SUBEVENT: 'subevent'
 }
 
-export const updateIn = R.curry((ks, f, m) =>
+const updateIn = R.curry((ks, f, m) =>
   R.assocPath(ks, f(R.path(ks, m)), m)
 )
 const dbFx = reducerOrState => ['db', reducerOrState]
 const dispatchFx = (type, payload) => ['dispatch', [type, payload]]
 
-describe('core dispatch flow', () => {
+describe('core/createStore', () => {
+  it('should have default effects if not provided', () => {
+    const { env } = createStore()
+    expect(R.intersection(
+      R.keys(identityEnv().fx),
+      R.keys(env.fx)))
+      .toEqual(R.keys(identityEnv().fx))
+  })
+  it('should have default effects if custom effects provided', () => {
+    const fx = { 'foo': () => {} }
+    const { env } = createStore({ fx })
+    const expected = R.concat(R.keys(identityEnv().fx), R.keys(fx))
+    expect(R.intersection(R.keys(env.fx), expected)).toEqual(expected)
+  })
+  it('supports dynamic and static fx and eventFx definitions', () => {
+    const staticFxDef = jest.fn()
+    const overwrittenFxDef = jest.fn()
+    const { env, regEventFx, regFx, dispatch } = createStore({
+      state: { db: { cool: true } },
+      fx: {
+        'static-fx': staticFxDef,
+        'my-fx': overwrittenFxDef
+      },
+      eventFx: {
+        'my-evt': [({ db }) => {
+          expect(db).toEqual({ cool: true })
+          return [['db', R.assoc('awesome', true)]]
+        }]
+      }
+    })
+
+    function dynRegister({ db }) {
+      expect(db).toEqual({ cool: true, awesome: true })
+      return [['my-fx'], ['static-fx']]
+    }
+
+    const myFx = jest.fn()
+
+    regEventFx('my-evt', dynRegister)
+    regFx('my-fx', myFx)
+
+    dispatch('my-evt')
+    expect(staticFxDef).toBeCalled()
+    expect(myFx).toBeCalled()
+    expect(overwrittenFxDef).not.toBeCalled()
+
+    expect(env.eventFx['my-evt'].length).toEqual(2)
+    expect(env.eventFx['my-evt'][1].name).toEqual('dynRegister')
+  })
+})
+describe('core/setState', () => {
+  it('should set and notify by default', () => {
+    let stateNotifs = []
+    const { env, setState } = createStore({ dbListeners: [x => stateNotifs.push(x)] })
+    setState({ cool: true })
+    expect(env.state.db).toEqual({ cool: true })
+    expect(stateNotifs.length).toEqual(1)
+    expect(stateNotifs[0]).toEqual({ cool: true })
+  })
+
+  it('should apply a reducer fn', () => {
+    let stateNotifs = []
+    const { env, setState } = createStore({
+      state: { db: { cool: false } },
+      dbListeners: [x => stateNotifs.push(x)]
+    })
+    setState(R.assoc('cool', true))
+    expect(env.state.db).toEqual({ cool: true })
+    expect(stateNotifs.length).toEqual(1)
+    expect(stateNotifs[0]).toEqual({ cool: true })
+  })
+
+  it('should optionally bypass db listener notification', () => {
+    let stateNotifs = []
+    const { env, setState } = createStore({
+      state: { db: { cool: false } },
+      dbListeners: [x => stateNotifs.push(x)]
+    })
+    setState(R.assoc('cool', true), false)
+    expect(env.state.db).toEqual({ cool: true })
+    expect(stateNotifs.length).toEqual(0)
+  })
+})
+describe('core/fx.apply', () => {
+  it('should return a list of effects', () => {
+    const { env, setState } = createStore()
+  })
+
+})
+
+describe('core/dispatch', () => {
   it('should reduce a simple event', () => {
     const { dispatch, regEventFx, getState } = createStore()
     regEventFx(evt.MESSAGE, (_, message) =>
@@ -57,7 +147,7 @@ describe('core dispatch flow', () => {
   })
 
   it('should notify subscribers of state change', () => {
-    const { regEventFx, regFx, dispatch, subscribeToState } = createStore()
+    const { regEventFx, dispatch, subscribeToState } = createStore()
     let stateCntr = 0
     let state = null
     subscribeToState(newState => {
@@ -114,7 +204,8 @@ describe('core dispatch flow', () => {
     })
 
     R.map(n => {
-      regEventFx('event-' + n, ({ db, eventName }) => {
+      const eventName = 'event-' + n
+      regEventFx(eventName, ({ db }) => {
         if (n > 0) {
           try {
             expect(db.messages).toEqual(reductions(n))
@@ -137,51 +228,13 @@ describe('core dispatch flow', () => {
   })
 })
 
-describe('creation with specified env', () => {
-  it('should work', () => {
-    const staticFxDef = jest.fn()
-    const overwrittenFxDef = jest.fn()
-    const { env, regEventFx, regFx, dispatch, subscribeToState } = createStore({
-      state: { db: { cool: true } },
-      fx: {
-        'static-fx': staticFxDef,
-        'my-fx': overwrittenFxDef
-      },
-      eventFx: {
-        'my-evt': [({ db }) => {
-          expect(db).toEqual({ cool: true })
-          return [['db', R.assoc('awesome', true)]]
-        }]
-      }
-    })
-
-    function dynRegister({ db }) {
-      expect(db).toEqual({ cool: true, awesome: true })
-      return [['my-fx'], ['static-fx']]
-    }
-
-    const myFx = jest.fn()
-
-    regEventFx('my-evt', dynRegister)
-    regFx('my-fx', myFx)
-
-    dispatch('my-evt')
-    expect(staticFxDef).toBeCalled()
-    expect(myFx).toBeCalled()
-    expect(overwrittenFxDef).not.toBeCalled()
-
-    expect(env.eventFx['my-evt'].length).toEqual(2)
-    expect(env.eventFx['my-evt'][1].name).toEqual('dynRegister')
-  })
-})
-
 describe('event stream', () => {
   it('should publish each event name and payload', () => {
     let evts = []
     const { dispatch } = createStore({
       state: { db: {} },
       eventListeners: [(...x) => {
-        // spereading for devtools thing test
+        // disambiguate redux devtools init
         evts.push(Array.isArray(x[0]) ? x[0] : x)
       }],
       eventFx: {
@@ -291,111 +344,5 @@ describe('one-time time fx', () => {
     // dispatching an event helps provide more information since we have better tracking of events than raw effects
     // the dispatched event or another could contain information about why the event was dispatched
     // but would need to be encoded case-by-case
-  })
-})
-describe('preEventFx', () => {
-  it('should work!', () => {
-    const userCredentials = { id: 123, username: 'mullet-man' }
-
-    const ls = () => {
-      let data = { user: JSON.stringify(userCredentials) }
-      return {
-        getItem: (k) => data[k],
-        setItem: (k, v) => data[k] = v,
-        removeItem: (k) => delete data[k]
-      }
-    }
-
-    const localStorage = ls()
-
-    const { env, regPreEventFx, regEventFx, regFx, dispatch } =
-      createStore({ state: { db: {}, localStorage } })
-
-    const deserializeLSUser = jest.fn(userStr => {
-      if (!userStr) return null
-      const user = JSON.parse(userStr)
-      return updateIn(['username'], x => x.toUpperCase(), user)
-    })
-
-    // can we have derivations off of data that are memoized?
-    // const deserializeLocalStorageUser = R.memoizeWith(R.identity, deserializeLSUser)
-
-    // instead of something like this, wa can read directly from the reactive/stateful/ref thing
-    // and use a derive pattern for the value that was read
-    // const getLocalStorageUser = ls => {
-    //   const userStr = ls.getItem('user')
-    //   if (userStr) {
-    //     return deserializeLocalStorageUser(userStr)
-    //   }
-    // }
-
-    const lsKey = k => ls => ls.getItem(k)
-    const getUserStr = lsKey('user')
-    const getLocalStorageUser = derive([getUserStr], deserializeLSUser)
-
-    const getUser = R.prop('user')
-
-    const logOut = ({ state }) => {
-      if (getUser(state.db) && !getLocalStorageUser(state.localStorage)) {
-        throw new Error(
-          'localStorage and db state are out of sync, which may be intentional. '
-          + 'User may have been logged out by another tab, but is logged in here until next page refresh.'
-        )
-      }
-      state.localStorage.removeItem('user')
-      // setState(R.dissoc('user'))
-    }
-
-    // affects local storage
-    // could affect other things
-    const logIn = ({ state }, user) => {
-      state.localStorage.setItem('user', JSON.stringify(user))
-      // setState(R.assoc('user', user))
-    }
-
-    let redirects = 0
-    const redirect = () => {
-      redirects += 1
-    }
-    regFx('redirect', redirect)
-
-    regPreEventFx('user', ({ state: { db, localStorage } }) => {
-
-      return getLocalStorageUser(localStorage)
-
-      // const user = getUser(db)
-      // if (user) return user
-      // const lsUser = getLocalStorageUser(localStorage)
-      // if (lsUser) {
-      //   // writing side effects seems confusing / unexpected here
-      //   // we just want to supply a value based on a state that exists
-      //   //
-      //   // setState(R.assoc('user', lsUser))
-      //   return lsUser
-      // }
-    })
-
-    regEventFx('route/protected-page', ({ user }) => {
-      if (!user) return [['redirect', ['/']]]
-    })
-
-    dispatch('route/protected-page')
-    expect(redirects).toEqual(0)
-
-    // simulate other tab/process mutating the shared storage / logging out
-    localStorage.removeItem('user')
-    dispatch('route/protected-page')
-    getLocalStorageUser(env.state.localStorage)
-    getLocalStorageUser(env.state.localStorage)
-    expect(deserializeLSUser).toHaveBeenCalledTimes(1)
-
-    expect(() => logOut(env)).not.toThrow()
-
-    logIn(env, R.assoc('username', 'fred', userCredentials))
-
-    // derive needs called with a new reference
-    expect(getLocalStorageUser(Object.assign({}, env.state.localStorage)).username)
-      .toEqual('FRED')
-    expect(deserializeLSUser).toHaveBeenCalledTimes(2)
   })
 })
