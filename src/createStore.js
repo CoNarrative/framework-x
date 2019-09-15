@@ -57,6 +57,18 @@ const applyFx = (env, f, effects) => {
   }, [])
 }
 
+const applyFxImpure = (env, f) => {
+  console.log('applying  impure',env.acc.queue)
+  const len = env.acc.queue.length
+  const q = Object.assign({}, env.acc.queue)
+  for (let i = 0; i < len; i++) {
+    const effect = q[i]
+    f(env, effect)
+    env.acc.stack.push(effect)
+    env.acc.queue.shift()
+  }
+}
+
 const setDb = (x, newStateOrReducer) => {
   if (typeof newStateOrReducer !== 'function') {
     x.state.db = newStateOrReducer
@@ -72,12 +84,41 @@ const setDb = (x, newStateOrReducer) => {
 const createAccum = env => ({
   state: Object.assign({}, env.state),
   reductions: [],
+  stack: [],
   queue: []
 })
 
 const assignAccum = env => {
   env.acc = createAccum(env)
   return env
+}
+
+const reduceEventEffectsImpure = (env, event) => {
+  env.acc.queue.push(['notifyEventListeners', event])
+  const [type, args] = event
+  const eventHandlers = env.eventFx[type]
+  if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
+
+  eventHandlers.forEach((handler) => {
+    const effects = handler({ ...env.acc.state }, args)
+    if (!effects) {
+      return
+    }
+    const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
+
+    return effectsList.forEach((effect) => {
+      const [k, v] = effect
+      let rfx = env.reduceFx[k]
+      if (rfx) {
+        const ret = rfx(env, v)
+        env.acc.reductions.push(effect, ret)
+      } else if (k !== 'dispatch') {
+        env.acc.queue.push(effect)
+      } else {
+        return reduceEventEffectsImpure(env, v)
+      }
+    })
+  })
 }
 
 const reduceEventEffects = (env, event) => {
@@ -89,7 +130,6 @@ const reduceEventEffects = (env, event) => {
   return eventHandlers.reduce((hr, handler) => {
     const effects = handler({ ...env.acc.state }, args)
     if (!effects) {
-      env.acc.queue.push(['notifyEventListeners', event])
       return prepend([['notifyEventListeners', event]], hr)
     }
 
@@ -101,10 +141,8 @@ const reduceEventEffects = (env, event) => {
           let rfx = env.reduceFx[k]
           if (rfx) {
             const ret = rfx(env, v)
-            env.acc.reductions.push([k, v], ret)
             return append([k, v], eventEffects)
           } else if (k !== 'dispatch') {
-            env.acc.queue.push([k, v])
             return append([k, v], eventEffects)
           } else {
             return [...eventEffects.concat(...reduceEventEffects(env, v))]
@@ -125,6 +163,7 @@ export const identityEnv = () => ({
   // and executed as a function of their arguments
   fx: {
     apply: applyFx,
+    applyImpure: applyFxImpure,
     setDb,
     eval: evalFx,
     notifyStateListeners: derive([path(['dbListeners']), path(['state', 'db'])],
@@ -135,20 +174,30 @@ export const identityEnv = () => ({
       if (!finalEvent[0]) throw new Error('Dispatch requires a valid event key')
 
       try {
-        // effects partitioned by handler as flat list
-        const effects = chain(identity, reduceEventEffects(assignAccum(env), finalEvent))
+        reduceEventEffectsImpure(assignAccum(env), finalEvent)
 
-        env.acc.queue.unshift(
-          ['setDb', env.acc.state.db],
-          ['notifyStateListeners'],
-        )
+        env.acc.queue.unshift(['setDb', env.acc.state.db], ['notifyStateListeners'], ['fooey'])
 
-        env.fx.apply(env, env.fx.eval, env.acc.queue)
+        env.fx.applyImpure(env, env.fx.eval)
+
         delete env.acc
 
       } catch (e) {
-        console.error('dispatch error', e)
+        env.errorFx['dispatch-error'](env, e)
       }
+    }
+  },
+  errorFx: {
+    'dispatch-error': (env, e) => {
+      // console.log('did this', env.acc.stack,)
+      // console.log('next up', env.acc.queue,)
+      // console.log('reductions so far', env.acc.reductions)
+      // console.log('reduced as state', env.acc.state)
+      // console.log('state is', env.state)
+      env.acc.queue.shift()
+      console.log('queue is', env.acc.queue)
+      env.fx.applyImpure(env,env.fx.eval)
+      // console.error('got error', env, e)
     }
   },
   events: {},
