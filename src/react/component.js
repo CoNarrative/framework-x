@@ -8,7 +8,7 @@ import { shallowEqual } from '../util'
 
 const connectFn = (name, config, renderFn) => {
   let { devTools, debug, subscribe, makeSubscribe } = config
-  let selector = subscribe
+  // let selector = subscribe
 
   class SyntheticComponentBasedOnRenderFunction extends Component {
     static displayName = name
@@ -66,13 +66,20 @@ const connectFn = (name, config, renderFn) => {
       let didOwnPropsChange = !shallowEqual(this.props, this._sub.ownProps)
       let didExtractedPropsChange = false
       if (didAppStateChange) {
-        selector = (() => {
-          if (subscribe) return subscribe
-          if (!selector) return makeSubscribe(null, this.props, null)
-          if (didOwnPropsChange) return makeSubscribe(this._sub.ownProps, this.props, selector)
-          return selector
-        })()
-        const newExtractedProps = selector(appState, this.props)
+        //   (() => {
+        //   if (subscribe) return subscribe
+        //   if (!selector) return makeSubscribe(null, this.props, null)
+        //   if (didOwnPropsChange) return makeSubscribe(this._sub.ownProps, this.props, selector)
+        //   return selector
+        // })()
+        // Loop until selector resolves to an object and not a function
+        // This permits higher-order composition of selectors (selectors that return subs for instance)
+        let depth = 0
+        let newExtractedProps = subscribe
+        do {
+          newExtractedProps = newExtractedProps(appState, this.props)
+          depth++
+        } while (depth < 12 && typeof (newExtractedProps) === 'function')
         didExtractedPropsChange = !shallowEqual(this._sub.extractedProps, newExtractedProps)
         this._sub.extractedProps = newExtractedProps
       }

@@ -24,10 +24,19 @@ export class Subscribe extends Component {
   _children = () => this.props.children
   prevent = ({ appState, dispatch }) => {
     const { otherProps, selector } = this.props
+
+    /* Invoke until it is not a function */
+    let depth = 0
+    let newExtractedProps = selector
+    do {
+      newExtractedProps = newExtractedProps(appState, otherProps)
+      depth++
+    } while (depth < 12 && typeof (newExtractedProps) === 'function')
+
     return (
       <Prevent
         dispatch={dispatch}
-        {...selector(appState, otherProps)}
+        {...newExtractedProps}
         {...otherProps}
         _children={this._children} />
     )
