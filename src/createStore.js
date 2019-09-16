@@ -59,18 +59,19 @@ export const createStore = (baseReg, initialState = {}) => {
    * Takes a single or list of effects and reduces them.
    * Fxrs (fx handlers) can return more fx which are executed inline
    * Accepts either empty fx (do nothing), map or array of effects
-   * { db: {}} or ['db', {}]
-   * and if an array of effects, could be an array of an array effects
-   * [['db',{}], ['db',{}]
+   * { db: {}} or [['db', {}]]
+   * or a single effect
+   * ['db',{}]
    * @param acc
    * @param effects Array[[type, payload]]
    * @returns {*}
    */
   function reduceFx(acc = initialAcc(), effectOrEffects) {
     if (!effectOrEffects) return acc
-    const effectsList = Array.isArray(effectOrEffects)
+    const effectsListA = Array.isArray(effectOrEffects)
       ? effectOrEffects
       : Object.entries(effectOrEffects)
+    const effectsList = Array.isArray(effectsListA[0]) ? effectsListA : [effectsListA]
     return effectsList.reduce(
       (acc, oneFx) => {
         // console.log(acc)
@@ -286,9 +287,12 @@ export const createStore = (baseReg, initialState = {}) => {
     if (!event[0]) throw new Error('Dispatch requires at least a valid event key')
     const [type, payload] = finalEvent
     dispatchDepth = dispatchDepth + 1
-    const sideFx = reduceFxSupply(type, payload)
-    dispatchDepth = dispatchDepth - 1
-
+    let sideFx
+    try {
+      sideFx = reduceFxSupply(type, payload)
+    } finally {
+      dispatchDepth = dispatchDepth - 1
+    }
     // EXECUTE SIDE FX
     sideFx.forEach(([type, payload]) => reg.sideFx[type](payload))
     return sideFx

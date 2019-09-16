@@ -23,6 +23,14 @@ describe('core db and dispatch', () => {
     const sideFx = reduceFxToEnd(fx.MESSAGE, 'hello')
     expect(sideFx).toEqual([['setState', { message: 'hello' }]])
   })
+  it('should reduce a simple event declared as single fx', () => {
+    const { regFreeFx, reduceFxToEnd } = createStore()
+    regFreeFx(fx.MESSAGE, (_, message) => {
+      return dbFx(R.assoc('message', message))
+    })
+    const sideFx = reduceFxToEnd(fx.MESSAGE, 'hello')
+    expect(sideFx).toEqual([['setState', { message: 'hello' }]])
+  })
   it('should process dispatch child event synchronously and update db along the way', () => {
     const { regFreeFx, reduceFxToEnd } = createStore()
     regFreeFx(fx.MESSAGE, (_, message) => [
