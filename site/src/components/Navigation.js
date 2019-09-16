@@ -58,6 +58,11 @@ export class Navigation extends React.Component {
           alignItems: 'center',
           fontSize: 15,
           padding: '0 64px',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
 
           [whenMobile]: {
             flexDirection: 'column',

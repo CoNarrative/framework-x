@@ -78,9 +78,10 @@ const P = ({children}) => <p
   }}>{children}</p>
 
 const Blockquote = ({children}) =>
-  <div css={{display: 'flex', marginBottom: 20,}}>
-    <div css={{flexShrink: 0, width: 4, backgroundColor: theme.darkBlue,}}/>
+  <div css={{display: 'flex', display: '-webkit-box', marginBottom: 20,}}>
+    <div css={{display: 'block', flexShrink: 0, width: 4, backgroundColor: theme.darkBlue,}}/>
     <div css={{
+      display: 'flex',
       flexGrow: 1,
       backgroundColor: theme.lightBlue,
       padding: '4px 12px',
@@ -126,6 +127,7 @@ const Container = styled.div({
   overflowX: 'hidden',
   justifyContent: 'center',
   position: 'relative',
+  '-webkit-overflow-scrolling': 'touch',
 
   '& > :last-child': {
     maxWidth: 720,

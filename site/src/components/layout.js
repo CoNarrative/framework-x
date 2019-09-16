@@ -57,11 +57,15 @@ class Layout extends React.Component {
             // padding: `0px 1.0875rem 1.45rem`,
             // paddingTop: 0,
             height: 'calc(100vh - 64px)',
-            display: 'flex',
+            display: 'block',
             flexDirection: 'column',
-            overflow: 'auto',
+            overflow: 'hidden',
+            position: 'relative',
+            top: 64,
 
             [whenMobile]: {
+              position: 'relative',
+              top: 112,
               height: 'calc(100vh - 112px)',
             },
 
