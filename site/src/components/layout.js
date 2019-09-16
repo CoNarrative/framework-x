@@ -59,7 +59,7 @@ class Layout extends React.Component {
             height: 'calc(100vh - 64px)',
             display: 'block',
             flexDirection: 'column',
-            overflow: 'hidden',
+            overflow: 'auto',
             position: 'relative',
             top: 64,
 

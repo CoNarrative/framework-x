@@ -12,12 +12,12 @@ import 'prismjs/plugins/line-numbers/prism-line-numbers.css'
 import {Highlight} from '../components/TextBackgroundHighlight'
 // import "prismjs/plugins/command-line/prism-command-line.css"
 import CircleBackdrop from '../images/circle-backdrop.svg'
+import {Footer} from "../components/Footer";
 
 const MulletManMain = () =>
   <div css={{width: '60%'}}>
     <MulletManFluid/>
   </div>
-
 
 const MainContent = ({starCount, downloadCount}) =>
   <div css={{display: 'flex', maxWidth: 960, alignSelf: 'center',}}>
@@ -115,6 +115,7 @@ const IndexPage = () => {
       }}>
         <MainContentAsyncStuff/>
       </div>
+      <Footer/>
 
     </Layout>
   )
