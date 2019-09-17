@@ -97,10 +97,14 @@ describe('core/setState', () => {
   })
 })
 describe('core/fx.apply', () => {
-  it('should return a list of effects', () => {
-    const { env, setState } = createStore()
+  it('should return a list of effect descriptions when f returns null or undefined', () => {
+    const { env } = createStore()
+    const inputEffects = [['setState'], { foo: 'bar' }]
+    const effects = env.fx.apply(env, R.always(undefined), inputEffects)
+    const effects2 = env.fx.apply(env, R.always(null), inputEffects)
+    expect(effects).toEqual(inputEffects)
+    expect(effects2).toEqual(inputEffects)
   })
-
 })
 
 describe('core/dispatch', () => {
