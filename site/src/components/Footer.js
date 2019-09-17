@@ -2,11 +2,6 @@ import React from 'react'
 import {Link} from 'gatsby'
 import styled from '@emotion/styled'
 import * as theme from '../theme'
-import Logo from '../assets/icons/new-logo.svg'
-import MulletMan from '../images/mullet-man1.png'
-import Github from '../assets/icons/github.svg'
-import {whenMobile} from "../theme";
-import HamburgerMenuIcon from '../assets/icons/hamburger-menu.svg'
 
 const Wrapper = styled.div({
   height: 302,
@@ -17,17 +12,16 @@ const Wrapper = styled.div({
 
 const Container = styled.div({
   width: '100%',
-  maxWidth: 960,
+  maxWidth: 1280,
   display: 'flex',
   paddingTop: 48,
-  '& > :not(:last-child)': {}
 })
 
 const Header = styled.div({
   fontSize: '1.4rem',
   fontFamily: 'Animosa',
   fontWeight: 800,
-  letterSpacing: '0.1rem',
+  letterSpacing: '0.08rem',
   marginBottom: 16,
 })
 
@@ -39,6 +33,7 @@ const Navlink = ({children, to}) => (
     color: theme.black,
     marginLeft: 12,
     marginBottom: 12,
+    letterSpacing: '-0.014rem',
   }}>{children}</Link>
 )
 
@@ -46,7 +41,7 @@ export const Footer = () => (
   <Wrapper>
     <Container>
       <div css={{ marginRight: 180, }}>
-        <div css={{fontFamily: '', color: theme.darkGrey, fontSize: '1rem', marginBottom: 4,}}>Built with...</div>
+        <div css={{fontFamily: '', color: theme.darkGrey, fontSize: '1rem', marginBottom: 8,}}>Built with...</div>
         <div css={{fontFamily: 'Basier Square Mono', fontSize: '1rem'}}>@2019 CoNarrative Inc.</div>
       </div>
       <div css={{ display: 'flex', }}>

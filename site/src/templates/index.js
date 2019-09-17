@@ -1,29 +1,57 @@
 import React from 'react'
-import {Link} from 'gatsby'
-import {jsx} from '@emotion/core'
-import styled from '@emotion/styled'
-import Layout from '../components/layout'
 import MulletManFluid from '../components/image'
-import SEO from '../components/seo'
 import {DimensionalBox} from '../components/DimensionalBox'
-import axios from 'axios'
-// import "prismjs/themes/prism-solarizedlight.css"
-import 'prismjs/plugins/line-numbers/prism-line-numbers.css'
 import {Highlight} from '../components/TextBackgroundHighlight'
-// import "prismjs/plugins/command-line/prism-command-line.css"
 import CircleBackdrop from '../images/circle-backdrop.svg'
+import HelpDesk from '../images/help-desk.svg'
+import {Input, MultilineInput} from "../components/Input";
+import {Button} from "../components/Button";
+import Enter from '../assets/icons/enter.svg'
+import Layout from '../components/layout'
+import SEO from '../components/seo'
 import {Footer} from "../components/Footer";
+import * as axios from "axios";
 
 const MulletManMain = () =>
   <div css={{width: '60%'}}>
     <MulletManFluid/>
   </div>
 
+export const Banner = ({children, rootCss}) => (
+  <div css={{height: 520, display: 'flex', justifyContent: 'center', backgroundColor: '#E4E6EB', ...rootCss,}}>
+    <div css={{width: '100%', maxWidth: 1280, display: 'flex', justifyContent: 'space-between', alignItems: 'center',}}>
+      {children}
+    </div>
+  </div>
+)
+
+const ContactUs = () => (
+  <div css={{height: 520, display: 'flex', justifyContent: 'center', backgroundColor: '#E4E6EB'}}>
+    <div css={{width: '100%', maxWidth: 1280, display: 'flex', justifyContent: 'space-between', alignItems: 'center',}}>
+      <div css={{display: 'flex', flexDirection: 'column', flexShrink: 0, maxWidth: 540,}}>
+        <h1 css={{marginTop: 0, fontSize: '3rem', marginBottom: '0.8rem', display: 'flex'}}>Need a helping hand?</h1>
+        <span css={{fontFamily: 'Basier Square Mono', fontSize: '1.04rem', marginBottom: 20, lineHeight: '1.6rem',}}>Please feel free to reach out to us at anytime to discuss our consulting services.</span>
+        <div>
+          <DimensionalBox handleHeight={true} rootCss={{padding: '16px 24px', alignItems: 'flex-end'}}>
+            <div css={{marginRight: 24, flexGrow: 1, flexShrink: 1, display: 'flex', flexDirection: 'column'}}>
+              <Input placeholder={'name'} rootCss={{marginBottom: 12,}}/>
+              <Input placeholder={'e-mail address'} rootCss={{marginBottom: 20}}/>
+              <MultilineInput placeholder={'message'}/>
+            </div>
+            <Button rootCss={{width: 96,}}><img css={{height: 13,}} src={Enter}/></Button>
+          </DimensionalBox>
+        </div>
+      </div>
+      <img src={HelpDesk}/>
+    </div>
+  </div>
+)
+
 const MainContent = ({starCount, downloadCount}) =>
   <div css={{display: 'flex', maxWidth: 960, alignSelf: 'center',}}>
     <MulletManMain/>
     <div css={{paddingBottom: '4rem'}}>
-      <h1 css={{marginBottom: '0.8rem', display: 'flex'}}>
+      <h1 css={{fontSize: '3rem', marginBottom: '0.8rem', display: 'flex'}}>
         Reasonable <Highlight rootCss={{marginLeft: 10}}>global state.</Highlight>
       </h1>
       <div css={{marginBottom: '1.45rem', fontFamily: 'Basier Square Mono', lineHeight: '1.4rem'}}>
@@ -115,6 +143,7 @@ const IndexPage = () => {
       }}>
         <MainContentAsyncStuff/>
       </div>
+      <ContactUs/>
       <Footer/>
 
     </Layout>

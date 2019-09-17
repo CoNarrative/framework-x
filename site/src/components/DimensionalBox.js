@@ -23,6 +23,7 @@ const Box = styled.div(props => ({
   width: props.width ? props.width : '100%',
   // maxWidth: props.maxWidth,
   position: 'relative',
+  zIndex: 10,
   ...props.rootCss,
 }))
 
