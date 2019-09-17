@@ -57,15 +57,14 @@ const applyFx = (env, f, effects) => {
   }, [])
 }
 
-const applyFxImpure = (env, f) => {
-  console.log('applying  impure',env.acc.queue)
-  const len = env.acc.queue.length
-  const q = Object.assign({}, env.acc.queue)
+const applyFxImpure = (env, f, acc) => {
+  const len = acc.queue.length
+  const q = Object.assign({}, acc.queue)
   for (let i = 0; i < len; i++) {
     const effect = q[i]
     f(env, effect)
-    env.acc.stack.push(effect)
-    env.acc.queue.shift()
+    acc.stack.push(effect)
+    acc.queue.shift()
   }
 }
 
@@ -88,19 +87,14 @@ const createAccum = env => ({
   queue: []
 })
 
-const assignAccum = env => {
-  env.acc = createAccum(env)
-  return env
-}
-
-const reduceEventEffectsImpure = (env, event) => {
-  env.acc.queue.push(['notifyEventListeners', event])
+const reduceEventEffectsImpure = (env, acc, event) => {
+  acc.queue.push(['notifyEventListeners', event])
   const [type, args] = event
   const eventHandlers = env.eventFx[type]
   if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
 
   eventHandlers.forEach((handler) => {
-    const effects = handler({ ...env.acc.state }, args)
+    const effects = handler({ ...acc.state }, args)
     if (!effects) {
       return
     }
@@ -110,57 +104,83 @@ const reduceEventEffectsImpure = (env, event) => {
       const [k, v] = effect
       let rfx = env.reduceFx[k]
       if (rfx) {
-        const ret = rfx(env, v)
-        env.acc.reductions.push(effect, ret)
+        const ret = rfx(env, acc, v)
+        acc.reductions.push(effect, ret)
       } else if (k !== 'dispatch') {
-        env.acc.queue.push(effect)
+        acc.queue.push(effect)
       } else {
-        return reduceEventEffectsImpure(env, v)
+        return reduceEventEffectsImpure(env, acc, v)
+      }
+    })
+  })
+}
+const reduceEventEffects = (env, acc, event) => {
+
+  acc.queue.push(['notifyEventListeners', event])
+  const [type, args] = event
+  const eventHandlers = env.eventFx[type]
+  if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
+
+  return eventHandlers.reduce((_, handler) => {
+    const effects = handler({ ...acc.state }, args)
+    if (!effects) {
+      return
+    }
+    const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
+
+    return effectsList.reduce((_, effect) => {
+      const [k, v] = effect
+      let rfx = env.reduceFx[k]
+      if (rfx) {
+        const ret = rfx(env, acc, v)
+        acc.reductions.push(effect, ret)
+      } else if (k !== 'dispatch') {
+        acc.queue.push(effect)
+      } else {
+        return reduceEventEffectsImpure(env, acc, v)
       }
     })
   })
 }
 
-const reduceEventEffects = (env, event) => {
-  const [type, args] = event
-  /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
-  const eventHandlers = env.eventFx[type]
-  if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
-
-  return eventHandlers.reduce((hr, handler) => {
-    const effects = handler({ ...env.acc.state }, args)
-    if (!effects) {
-      return prepend([['notifyEventListeners', event]], hr)
-    }
-
-    const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
-
-    return append(
-      prepend(['notifyEventListeners', event], effectsList)
-        .reduce((eventEffects, [k, v]) => {
-          let rfx = env.reduceFx[k]
-          if (rfx) {
-            const ret = rfx(env, v)
-            return append([k, v], eventEffects)
-          } else if (k !== 'dispatch') {
-            return append([k, v], eventEffects)
-          } else {
-            return [...eventEffects.concat(...reduceEventEffects(env, v))]
-          }
-        }, []), hr)
-  }, [])
-}
+// const reduceEventEffects2 = (env, event) => {
+//   const [type, args] = event
+//   /* reframe only allows one handler I learned -- but I like extending event handlers elsewhere so multiple it is */
+//   const eventHandlers = env.eventFx[type]
+//   if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
+//
+//   return eventHandlers.reduce((hr, handler) => {
+//     const effects = handler({ ...env.acc.state }, args)
+//     if (!effects) {
+//       return prepend([['notifyEventListeners', event]], hr)
+//     }
+//
+//     const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
+//
+//     return append(
+//       prepend(['notifyEventListeners', event], effectsList)
+//         .reduce((eventEffects, [k, v]) => {
+//           let rfx = env.reduceFx[k]
+//           if (rfx) {
+//             const ret = rfx(env, v)
+//             return append([k, v], eventEffects)
+//           } else if (k !== 'dispatch') {
+//             return append([k, v], eventEffects)
+//           } else {
+//             return [...eventEffects.concat(...reduceEventEffects(env, v))]
+//           }
+//         }, []), hr)
+//   }, [])
+// }
 
 export const identityEnv = () => ({
   state: { db: {} },
   reduceFx: {
-    db: ({ fx, acc }, newStateOrReducer) => {
+    db: ({ fx }, acc, newStateOrReducer) => {
       fx.setDb(acc, newStateOrReducer)
       return Object.assign({}, acc.state)
     }
   },
-  // effects capable of being expressed as data
-  // and executed as a function of their arguments
   fx: {
     apply: applyFx,
     applyImpure: applyFxImpure,
@@ -173,31 +193,26 @@ export const identityEnv = () => ({
       const finalEvent = Array.isArray(event[0]) ? event[0] : event
       if (!finalEvent[0]) throw new Error('Dispatch requires a valid event key')
 
+      let acc = createAccum(env)
+
       try {
-        reduceEventEffectsImpure(assignAccum(env), finalEvent)
+        reduceEventEffectsImpure(env, acc, finalEvent)
 
-        env.acc.queue.unshift(['setDb', env.acc.state.db], ['notifyStateListeners'], ['fooey'])
+        acc.queue.unshift(['setDb', acc.state.db], ['notifyStateListeners'], ['fooey'])
 
-        env.fx.applyImpure(env, env.fx.eval)
-
-        delete env.acc
+        env.fx.applyImpure(env, env.fx.eval, acc)
 
       } catch (e) {
-        env.errorFx['dispatch-error'](env, e)
+        if (Object.keys(env.errorFx).length > 0) {
+          env.errorFx['dispatch-error'](env, acc, e)
+        }
       }
     }
   },
   errorFx: {
-    'dispatch-error': (env, e) => {
-      // console.log('did this', env.acc.stack,)
-      // console.log('next up', env.acc.queue,)
-      // console.log('reductions so far', env.acc.reductions)
-      // console.log('reduced as state', env.acc.state)
-      // console.log('state is', env.state)
-      env.acc.queue.shift()
-      console.log('queue is', env.acc.queue)
-      env.fx.applyImpure(env,env.fx.eval)
-      // console.error('got error', env, e)
+    'dispatch-error': (env, acc, e) => {
+      acc.queue.shift()
+      env.fx.applyImpure(env, env.fx.eval, acc)
     }
   },
   events: {},
