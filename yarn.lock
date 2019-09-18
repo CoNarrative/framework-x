@@ -92,6 +92,13 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
+"@types/ramda@^0.26.21":
+  version "0.26.21"
+  resolved "https://registry.yarnpkg.com/@types/ramda/-/ramda-0.26.21.tgz#cfd552c679453d153a9e2fd89ffc5dd5aa93d2c9"
+  integrity sha512-zMYtIZMceA6BvH+or6LmewLBgojbXg5+FGCwjO8K+Z+d/ZWxILmhhASXkehW0PqJL+V0QbyDeeAHix0dvEKXfQ==
+  dependencies:
+    ts-toolbelt "^3.8.4"
+
 "@vue/component-compiler-utils@^1.0.0":
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@vue/component-compiler-utils/-/component-compiler-utils-1.2.1.tgz#3d543baa75cfe5dab96e29415b78366450156ef6"
@@ -7406,6 +7413,11 @@ trim-newlines@^1.0.0:
 trim-right@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/trim-right/-/trim-right-1.0.1.tgz#cb2e1203067e0c8de1f614094b9fe45704ea6003"
+
+ts-toolbelt@^3.8.4:
+  version "3.10.0"
+  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-3.10.0.tgz#d4fb875636d5c236c03f112820f1ee5bf76bc62d"
+  integrity sha512-bBuhxvS1ZUww3EwBooemUTargLP1EBgIcO221iTI0EjukHyHurnZckEHrpWA+P80JPp/2lvl4lv5bZN9P6AWUg==
 
 tslib@^1.9.0:
   version "1.9.3"

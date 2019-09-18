@@ -3,21 +3,17 @@
 
 type Tail<T extends any[]> = ((...t: T) => void) extends ((x: any, ...u: infer U) => void) ? U : never;
 type Rest  <T extends any[],U=unknown> = T extends [any,...any[]] ? U:never
-type TailParameters<T extends (...args: any) => any> = T extends (x: any, ...args: infer P) => any ? P : never;
+type TailParameters<T extends (...args: any) => any> = T extends (x: any, args: infer P) => any ? P : never;
+type AnyKV = { [k: string]: any }
 
-export type StateListener<State extends StateMap> = (db: State['db']) => void
+export type DbListener<State extends any> = (db: State['db']) => void
 
-export type Db = {}
+export type ErrorEffect<E> = (env: E, acc: Accum<E>, e: Error) => any
 
-export type DbFn = (db: Db) => Db
+export type EnvWith<KS extends keyof DefaultEnv> = Pick<DefaultEnv, KS>
 
+export type DispatchEnv<E> = EnvWith<'fx' | 'state' | 'eventFx' | 'events' | 'reduceFx'> & { errorFx?: ErrorEffect<E> }
 
-// export type FxFn<State extends StateMap,
-//   Events extends EventMap,
-//   Env extends Environment<State, Events>> = (env: Env, fn: Env['fx']) => void
-
-
-// export type FxDescription<FxMap> = { db: DbFn | Db } & FxMap | FxDescriptionEntry<FxMap, keyof FxMap>[]
 
 interface StateMap {
   [k: string]: any
@@ -27,107 +23,131 @@ interface EventMap {
   readonly [k: string]: string
 }
 
-type EventEffectFn<State, T = any> = (
+export type EventName<E extends { events: any }> = MapValue<E['events'], keyof E['events']>
+
+export type EffectTuple<Fx extends AnyKV> = {
+  [K in keyof Fx]: Fx[K] extends (_: any, args: infer U) => void
+    ? U extends any ? [K, U] : [K]
+    : never
+}[keyof Fx]
+
+// any key is valid, doesn't need to be registered
+export type LooseEffectDescription = [string, any] | [string]
+
+export type EffectDescription<Fx extends any> =
+  {[K in keyof Fx]: TailParameters<MapValue<Fx,K>>}
+  | EffectTuple<Fx>[]
+
+type EventEffectHandler<State, T = any> = (
   state: State,
   eventArgs: T
 ) => EffectDescription<T> | void
 
-type EventEffect<State, EvtMap extends EventMap, PreEventFx extends { [k: string]: any }> =
-  Array<EventEffectFn<State & { [k in keyof PreEventFx]: any }>>
+export type NewStateOrReducer<E extends any> = any | ((db: E['state']['db']) => any)
 
+export type  DefaultFxMap = {
+  dispatch: (env: DefaultEnv, event: [string, any]) => void
+  eval: (env: DefaultEnv, effect: [keyof DefaultFxMap,any]) => void
+  apply: any
+  applyImpure: any
+  setDb: (env: { state: { db: any } }, newStateOrReducer: any) => void
+  notifyStateListeners: any
+  notifyEventListeners: any
+}
 
-export interface IdentityEnv {
-  state: { db: {}, dispatch: { depth: 0 } },
-  preEventFx: {},
+type Accum<E extends any> = {
+  state: E['state'],
+  reductions: any[],
+  stack: EffectTuple<E>[],
+  queue: LooseEffectDescription[] }
+
+export interface DefaultEnv {
+  state: { db: any }
+  reduceFx: { db: (env: DefaultEnv, acc: any, newStateOrReducer: any) => any }
   fx: {
-    db: (env: ThisType<IdentityEnv>, newStateOrReducer: any) => void
-    dispatch: (env: ThisType<IdentityEnv>, event: [string, ...any[]]) => void
-  }
+    dispatch: (env: DefaultEnv, event: [string, any] | [string]) => void
+    eval: (env: DefaultEnv, effect: EffectTuple<Omit<DefaultEnv['fx'], 'eval'>>) => void
+    apply: any
+    applyImpure: any
+    setDb: (x: { state: { db: any } }, newStateOrReducer: any) => void
+    notifyStateListeners: any
+    notifyEventListeners: any
+  } //& E['fx']
   events: {},
-  eventFx: {},
-  dbListeners: [],
-  eventListeners: [],
+  eventFx?: any,
+  //{
+    // [K in MapValue<E['events'], keyof E['events']>]: EventEffectHandler<{ db: any } & E['state'], DefaultFxMap<E> & E['fx']>[]
+//  },
+// }{},
+  errorFx?: any
+  dbListeners: DbListener<DefaultEnv['state']>[],
+  eventListeners:Array<(...any:any)=>any> ,
 }
 
 
-export interface Environment<State extends StateMap,
+
+export declare interface Environment<State extends StateMap,
   EvtMap extends EventMap,
   > {
   state: State
-  fx: { [k: string]: (env: Partial<Environment<State, EvtMap> & IdentityEnv>, ...args: any[]) => void }
-  preEventFx: { [k: string]: (env: Partial<Environment<State, EvtMap>>) => any }
+  acc?:any
+  fx: { [k: string]: (env: Partial<Environment<State, EvtMap>>, ...args: any[]) => void }
+  reduceFx: {[k:string]:(env: Environment<State,EvtMap>,args:any )=>any}
   eventFx: {
-    [K in MapValue<EvtMap, keyof EvtMap>]: EventEffect<State, EvtMap, Environment<State, EvtMap>['preEventFx']>
+    [K in MapValue<EvtMap, keyof EvtMap>]: EventEffectHandler<State>[]
   }
   events: EvtMap,
-  dbListeners: StateListener<State>[]
+  dbListeners: DbListener<State>[]
   eventListeners?: Array<(type: MapValue<EvtMap, keyof EvtMap>, data?: any) => void>
 }
 
-export type EffectsMap<State extends StateMap> = { [k: string]: (env: State, ...args: any[]) => void }
-
-export type FxDescriptionEntry<FxMap extends any > =
-  { [K in keyof FxMap]: FxMap[K] extends (_: any, ...xs: infer U) => void ? [K,U] : never }[keyof FxMap]
-
-
-
-
-
-type FxDescriptorFnMap<FxMap extends any> = {[K in keyof FxMap]: (...args: TailParameters<FxMap[K]>)=>
-[K, TailParameters<FxMap[K]>]}
-
-export type EffectDescription<FxMap extends {[k:string]:any}> =
-  {[K in keyof FxMap]: TailParameters<MapValue<FxMap,K>>}
-  | FxDescriptionEntry<FxMap>[]
-// |FxDescriptorFnMap<FxMap>[keyof FxMap][] // just describes the entries type as a fn, we want the return value (the entries)
-
-
 type MapValue<M, K extends keyof M> = M[K]
+type MapValueStr<M extends {[k:string]:string}, K extends keyof M> = M[K]
 
-export interface EnvObj<State extends StateMap,EvtMap extends EventMap> {
-  state: State
-  fx: any
-  preEventFx: any
-  eventFx: any
-  events: EvtMap,
-  dbListeners?: StateListener<State>[]
-  eventListeners?: any
+export interface IEnv {
+  state?: AnyKV
+  fx?: AnyKV
+  eventFx?: AnyKV
+  reduceFx?: AnyKV
+  errorFx?: AnyKV
+  events?: AnyKV
+  dbListeners?: any[]
+  eventListeners?: any[]
 }
+
 export interface Store<
-  State extends StateMap,
+  State extends AnyKV,
   EvtMap extends EventMap,
-  Env extends EnvObj<State,EvtMap>
+  E extends any
   > {
-  env: Env & IdentityEnv
+  env: E extends IEnv ? (E & DefaultEnv) : DefaultEnv
 
   getState(): State['db']
 
   regEventFx<
-    Events extends Env['events'],
-    PreEventFx extends Env['preEventFx'],
-    Fx extends Env['fx'],
+    Events extends E['events'],
+    Fx extends E['fx'],
     >(eventType: MapValue<Events, keyof Events>,
-      fn: (state: Env['state'] & { [K in keyof PreEventFx]: ReturnType<PreEventFx[K]> },
-           eventArgs: any) => EffectDescription<Fx>
-      // { [K in keyof Fx]: (args: Tail<Parameters<Fx[K]>>) => void } | void,
-      // fn: (state: State & { [K in keyof PreEventFx]: ReturnType<PreEventFx[K]> },
-      //      eventArgs: any) => { [K in keyof Fx]: (args: Tail<Parameters<Fx[K]>>) => void } | void,
+      fn: (state: E['state'] , eventArgs: any) => EffectDescription<Fx>
   ): void;
-
-  regFx: any,
-  regPreEventFx: any
 
   dispatch<Env extends Environment<State, EvtMap>,
     Evt extends MapValue<EvtMap, keyof EvtMap>>(
     eventType: Evt,
-    ...args: Env['eventFx'][Evt][0] extends (a: any, ...args: infer T) => any ? T : never
+    args: Env['eventFx'][Evt][0] extends (a: any, ...args: infer T) => any ? T : never
   ): void;
 
-  subscribeToState(fn: StateListener<State>): void
+  subscribeToState(fn: DbListener<State>): void
+
+
+  setState: any
+  regFx: any,
+  regReduceFx: any,
+
 }
 
 export function createStore<State extends StateMap,
   EvtMap extends EventMap,
-  E extends EnvObj<State,EvtMap>>
+  E extends IEnv>
 (env: E): Store<State, EvtMap,E>
 
