@@ -5,8 +5,9 @@ import {Highlight} from '../components/TextBackgroundHighlight'
 import CircleBackdrop from '../images/circle-backdrop.svg'
 import HelpDesk from '../images/help-desk.svg'
 import {Input, MultilineInput} from "../components/Input";
-import {Button} from "../components/Button";
+import {Button, Button3D} from "../components/Button";
 import Enter from '../assets/icons/enter.svg'
+import {Link} from 'gatsby'
 import Layout from '../components/layout'
 import SEO from '../components/seo'
 import {Footer} from "../components/Footer";
@@ -37,35 +38,38 @@ export const Banner = ({children, rootCss, wrapCss}) => (
 )
 
 const ContactUs = () => (
-  <Banner rootCss={{backgroundColor: '#E4E6EB'}} wrapCss={{[whenTablet]: {flexDirection: 'column-reverse',}}}>
+  <Banner rootCss={{backgroundColor: '#E4E6EB'}} wrapCss={{[whenTablet]: {flexDirection: 'column-reverse',}, [whenMobile]: {paddingLeft: 24, paddingRight: 24,}}}>
     <div css={{display: 'flex', flexDirection: 'column', flexShrink: 1, maxWidth: 540,}}>
       <h1 css={{marginTop: 0, fontSize: '3rem', marginBottom: '0.8rem', display: 'flex'}}>Need a helping hand?</h1>
       <span css={{fontFamily: 'Basier Square Mono', fontSize: '1.04rem', marginBottom: 20, lineHeight: '1.6rem',}}>Please feel free to reach out to us at anytime to discuss our consulting services.</span>
       <div>
-        <DimensionalBox handleHeight={true} rootCss={{
-          padding: '16px 24px',
-          alignItems: 'flex-end',
-          [whenMobile]: {flexDirection: 'column', alignItems: 'stretch'}
-        }}>
-          <div css={{
-            marginRight: 24,
-            flexGrow: 1,
-            flexShrink: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            [whenMobile]: {marginRight: 0}
-          }}>
-            <Input placeholder={'name'} rootCss={{marginBottom: 12,}}/>
-            <Input placeholder={'e-mail address'} rootCss={{marginBottom: 20}}/>
-            <MultilineInput placeholder={'message'}/>
-          </div>
-          <Button rootCss={{
-            width: 96,
-            flexShrink: 1,
-            minWidth: 64,
-            [whenMobile]: {marginTop: 24, alignSelf: 'flex-end'}
-          }}><img css={{height: 13,}} src={Enter}/></Button>
-        </DimensionalBox>
+        {/*<DimensionalBox handleHeight={true} rootCss={{*/}
+        {/*  padding: '16px 24px',*/}
+        {/*  alignItems: 'flex-end',*/}
+        {/*  [whenMobile]: {flexDirection: 'column', alignItems: 'stretch'}*/}
+        {/*}}>*/}
+        {/*  <div css={{*/}
+        {/*    marginRight: 24,*/}
+        {/*    flexGrow: 1,*/}
+        {/*    flexShrink: 1,*/}
+        {/*    display: 'flex',*/}
+        {/*    flexDirection: 'column',*/}
+        {/*    [whenMobile]: {marginRight: 0}*/}
+        {/*  }}>*/}
+        {/*    <Input placeholder={'name'} rootCss={{marginBottom: 12,}}/>*/}
+        {/*    <Input placeholder={'e-mail address'} rootCss={{marginBottom: 20}}/>*/}
+        {/*    <MultilineInput placeholder={'message'}/>*/}
+        {/*  </div>*/}
+        {/*  <Button rootCss={{*/}
+        {/*    width: 96,*/}
+        {/*    flexShrink: 1,*/}
+        {/*    minWidth: 64,*/}
+        {/*    [whenMobile]: {marginTop: 24, alignSelf: 'flex-end'}*/}
+        {/*  }}><img css={{height: 13,}} src={Enter}/></Button>*/}
+        {/*</DimensionalBox>*/}
+        <a href={'https://www.conarrative.com/'}>
+          <Button3D>Visit our website</Button3D>
+        </a>
       </div>
     </div>
     <img css={{
@@ -79,7 +83,7 @@ const ContactUs = () => (
 )
 
 const MainContent = ({starCount, downloadCount}) =>
-  <div css={{display: 'flex', maxWidth: 960, alignSelf: 'center', paddingBottom: '4rem', [whenMobile]: {flexDirection: 'column', padding: '0 24px'}}}>
+  <div css={{display: 'flex', maxWidth: 960, alignSelf: 'center', paddingBottom: '4rem', [whenMobile]: {flexDirection: 'column', padding: '0 24px', paddingBottom: '3rem'}}}>
     <MulletManMain/>
     <div css={{ display: 'flex', flexDirection: 'column'}}>
       <h1 css={{fontSize: '3rem', marginBottom: '0.8rem', display: 'flex', flexWrap: 'wrap'}}>
@@ -182,6 +186,10 @@ const IndexPage = () => {
         flexShrink: 0,
         backgroundImage: 'url(' + CircleBackdrop + ')',
         backgroundSize: 'cover',
+
+        [whenMobile]: {
+          height: 'unset',
+        }
       }}>
         <MainContentAsyncStuff/>
       </div>

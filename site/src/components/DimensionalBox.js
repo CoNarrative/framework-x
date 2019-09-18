@@ -23,7 +23,8 @@ const Box = styled.div(props => ({
   width: props.width ? props.width : '100%',
   // maxWidth: props.maxWidth,
   position: 'relative',
-  zIndex: 10,
+  zIndex: 1,
+  boxShadow: '1px 1px 0px #fff, 2px 2px 0px #fff, 3px 3px 0px #fff, 4px 4px 0px #fff, 5px 5px 0px #fff, 6px 6px 0px #fff, 7px 7px 0px #fff',
   ...props.rootCss,
 }))
 

@@ -41,7 +41,7 @@ const Navlink = ({children, to}) => (
 )
 
 export const Footer = () => (
-  <Banner rootCss={{ borderTop: '1px solid ' + theme.black, [whenTablet]: {paddingBottom: 0}}} wrapCss={{ [whenMobile]: {alignItems: 'flex-start'}, [whenTablet]: {flexDirection: 'column-reverse', alignItems: 'center'}}}>
+  <Banner rootCss={{ borderTop: '1px solid ' + theme.black, [whenTablet]: {paddingBottom: 0}}} wrapCss={{[whenTablet]: {flexDirection: 'column-reverse', alignItems: 'center'},[whenMobile]: {alignItems: 'flex-start', paddingLeft: 40, paddingRight: 24}, }}>
     <div css={{ [whenTablet]: {marginTop: 48, alignSelf: 'flex-start', position: 'absolute', left: 32, bottom: 32 }}}>
       <div css={{fontFamily: '', color: theme.darkGrey, fontSize: '1rem', marginBottom: 8,}}>Built with...</div>
       <div css={{fontFamily: 'Basier Square Mono', fontSize: '1rem'}}>@2019 CoNarrative Inc.</div>

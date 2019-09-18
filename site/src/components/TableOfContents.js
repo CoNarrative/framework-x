@@ -167,7 +167,7 @@ export class TableOfContents extends React.Component {
         <Content rootCss={{[whenTablet]: {display: 'none'},}}
                          dangerouslySetInnerHTML={{__html: this.state.tableOfContents}}/>
         <DimensionalBox handleHeight={true}
-                        rootCss={{display: 'none', [whenTablet]: {display: 'flex'}, [whenMobile]: {display: 'none'}}}>
+                        rootCss={{display: 'none', [whenTablet]: {display: 'flex', zIndex: '10',}, [whenMobile]: {display: 'none'}}}>
           <div css={{
             display: 'flex',
             flexDirection: 'column',
@@ -183,6 +183,7 @@ export class TableOfContents extends React.Component {
                 justifyContent: 'space-between',
                 width: '100%',
                 cursor: 'pointer',
+                zIndex: '101',
               }}>
               <Topic mobile topic={'Table of Contents'}
                      rootCss={{marginBottom: 'unset', paddingTop: 12, paddingBottom: 12,}}/>
@@ -210,6 +211,7 @@ export class TableOfContents extends React.Component {
               borderTop: '1px solid ' + theme.black,
               borderBottom: '1px solid ' + theme.black,
               height: 48,
+              zIndex: '10',
               backgroundColor: 'white',
             }}>
             <Topic mobile topic={'Table of Contents'}
