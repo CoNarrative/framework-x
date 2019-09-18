@@ -11,47 +11,78 @@ import Layout from '../components/layout'
 import SEO from '../components/seo'
 import {Footer} from "../components/Footer";
 import * as axios from "axios";
+import {whenMobile, whenTablet} from "../theme";
 
 const MulletManMain = () =>
-  <div css={{width: '60%'}}>
+  <div css={{width: '60%', [whenMobile]: {alignSelf: 'center'}}}>
     <MulletManFluid/>
   </div>
 
-export const Banner = ({children, rootCss}) => (
-  <div css={{height: 520, display: 'flex', justifyContent: 'center', backgroundColor: '#E4E6EB', ...rootCss,}}>
-    <div css={{width: '100%', maxWidth: 1280, display: 'flex', justifyContent: 'space-between', alignItems: 'center',}}>
+export const Banner = ({children, rootCss, wrapCss}) => (
+  <div css={{display: 'flex', justifyContent: 'center', paddingTop: 64, paddingBottom: 80, ...rootCss,}}>
+    <div css={{
+      width: '100%',
+      maxWidth: 1440,
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: '0 64px',
+      position: 'relative',
+
+      ...wrapCss
+    }}>
       {children}
     </div>
   </div>
 )
 
 const ContactUs = () => (
-  <div css={{height: 520, display: 'flex', justifyContent: 'center', backgroundColor: '#E4E6EB'}}>
-    <div css={{width: '100%', maxWidth: 1280, display: 'flex', justifyContent: 'space-between', alignItems: 'center',}}>
-      <div css={{display: 'flex', flexDirection: 'column', flexShrink: 0, maxWidth: 540,}}>
-        <h1 css={{marginTop: 0, fontSize: '3rem', marginBottom: '0.8rem', display: 'flex'}}>Need a helping hand?</h1>
-        <span css={{fontFamily: 'Basier Square Mono', fontSize: '1.04rem', marginBottom: 20, lineHeight: '1.6rem',}}>Please feel free to reach out to us at anytime to discuss our consulting services.</span>
-        <div>
-          <DimensionalBox handleHeight={true} rootCss={{padding: '16px 24px', alignItems: 'flex-end'}}>
-            <div css={{marginRight: 24, flexGrow: 1, flexShrink: 1, display: 'flex', flexDirection: 'column'}}>
-              <Input placeholder={'name'} rootCss={{marginBottom: 12,}}/>
-              <Input placeholder={'e-mail address'} rootCss={{marginBottom: 20}}/>
-              <MultilineInput placeholder={'message'}/>
-            </div>
-            <Button rootCss={{width: 96,}}><img css={{height: 13,}} src={Enter}/></Button>
-          </DimensionalBox>
-        </div>
+  <Banner rootCss={{backgroundColor: '#E4E6EB'}} wrapCss={{[whenTablet]: {flexDirection: 'column-reverse',}}}>
+    <div css={{display: 'flex', flexDirection: 'column', flexShrink: 1, maxWidth: 540,}}>
+      <h1 css={{marginTop: 0, fontSize: '3rem', marginBottom: '0.8rem', display: 'flex'}}>Need a helping hand?</h1>
+      <span css={{fontFamily: 'Basier Square Mono', fontSize: '1.04rem', marginBottom: 20, lineHeight: '1.6rem',}}>Please feel free to reach out to us at anytime to discuss our consulting services.</span>
+      <div>
+        <DimensionalBox handleHeight={true} rootCss={{
+          padding: '16px 24px',
+          alignItems: 'flex-end',
+          [whenMobile]: {flexDirection: 'column', alignItems: 'stretch'}
+        }}>
+          <div css={{
+            marginRight: 24,
+            flexGrow: 1,
+            flexShrink: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            [whenMobile]: {marginRight: 0}
+          }}>
+            <Input placeholder={'name'} rootCss={{marginBottom: 12,}}/>
+            <Input placeholder={'e-mail address'} rootCss={{marginBottom: 20}}/>
+            <MultilineInput placeholder={'message'}/>
+          </div>
+          <Button rootCss={{
+            width: 96,
+            flexShrink: 1,
+            minWidth: 64,
+            [whenMobile]: {marginTop: 24, alignSelf: 'flex-end'}
+          }}><img css={{height: 13,}} src={Enter}/></Button>
+        </DimensionalBox>
       </div>
-      <img src={HelpDesk}/>
     </div>
-  </div>
+    <img css={{
+      width: '40%',
+      maxHeight: 360,
+      marginLeft: 80,
+      [whenTablet]: {marginLeft: 0, marginBottom: 64, width: '70%', minWidth: 280}
+    }} src={HelpDesk}/>
+  </Banner>
+
 )
 
 const MainContent = ({starCount, downloadCount}) =>
-  <div css={{display: 'flex', maxWidth: 960, alignSelf: 'center',}}>
+  <div css={{display: 'flex', maxWidth: 960, alignSelf: 'center', paddingBottom: '4rem', [whenMobile]: {flexDirection: 'column', padding: '0 24px'}}}>
     <MulletManMain/>
-    <div css={{paddingBottom: '4rem'}}>
-      <h1 css={{fontSize: '3rem', marginBottom: '0.8rem', display: 'flex'}}>
+    <div css={{ display: 'flex', flexDirection: 'column'}}>
+      <h1 css={{fontSize: '3rem', marginBottom: '0.8rem', display: 'flex', flexWrap: 'wrap'}}>
         Reasonable <Highlight rootCss={{marginLeft: 10}}>global state.</Highlight>
       </h1>
       <div css={{marginBottom: '1.45rem', fontFamily: 'Basier Square Mono', lineHeight: '1.4rem'}}>
@@ -61,16 +92,23 @@ const MainContent = ({starCount, downloadCount}) =>
         effects they entail -- a state change, an
         asynchronous API call, the invocation of a custom function, or another event.
       </div>
-
-      <div css={{maxWidth: `300px`, marginBottom: `1.45rem`}}>
-        <DimensionalBox rootCss={{alignItems: 'center',}} width={520}>
+      <div css={{ alignSelf: 'flex-start', [whenMobile]: {width: '100%'} }}>
+        <DimensionalBox handleHeight={true} rootCss={{alignItems: 'center'}}>
           <div css={{
             display: 'flex',
             justifyContent: 'center',
-            width: '100%',
-            paddingTop: 6,
-            paddingBottom: 12,
-            '& > :not(:last-child)': {marginRight: 64}
+            width: 520,
+            paddingTop: 8,
+            paddingBottom: 8,
+            '& > :not(:last-child)': {marginRight: 64},
+            [whenMobile]: {
+              flexDirection: 'column',
+              width: '100%',
+              paddingLeft: 24,
+              paddingTop: 16,
+              paddingBottom: 16,
+              '& > :not(:last-child)': {marginRight: 0, marginBottom: 12},
+            },
           }}>
             <span>License: MIT</span>
             <a href={'https://github.com/CoNarrative/framework-x'}
@@ -83,7 +121,6 @@ const MainContent = ({starCount, downloadCount}) =>
                style={{color: 'inherit', textDecoration: 'inherit'}}>
               +{downloadCount} downloads
             </a>
-            {/*<span></span>*/}
           </div>
         </DimensionalBox>
       </div>
@@ -127,7 +164,13 @@ class MainContentAsyncStuff extends React.Component {
 
 const IndexPage = () => {
   return (
-    <Layout>
+    <Layout rootCss={{
+      [whenMobile]: {
+        position: 'relative',
+        top: 64,
+        height: 'calc(100vh - 64px)',
+      },
+    }}>
       <SEO title="framework-x: Reasonable global state"/>
 
       <div css={{
@@ -139,7 +182,6 @@ const IndexPage = () => {
         flexShrink: 0,
         backgroundImage: 'url(' + CircleBackdrop + ')',
         backgroundSize: 'cover',
-        zIndex: -1
       }}>
         <MainContentAsyncStuff/>
       </div>
