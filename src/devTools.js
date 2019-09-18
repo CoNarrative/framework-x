@@ -160,4 +160,4 @@ const reduxDevTools = ({ instanceId = 1, maxAge = 50 } = {}) => !extension
     }
   }
 
-export default reduxDevTools
+export default typeof global !=='undefined' && typeof window==='undefined'?reduxDevTools:null
