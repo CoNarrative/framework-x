@@ -32,6 +32,6 @@ export const Button3D = styled.button( props => ({
   color: theme.black,
   flexShrink: 0,
   fontWeight: 700,
-  boxShadow: '1px 1px 0px #141515, 2px 2px 0px #141515, 3px 3px 0px #141515, 4px 4px 0px #141515, 5px 5px 0px #141515, 6px 6px 0px #141515, 7px 7px 0px #141515, 8px 8px 0px #141515',
+  boxShadow: '1px 1px 0px #141515, 2px 2px 0px #141515, 3px 3px 0px #141515, 4px 4px 0px #141515, 5px 5px 0px #141515, 6px 6px 0px #141515, 7px 7px 0px #141515',
   ...props.rootCss,
 }))

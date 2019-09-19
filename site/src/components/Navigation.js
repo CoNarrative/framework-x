@@ -2,7 +2,7 @@ import React from 'react'
 import {Link} from 'gatsby'
 import styled from '@emotion/styled'
 import * as theme from '../theme'
-import Logo from '../assets/icons/new-logo.svg'
+import Logo from '../assets/icons/framework-x-complete.svg'
 import MulletMan from '../images/mullet-man1.png'
 import Github from '../assets/icons/github.svg'
 import {whenMobile} from "../theme";
@@ -78,9 +78,9 @@ export class Navigation extends React.Component {
                css={{display: 'none', cursor: 'pointer', [whenMobile]: {display: 'flex', alignItems: 'center'}}}>
             <img src={HamburgerMenuIcon}/>
           </div>
-          <Link to={'/'} css={{display: 'flex', alignItems: 'center'}}>
+          <Link to={'/'} css={{display: 'flex', alignItems: 'center', [whenMobile]:{position: 'relative', left: -4}}}>
             {/*<img style={{height: 38}} src={MulletMan} alt={'logo'}/>*/}
-            <img style={{height: 32}} src={Logo} alt={'logo'}/>
+            <img style={{height: 36}} src={Logo} alt={'logo'}/>
           </Link>
           <div css={{display: 'none', [whenMobile]: {display: 'block'}}}>
             <a href={'http://github.com/CoNarrative/framework-x'}
