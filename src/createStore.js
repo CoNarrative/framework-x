@@ -7,14 +7,35 @@ const checkType = (op, type) => {
   if (type.length === 0) throw new Error(`${op} fx key cannot be a zero-length string`)
 }
 
+/**
+ * Registers an effect handler in the provided environment that may produce side effects.
+ *
+ * @param env
+ * @param type
+ * @param fn
+ */
 export const regFx = (env, type, fn) => {
   env.fx[type] = fn
 }
 
-export const regEventFx = (env, type, fn) => {
-  env.eventFx[type] = [...env.eventFx[type] || [], fn]
+/**
+ * Registers an effect handler in the provided environment that will be called whenever `eventName` is dispatched
+ *
+ * @param env
+ * @param eventName
+ * @param fn
+ */
+export const regEventFx = (env, eventName, fn) => {
+  env.eventFx[eventName] = [...env.eventFx[eventName] || [], fn]
 }
 
+/**
+ * Registers an effect handler in the provided environment that will be applied to the accumulator during a dispatch cycle
+ *
+ * @param env
+ * @param type
+ * @param fn
+ */
 export const regReduceFx = (env, type, fn) => {
   env.reduceFx[type] = fn
 }
@@ -22,6 +43,7 @@ export const regReduceFx = (env, type, fn) => {
 /**
  * Evaluates an effect definition with the handler defined in the provided environment.
  * May perform computation that alters the environment. Returns the result of the effect handler.
+ *
  * @param env
  * @param fxName
  * @param args
@@ -44,6 +66,7 @@ export const evalFx = (env, [fxName, args]) => {
  * Returns a list of effect definitions called with f
  * with the result of calling f on the effect definitions or the effect definition
  * unchanged if the result is null or undefined
+ *
  * @param env
  * @param f
  * @param effects
@@ -59,7 +82,8 @@ const applyFx = (env, f, effects) => {
 
 /**
  * Applies `f` to `env` from an accumulator.
- * Drains accumulator's 'queue' drains and expands 'stack' as effects are applied.
+ * Drains accumulator's 'queue' drains and appends to its 'stack' as effects are applied.
+ *
  * @param env
  * @param f
  * @param acc
@@ -78,6 +102,7 @@ const applyFxImpure = (env, f, acc) => {
 /**
  * Assigns 'state.db' of `x` to the result of calling `newStateOrReducer` with 'state.db' of `x`
  * or to newStateOrReducer if not a function
+ *
  * @param x
  * @param newStateOrReducer
  */
@@ -95,6 +120,7 @@ const setDb = (x, newStateOrReducer) => {
 
 /**
  * Creates a new accumulator object suitable for usage with
+ *
  * @param env
  * @returns {{stack: Array, reductions: Array, state: any, queue: Array}}
  */
@@ -109,6 +135,7 @@ const createAccum = env => ({
  * Evaluates event handlers in `env` for `event` with recursive handling of events resulting from an event handler's `dispatch` effect.
  * Applies any `reduceFx` returned by event handlers to 'state', in `acc`.
  * Adds fx descriptions from event handlers to 'queue' in `acc`.
+ *
  * @param env
  * @param acc
  * @param event

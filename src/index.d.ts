@@ -12,7 +12,9 @@ export type ErrorEffect<E> = (env: E, acc: Accum<E>, e: Error) => any
 
 export type EnvWith<KS extends keyof DefaultEnv> = Pick<DefaultEnv, KS>
 
-export type DispatchEnv<E> = EnvWith<'fx' | 'state' | 'eventFx' | 'events' | 'reduceFx'> & { errorFx?: ErrorEffect<E> }
+export type DispatchEnv<E> =
+  Required<EnvWith<'fx' | 'state' | 'eventFx' | 'reduceFx'>>
+  & { events?: any, errorFx?: ErrorEffect<E> }
 
 
 interface StateMap {
@@ -73,15 +75,15 @@ export interface DefaultEnv {
     notifyStateListeners: any
     notifyEventListeners: any
   } //& E['fx']
-  events: {},
-  eventFx?: any,
+  // events: any,
+  eventFx: any,
   //{
     // [K in MapValue<E['events'], keyof E['events']>]: EventEffectHandler<{ db: any } & E['state'], DefaultFxMap<E> & E['fx']>[]
 //  },
 // }{},
   errorFx?: any
   dbListeners: DbListener<DefaultEnv['state']>[],
-  eventListeners:Array<(...any:any)=>any> ,
+  eventListeners: Array<(...any: any) => any>,
 }
 
 
@@ -102,7 +104,6 @@ export declare interface Environment<State extends StateMap,
 }
 
 type MapValue<M, K extends keyof M> = M[K]
-type MapValueStr<M extends {[k:string]:string}, K extends keyof M> = M[K]
 
 export interface IEnv {
   state?: AnyKV
@@ -146,8 +147,8 @@ export interface Store<
 
 }
 
-export function createStore<State extends StateMap,
-  EvtMap extends EventMap,
-  E extends IEnv>
-(env: E): Store<State, EvtMap,E>
+// export function createStore<State extends StateMap,
+//   EvtMap extends EventMap,
+//   E extends IEnv>
+// (env: E): Store<State, EvtMap,E>
 
