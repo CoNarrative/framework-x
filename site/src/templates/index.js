@@ -138,7 +138,7 @@ const MainContent = ({starCount, downloadCount}) =>
             </div>
           </DimensionalBox>
         </div>
-        <Link to={'/api'} css={{marginLeft: 32, [whenMobile]:{marginLeft: 0, marginTop: 24}}} href={'https://www.conarrative.com/'}>
+        <Link to={'/api'} css={{marginLeft: 32, [whenMobile]:{marginLeft: 0, marginTop: 24}}}>
           <Button3D>Go to documentation</Button3D>
         </Link>
       </div>
