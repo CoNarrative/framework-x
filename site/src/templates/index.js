@@ -4,6 +4,7 @@ import {DimensionalBox} from '../components/DimensionalBox'
 import {Highlight} from '../components/TextBackgroundHighlight'
 import CircleBackdrop from '../images/circle-backdrop.svg'
 import HelpDesk from '../images/help-desk.svg'
+import Shapes from '../images/3d-shapes.svg'
 import {Input, MultilineInput} from "../components/Input";
 import {Button, Button3D} from "../components/Button";
 import Enter from '../assets/icons/enter.svg'
@@ -14,6 +15,7 @@ import {Footer} from "../components/Footer";
 import * as axios from "axios";
 import {whenMobile, whenTablet} from "../theme";
 import MulletMan from '../assets/icons/mascot.svg'
+import * as theme from '../theme'
 
 
 const MulletManMain = () =>
@@ -37,6 +39,33 @@ export const Banner = ({children, rootCss, wrapCss}) => (
       {children}
     </div>
   </div>
+)
+
+const Features = () => (
+  <Banner rootCss={{backgroundColor: theme.black, color: 'white'}} wrapCss={{
+    [whenTablet]: {flexDirection: 'column',},
+    [whenMobile]: {paddingLeft: 24, paddingRight: 24,}
+  }}>
+    <img css={{
+      width: '40%',
+      maxHeight: 360,
+      marginLeft: 80,
+      [whenTablet]: {marginLeft: 0, marginBottom: 64, width: '70%', minWidth: 280}
+    }} src={Shapes}/>
+    <div css={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flexShrink: 1, maxWidth: 540, [whenTablet]: {marginTop: 40,}}}>
+      <h1 css={{marginTop: 0, fontSize: '3rem', marginBottom: '1.2rem', display: 'flex'}}>Key features</h1>
+      <ol css={{fontFamily: 'Basier Square Mono', fontSize: '1.04rem', margin: 0, marginBottom: 20, lineHeight: '1.6rem', color: '#CBD2E4', '& > li': {marginBottom: 12,}}}>
+        <li>All state is in one place.</li>
+        <li>Events are first-class.</li>
+        <li>Top-level keys on the state atom are not special.</li>
+        <li>setState is a just another side effect.</li>
+        <li>Components have subscriptions.</li>
+      </ol>
+      <Link to={'/learn'}>
+        <Button3D light rootCss={{ width: 132 }}>Learn more</Button3D>
+      </Link>
+    </div>
+  </Banner>
 )
 
 const ContactUs = () => (
@@ -100,7 +129,7 @@ const MainContent = ({starCount, downloadCount}) =>
       <h1 css={{fontSize: '3rem', marginBottom: '0.8rem', display: 'flex', flexWrap: 'wrap', marginTop: 0}}>
         Reasonable <Highlight rootCss={{marginLeft: 10}}>global state.</Highlight>
       </h1>
-      <div css={{marginBottom: '1.45rem', fontFamily: 'Basier Square Mono', lineHeight: '1.4rem'}}>
+      <div css={{marginBottom: '1.45rem', fontFamily: 'Basier Square Mono', lineHeight: '1.7rem'}}>
         Framework-X is a Javascript framework that processes definitions of cause and
         effect.
         Applications define what their events mean by mapping them to descriptions of the
@@ -209,6 +238,7 @@ const IndexPage = () => {
       }}>
         <MainContentAsyncStuff/>
       </div>
+      <Features/>
       <ContactUs/>
       <Footer/>
 
