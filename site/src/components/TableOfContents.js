@@ -139,7 +139,7 @@ const Topic = ({active, topic, subtopics, rootCss, mobile}) => (
 const DropdownItems = ({items,onClick})=>{
   return  (
     <Content>
-        {items.map(({id,innerHTML},i)=>{
+        {items && items.map(({id,innerHTML},i)=>{
         return <li key={i}
                    onClick={()=>onClick(id)}
                    dangerouslySetInnerHTML={{__html: innerHTML}} />
@@ -164,7 +164,7 @@ export class TableOfContents extends React.Component {
   }
 
   render() {
-    const {rootCss} = this.props
+    const {rootCss,tableOfContents } = this.props
 
     return (
       <Container rootCss={rootCss}>
