@@ -14,7 +14,7 @@ export type EnvWith<KS extends keyof DefaultEnv> = Pick<DefaultEnv, KS>
 
 export type DispatchEnv<E> =
   Required<EnvWith<'fx' | 'state' | 'eventFx' | 'reduceFx'>>
-  & { events?: any, errorFx?: ErrorEffect<E> }
+  & { events?: E extends {events: infer  U} ? U  : string, errorFx?: ErrorEffect<E> }
 
 
 interface StateMap {

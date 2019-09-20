@@ -109,7 +109,7 @@ const createAccum = <E extends AnyKV & { state: any }>(env: E): Accum<E> => ({
   queue: []
 })
 
-
+type EventVector<E> = [E extends { events: any } ? EventName<E> : string, any]
 /**
  * Reduces an event's effects recursively, modifying the provided accumulator with the results of the execution
  * ReduceFx are called with `acc.state` and pushed to `acc.stack`.
@@ -118,10 +118,10 @@ const createAccum = <E extends AnyKV & { state: any }>(env: E): Accum<E> => ({
  * @param acc
  * @param event
  */
-const reduceEventEffects = <E extends Required<EnvWith<'state' | 'eventFx' | 'reduceFx'>> & { events: any }>(
+const reduceEventEffects = <E extends Required<EnvWith<'state' | 'eventFx' | 'reduceFx'>> & { events?: any }>(
   env: E,
   acc: Accum<E>,
-  event: [EventName<E>|string, any]
+  event: EventVector<E>
 ) => {
   acc.queue.push(['notifyEventListeners', event])
   const [type, args] = event
@@ -144,7 +144,7 @@ const reduceEventEffects = <E extends Required<EnvWith<'state' | 'eventFx' | 're
       } else if (k !== 'dispatch') {
         acc.queue.push(effect)
       } else {
-        return reduceEventEffects(env, acc, v as [EventName<E>, any])
+        return reduceEventEffects(env, acc, v as EventVector<E>)
       }
     })
   })
@@ -225,23 +225,25 @@ const mergeEnv = <E>(args?: E extends IEnv ? E : never) => {
   const defaultEnvValue = defaultEnv()
   if (typeof args !== 'undefined') {
     const merged = Object.entries(defaultEnvValue).reduce((a, [k, v]) => {
+
       if (defaultEnvValue.hasOwnProperty(k) && args.hasOwnProperty(k)) {
-        a[k] = Object.assign( defaultEnvValue[k], args[k])
+        a[k] = Object.assign({}, defaultEnvValue[k], args[k])
       }
       a[k] = v
       return a
     }, {})
-    return merged as ({
+    return merged as E extends IEnv? ({
       state: Omit<DefaultEnv['state'], keyof typeof args['state']>,
+      events: typeof args['events'] extends infer U? U:{},
       fx: Omit<DefaultEnv['fx'], keyof typeof args['fx']>,
       reduceFx: Omit<DefaultEnv['reduceFx'], keyof typeof args['reduceFx']>,
       errorFx: Omit<DefaultEnv['errorFx'], keyof typeof args['errorFx']>,
       eventListeners?: any[]
       dbListeners?: any[]
 
-    } & Pick<typeof args, 'state' | 'events' | 'fx' | 'eventFx'>)
+    } & Pick<typeof args, 'state' | 'events' | 'fx' | 'eventFx'>) : never
   } else {
-    return defaultEnvValue
+    return defaultEnvValue as E extends IEnv? never: DefaultEnv
   }
 }
 export const createStore = <E>(args?: E extends IEnv ? E : never) => {
@@ -314,7 +316,6 @@ const myargs = {
   events: myevt
 }
 const foo = createStore(myargs)
-foo.env.fx.foo
 
 
 const testinf = <E>(args?: E extends AnyKV ? E : never) => {
