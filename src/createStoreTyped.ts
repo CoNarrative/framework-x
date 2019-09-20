@@ -1,5 +1,4 @@
-import { path, prepend, append, mergeDeepRight, chain, identity } from 'ramda'
-import * as R from 'ramda'
+import { path } from 'ramda'
 import { derive } from './util'
 import {
   DefaultEnv,
@@ -12,7 +11,7 @@ import {
   EffectDescription,
   LooseEffectDescription,
   EventName,
-  DispatchEnv, EnvWith, Store
+  DispatchEnv, EnvWith, TailParameters,
 } from "./index"
 
 
@@ -160,7 +159,7 @@ const dispatchFx = <E extends DispatchEnv<E>>(
   try {
     reduceEventEffects(env, acc, finalEvent)
 
-    acc.queue.unshift(['setDb', acc.state.db], ['notifyStateListeners'], ['fooey'])
+    acc.queue.unshift(['setDb', acc.state.db], ['notifyStateListeners'])
 
     env.fx.applyImpure(env, env.fx.eval, acc)
 
@@ -198,7 +197,11 @@ export const defaultEnv = (): DefaultEnv => ({
     apply: applyFx,
     applyImpure: applyFxImpure,
     setDb,
+    // todo.  Eval/all effects could have statically registered other effects if passed in
     eval: evalFx,
+    // todo. This could be enriched with event types (would need to pass in)
+    // to allow typed event names in return from regEventFx
+    dispatch: dispatchFx,
 
     //todo. @types/reselect
     notifyStateListeners: derive([
@@ -208,7 +211,6 @@ export const defaultEnv = (): DefaultEnv => ({
     // todo. only useful when events
     notifyEventListeners: (env: DefaultEnv, event: [string, any]) =>
       env.eventListeners!.forEach((f: any) => f(event)),
-    dispatch: dispatchFx
   },
   errorFx: {
     'dispatch-error': (env: DefaultEnv, acc: Accum<DefaultEnv>, e: any) => {
@@ -216,7 +218,7 @@ export const defaultEnv = (): DefaultEnv => ({
       env.fx.applyImpure(env, env.fx.eval, acc.queue)
     }
   },
-  // events: {},
+  events: {},
   eventFx: {},
   dbListeners: [],
   eventListeners: [],
@@ -225,7 +227,6 @@ const mergeEnv = <E>(args?: E extends IEnv ? E : never) => {
   const defaultEnvValue = defaultEnv()
   if (typeof args !== 'undefined') {
     const merged = Object.entries(defaultEnvValue).reduce((a, [k, v]) => {
-
       if (defaultEnvValue.hasOwnProperty(k) && args.hasOwnProperty(k)) {
         a[k] = Object.assign({}, defaultEnvValue[k], args[k])
       }
@@ -234,24 +235,25 @@ const mergeEnv = <E>(args?: E extends IEnv ? E : never) => {
     }, {})
     return merged as E extends IEnv? ({
       state: Omit<DefaultEnv['state'], keyof typeof args['state']>,
-      events: typeof args['events'] extends infer U? U:{},
+      events:  typeof args['events'],
       fx: Omit<DefaultEnv['fx'], keyof typeof args['fx']>,
       reduceFx: Omit<DefaultEnv['reduceFx'], keyof typeof args['reduceFx']>,
       errorFx: Omit<DefaultEnv['errorFx'], keyof typeof args['errorFx']>,
       eventListeners?: any[]
       dbListeners?: any[]
-
     } & Pick<typeof args, 'state' | 'events' | 'fx' | 'eventFx'>) : never
   } else {
-    return defaultEnvValue as E extends IEnv? never: DefaultEnv
+    return defaultEnvValue as E extends IEnv ? never : DefaultEnv
   }
 }
 export const createStore = <E>(args?: E extends IEnv ? E : never) => {
   const env = mergeEnv(args)
 
+  type Env = typeof env
+  type EventName = E extends { events: infer U } ? MapValue<U, keyof U> : string
   /* Hacked a bit to support redux devtools  */
   env.eventListeners!.forEach(m => m({}, {
-    setState(state: typeof env['state']) {
+    setState(state: Env['state']) {
       env.fx.eval(env, ['setDb', state])
     },
     get subs() {
@@ -262,10 +264,12 @@ export const createStore = <E>(args?: E extends IEnv ? E : never) => {
     }
   }, {}))
 
-  type Env = (typeof args & DefaultEnv)
   return {
     env,
-    dispatch: (eventName: string, args?: any) => {
+    dispatch: (
+      eventName: EventName,
+      args?: any
+    ) => {
       env.fx.dispatch(env, args ? [eventName, args] : [eventName])
     },
     getState: () => env.state.db,
@@ -273,12 +277,10 @@ export const createStore = <E>(args?: E extends IEnv ? E : never) => {
       env.fx.apply(env, env.fx.eval, [
         ['setDb', newStateOrReducer],
       ].concat(notify ? [['notifyStateListeners']] : []))
-    }, // for when you want to bypass the eventing
+    },
     regEventFx: (
-      // eventName: string,
-      eventName: E extends { events: infer U } ? U : never,
-      // eventName: MapValue<Env['events'], keyof Env['events']>,
-      fn: (state: Env['state'], args: any) => EffectDescription<Env>
+      eventName: EventName,
+      fn: (state: Env['state'], args: any) =>  EffectDescription<Env['fx']>
     ) => {
       checkType('regEventFx', eventName)
       env.eventFx[eventName] = [...env.eventFx[eventName] || [], fn]
@@ -301,47 +303,55 @@ export const createStore = <E>(args?: E extends IEnv ? E : never) => {
   }
 }
 
-
 const myevt = { 'evt1': 'evt-1111' } as const
 const myargs = {
   state: { db: { foo: 42 } },
   fx: {
-    'foo': (x: string, y: number) => {
+    'foo': (x: any, y: [number]) => {
       return null
     },
-    'dispatch': (x: string, y: number) => {
-      return null
-    },
+    // 'dispatch': (x: string, y: number) => {
+    //   return null
+    // },
   },
   events: myevt
 }
 const foo = createStore(myargs)
+foo.regEventFx('evt-1111',({db:{foo}},_:any)=>{
+  // return [['foo', 42]]
+  return {dispatch:[42,42]}
+})
+foo.env.fx.dispatch(foo.env,['a'])
+foo.dispatch('a')
+foo.regFx('hey',(e,a)=>{
+  e.fx.eval(foo.env,['setDb',()=>{}])
 
+})
 
-const testinf = <E>(args?: E extends AnyKV ? E : never) => {
-  if (typeof args !== 'undefined') {
-    const defaultEnvValue = defaultEnv()
-    const merged = Object.entries(defaultEnvValue).reduce((a, [k, v]) => {
-      if (defaultEnvValue.hasOwnProperty(k) && args.hasOwnProperty(k)) {
-        a[k] = Object.assign({}, defaultEnvValue[k], args[k])
-      }
-      a[k] = v
-      return a
-    }, {})
-    return merged as ({
-        state: Omit<DefaultEnv['state'], keyof typeof args['state']>,
-        fx: Omit<DefaultEnv['fx'], keyof typeof args['fx']>,
-        reduceFx: Omit<DefaultEnv['reduceFx'], keyof typeof args['reduceFx']>,
-        errorFx: Omit<DefaultEnv['errorFx'], keyof typeof args['errorFx']>,
-
-      } & Pick<typeof args, 'state' | 'events' | 'fx' | 'eventFx'>)
-  } else {
-    return {} as (DefaultEnv & E)
-  }
-}
-
-const ok = testinf(myargs)
-let okk2 = ok.events.evt1
+// const testinf = <E>(args?: E extends AnyKV ? E : never) => {
+//   if (typeof args !== 'undefined') {
+//     const defaultEnvValue = defaultEnv()
+//     const merged = Object.entries(defaultEnvValue).reduce((a, [k, v]) => {
+//       if (defaultEnvValue.hasOwnProperty(k) && args.hasOwnProperty(k)) {
+//         a[k] = Object.assign({}, defaultEnvValue[k], args[k])
+//       }
+//       a[k] = v
+//       return a
+//     }, {})
+//     return merged as ({
+//         state: Omit<DefaultEnv['state'], keyof typeof args['state']>,
+//         fx: Omit<DefaultEnv['fx'], keyof typeof args['fx']>,
+//         reduceFx: Omit<DefaultEnv['reduceFx'], keyof typeof args['reduceFx']>,
+//         errorFx: Omit<DefaultEnv['errorFx'], keyof typeof args['errorFx']>,
+//
+//       } & Pick<typeof args, 'state' | 'events' | 'fx' | 'eventFx'>)
+//   } else {
+//     return {} as (DefaultEnv & E)
+//   }
+// }
+//
+// const ok = testinf(myargs)
+// let okk2 = ok.events.evt1
 // okk2 = ok.fx.eval()
 // ok.fx.dispatch()
 // ok.events.evt1
@@ -399,10 +409,3 @@ const myEfx: EventFx<typeof myenv, typeof myFx> = {
   }]
 }
 
-
-// createStore({ state: {}, fx: {} })
-// const env: DefaultEnv<any> = defaultEnv()
-// applyFx(env,
-//   env.fx.eval,
-//   []
-// )

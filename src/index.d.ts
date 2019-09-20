@@ -37,7 +37,7 @@ export type EffectTuple<Fx extends AnyKV> = {
 export type LooseEffectDescription = [string, any] | [string]
 
 export type EffectDescription<Fx extends any> =
-  {[K in keyof Fx]: TailParameters<MapValue<Fx,K>>}
+  Partial<{[K in keyof Fx]: TailParameters<MapValue<Fx,K>>}>
   | EffectTuple<Fx>[]
 
 type EventEffectHandler<State, T = any> = (
@@ -47,6 +47,8 @@ type EventEffectHandler<State, T = any> = (
 
 export type NewStateOrReducer<E extends any> = any | ((db: E['state']['db']) => any)
 
+// todo maybe use this as a generic to receive event  map args from createStore
+// for fx typed with the created env, including event types
 export type  DefaultFxMap = {
   dispatch: (env: DefaultEnv, event: [string, any]) => void
   eval: (env: DefaultEnv, effect: [keyof DefaultFxMap,any]) => void
@@ -74,16 +76,12 @@ export interface DefaultEnv {
     setDb: (x: { state: { db: any } }, newStateOrReducer: any) => void
     notifyStateListeners: any
     notifyEventListeners: any
-  } //& E['fx']
-  // events: any,
+  }
+  events: any,
   eventFx: any,
-  //{
-    // [K in MapValue<E['events'], keyof E['events']>]: EventEffectHandler<{ db: any } & E['state'], DefaultFxMap<E> & E['fx']>[]
-//  },
-// }{},
   errorFx?: any
-  dbListeners: DbListener<DefaultEnv['state']>[],
-  eventListeners: Array<(...any: any) => any>,
+  dbListeners?: DbListener<DefaultEnv['state']>[],
+  eventListeners?: Array<(...any: any) => any>,
 }
 
 
