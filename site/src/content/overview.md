@@ -33,8 +33,7 @@ productivity.
 <!--3. **Top-level keys on the state atom are not special.** If you want to-->
 <!--   read from three different top-level keys and dispatch a side effect-->
 <!--   in the same place, you can. If you want add a key to the state that-->
-<!--   doesn't exist yet you can, without having to write a reducer.-->
-Key concepts: 
+<!--   doesn't exist yet you can, without having to write a reducer.--> 
 
 ## Base selectors, `derive`d selectors
 

@@ -13,10 +13,12 @@ import SEO from '../components/seo'
 import {Footer} from "../components/Footer";
 import * as axios from "axios";
 import {whenMobile, whenTablet} from "../theme";
+import MulletMan from '../assets/icons/mascot.svg'
+
 
 const MulletManMain = () =>
-  <div css={{width: '60%', [whenMobile]: {alignSelf: 'center'}}}>
-    <MulletManFluid/>
+  <div css={{width: '60%', marginRight: '2.4rem', [whenMobile]: {alignSelf: 'center', marginTop: 40, width: '30%', marginBottom: 40, marginRight: 0,}}}>
+    <img src={MulletMan}/>
   </div>
 
 export const Banner = ({children, rootCss, wrapCss}) => (
@@ -95,7 +97,7 @@ const MainContent = ({starCount, downloadCount}) =>
   }}>
     <MulletManMain/>
     <div css={{display: 'flex', flexDirection: 'column'}}>
-      <h1 css={{fontSize: '3rem', marginBottom: '0.8rem', display: 'flex', flexWrap: 'wrap'}}>
+      <h1 css={{fontSize: '3rem', marginBottom: '0.8rem', display: 'flex', flexWrap: 'wrap', marginTop: 0}}>
         Reasonable <Highlight rootCss={{marginLeft: 10}}>global state.</Highlight>
       </h1>
       <div css={{marginBottom: '1.45rem', fontFamily: 'Basier Square Mono', lineHeight: '1.4rem'}}>

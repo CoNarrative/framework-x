@@ -165,9 +165,13 @@ export class TableOfContents extends React.Component {
       <Container rootCss={rootCss}>
         {/*<Search/>*/}
         <Content rootCss={{[whenTablet]: {display: 'none'},}}
-                         dangerouslySetInnerHTML={{__html: this.state.tableOfContents}}/>
+                 dangerouslySetInnerHTML={{__html: this.state.tableOfContents}}/>
         <DimensionalBox handleHeight={true}
-                        rootCss={{display: 'none', [whenTablet]: {display: 'flex', zIndex: '10',}, [whenMobile]: {display: 'none'}}}>
+                        rootCss={{
+                          display: 'none',
+                          [whenTablet]: {display: 'flex', zIndex: '10',},
+                          [whenMobile]: {display: 'none'}
+                        }}>
           <div css={{
             display: 'flex',
             flexDirection: 'column',
@@ -191,6 +195,7 @@ export class TableOfContents extends React.Component {
             </div>
             <div css={{
               borderTop: '1px solid ' + theme.black,
+              boxShadow: '0 4px 16px 0 rgba(20,27,46,0.07)',
               display: this.state.dropdownExpanded ? 'block' : 'none'
             }}>
               <Content dangerouslySetInnerHTML={{__html: this.state.tableOfContents}}/>
@@ -211,8 +216,9 @@ export class TableOfContents extends React.Component {
               borderTop: '1px solid ' + theme.black,
               borderBottom: '1px solid ' + theme.black,
               height: 48,
-              zIndex: '10',
+              zIndex: 11,
               backgroundColor: 'white',
+              boxShadow: '0 4px 16px 0 rgba(20,27,46,0.07)',
             }}>
             <Topic mobile topic={'Table of Contents'}
                    rootCss={{marginBottom: 'unset', paddingTop: 12, paddingBottom: 12,}}/>
@@ -222,6 +228,8 @@ export class TableOfContents extends React.Component {
             borderBottom: '1px solid ' + theme.black,
             backgroundColor: 'white',
             display: this.state.dropdownExpanded ? 'block' : 'none',
+            boxShadow: '0 4px 16px 0 rgba(20,27,46,0.07)',
+            zIndex: 12,
           }}>
             <Content dangerouslySetInnerHTML={{__html: this.state.tableOfContents}}/>
           </div>
