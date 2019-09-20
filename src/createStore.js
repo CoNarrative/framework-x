@@ -153,7 +153,7 @@ const reduceEventEffects = (env, acc, event) => {
     }
     const effectsList = Array.isArray(effects) ? effects : Object.entries(effects)
 
-    return effectsList.forEach((effect) => {
+    effectsList.forEach((effect) => {
       const [k, v] = effect
       let rfx = env.reduceFx[k]
       if (rfx) {
