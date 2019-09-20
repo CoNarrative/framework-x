@@ -158,6 +158,12 @@ const Container = styled.div({
   }
 })
 
+const tocRelLinks = (toc) => {
+  return toc.split('href=')
+            .filter(x => x.startsWith('"'))
+            .map(x => x.slice(x.indexOf('#') + 1, x.indexOf('>') - 1))
+}
+
 export default class Template extends React.Component {
 
   componentDidMount() {
@@ -173,8 +179,16 @@ export default class Template extends React.Component {
   render() {
     const {data} = this.props
     const {markdownRemark} = data
-    const {frontmatter, htmlAst, tableOfContents} = markdownRemark
+    const {frontmatter, htmlAst, headings,tableOfContents:tocHTML,
+    } = markdownRemark
 
+    const rellinks = tocRelLinks(tocHTML)
+
+    const tableOfContents = headings && headings.filter(x => x.depth <= 2)
+                                                .map((x, i) => ({
+                                                  id: rellinks[i],
+                                                  innerHTML: x.value
+                                                }))
     return (
       <Layout showToc={true} tableOfContents={tableOfContents}>
         <Container>
@@ -194,6 +208,10 @@ export const pageQuery = graphql`
       frontmatter {
         path
         title
+      }
+      headings {
+        value
+        depth
       }
     }
   }

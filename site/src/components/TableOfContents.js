@@ -136,27 +136,32 @@ const Topic = ({active, topic, subtopics, rootCss, mobile}) => (
     </div>
   </div>
 )
-
+const DropdownItems = ({items,onClick})=>{
+  return  (
+    <Content>
+        {items.map(({id,innerHTML},i)=>{
+        return <li key={i}
+                   onClick={()=>onClick(id)}
+                   dangerouslySetInnerHTML={{__html: innerHTML}} />
+      })}
+    </Content>
+  )
+}
 export class TableOfContents extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
       dropdownExpanded: false,
-      tableOfContents: ''
     }
   }
-
-  componentDidMount() {
-    let replaceLeftArrow = this.props.tableOfContents
-    if (replaceLeftArrow !== undefined) {
-      replaceLeftArrow = replaceLeftArrow.replace(/&#x3C;/g, '<')
-      this.setState({tableOfContents: replaceLeftArrow})
-    }
-  }
-
   expandDropdown = () => (
     this.setState({dropdownExpanded: !this.state.dropdownExpanded})
   )
+  onDropdownItemClick=(id)=>{
+    const link = document.getElementById(id).getElementsByTagName('a')[0]
+    link.click()
+    this.setState({ dropdownExpanded: false })
+  }
 
   render() {
     const {rootCss} = this.props
@@ -198,7 +203,10 @@ export class TableOfContents extends React.Component {
               boxShadow: '0 4px 16px 0 rgba(20,27,46,0.07)',
               display: this.state.dropdownExpanded ? 'block' : 'none'
             }}>
-              <Content dangerouslySetInnerHTML={{__html: this.state.tableOfContents}}/>
+              <DropdownItems
+                items={this.props.tableOfContents}
+                onClick={this.onDropdownItemClick}
+              />
             </div>
           </div>
         </DimensionalBox>
