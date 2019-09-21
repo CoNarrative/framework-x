@@ -17,6 +17,8 @@ export type DispatchEnv<E> =
   & { events?: E extends {events: infer  U} ? U  : string, errorFx?: ErrorEffect<E> }
 
 
+export type EventVector<E> = [E extends { events: any } ? EventName<E> : string, any?]
+
 interface StateMap {
   [k: string]: any
 }
