@@ -1,4 +1,3 @@
-import { path } from 'ramda'
 import { derive } from './util'
 import {
   DefaultEnv,
@@ -208,8 +207,9 @@ export const defaultEnv = (): DefaultEnv => ({
 
     //todo. @types/reselect
     notifyStateListeners: derive([
-      path(['dbListeners']), path(['state', 'db'])
-      ], (a: any[], b: any) => a.forEach((f: any) => f(b))),
+      x => x.dbListeners,
+      x => x.state && x.state.db,
+    ], (a: any[], b: any) => a.forEach((f: any) => f(b))),
 
     // todo. only useful when events
     notifyEventListeners: (env: DefaultEnv, event: [string, any]) =>
@@ -237,9 +237,9 @@ const mergeEnv = <E>(args?: E extends IEnv ? E : never) => {
       a[k] = v
       return a
     }, {})
-    return merged as E extends IEnv? ({
+    return merged as E extends IEnv ? ({
       state: Omit<DefaultEnv['state'], keyof typeof args['state']>,
-      events:  typeof args['events'],
+      events: typeof args['events'],
       fx: Omit<DefaultEnv['fx'], keyof typeof args['fx']>,
       reduceFx: Omit<DefaultEnv['reduceFx'], keyof typeof args['reduceFx']>,
       errorFx: Omit<DefaultEnv['errorFx'], keyof typeof args['errorFx']>,
@@ -285,7 +285,7 @@ export const createStore = <E>(args?: E extends IEnv ? E : never) => {
     },
     regEventFx: (
       eventName: EventName,
-      fn: (state: Env['state'], args: any) =>  EffectDescription<Env['fx']>
+      fn: (state: Env['state'], args: any) => EffectDescription<Env['fx']>
     ) => {
       checkType('regEventFx', eventName)
       env.eventFx[eventName] = [...env.eventFx[eventName] || [], fn]
