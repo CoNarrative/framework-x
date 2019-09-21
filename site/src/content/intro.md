@@ -5,80 +5,57 @@ path: /intro
 # Framework-X: Reasonable global state for React
 
 Framework-X is a Javascript framework that processes events and descriptions of their effects, allowing immutable state
-transformations and side effects to be written alongside one another as pure functions.
+transformations and side effects to be written together as pure functions.
 
-Framework-X is based on `re-frame` and shares key features with Redux in its emphasis on global immutable state and
-event dispatch, but has the most in common with `re-frame` the framework upon which it's based.
+Framework-X and shares key features with Redux in its emphasis on global immutable state and event dispatch, but has the
+most in common with `re-frame`, a Clojurescript framework upon which it was originally based.
 
 Framework-X has been used in mid-size production applications for about 1.5 years and is being open sourced today under
 the MIT license. 
 
 
-## How it works
+# How it works
  
-Whenever an event is dispatched, the framework calls registered handlers with the event's arguments and the current
-global state. Instead of calling side effects or performing state updates themselves, handlers return a description of
-the all the effects for the event back to Framework-X. are then don't execute side effects receives descriptions of the
-effects it needs to execute as data. Each effect description is executed in the order defined by the handler.
+React components dispatch custom events with optional arguments. When an event is dispatched, the framework calls
+registered handlers for the event with the event's arguments and the current global state.
 
-The model is reducible to the following: 
+Instead of invoking side effects or performing state updates directly, event handlers describe the effects an event
+should have. Handlers may describe a state update or a side effect like an API call or a dispatch to another event as a
+pure function.
 
-0. There is a context.
-1. There are events.
-2. There are effects. 
-3. Events have effects -- a state change, the execution of a function, or other events -- that affect the context.
+Effects like `db` participate in the reduction and are registered with the framework as `reduceFx`. During the dispatch
+evaluation phase, the framework applies them to a copy of the current global state. This accumulator is passed to all
+event handlers invoked as a result of the initializing event, allowing event handlers to be composed into a single
+reduce function without affecting the global state and produce a single state change per event dispatched from the view. 
 
+In addition to the pending state value, the accumulator stores a list of reductions for each `reduceFx` invocation, a
+stack of effects that have been evaluated, and a queue of side effects accumulated from event effects handlers in
+evaluation order that will be applied the end of the dispatch reduction phase. 
 
-We'll highlight its differences from [Redux](https://redux.js.org/) and other forms of state
-management for React, discuss the motivations and philosophy behind it, and attempt to show its design is reasonable. 
-   
-By "reasonable", we generally mean Framework-X strives to be easy to follow and fair in what it asks from developers.:
-1. **Logical** Applications define causes and their effects. The
-   framework lets developers associate an event name with a list of
-   effects that are executed in order whenever the event occurs.
-2. **Organized** There's clear separation between app logic and
-   rendering, between state and computed values based on the state.
-3. **Fair** It doesn't ask developers to do things we find unreasonable:
-   write boilerplate for common operations, solve problems the framework
-   creates for them, or fill in holes the framework doesn't.
-4. **Approachable** The API is small and defined in terms of simple
-   functions. There are few framework-specific concepts.
-5. **Flexible** The framework's design permits global state access and event dispatch from all components and event
-   handlers. Developers should not feel unnecessarily restricted when writing code.
-6. **Composable** The API is functional and data-driven. Data structures representing events and effects can be combined
-   and uncombined the same as any JSON data.
-7. **Extensible** You can add your own effects and use them from event
-   handlers. You can redefine built-in effects like `db` and `dispatch`
-   if you choose. Because effects are data structures, it's easy to
-   write functions that return them using types or whatever you want.
-8. **Prioritized** One state is easier to reason about than many separate ones. Framework-X doesn't sacrifice this on
-   the way to trying to achieve gains in other areas, like decreased verbosity.
+Once the reduction is realized, dispatch adds two side effect descriptions to the front of the accumulator's effect
+queue, one that sets the global state to the reduced state value and another to notify React of the state change.
+
+At this point, the framework has executed no side effects. It only has a plan of what to do. Custom
+implementations may choose operate over the set of effects before they are run and alter the execution plan, supporting
+use cases like combining API effects to run in parallel.
+
+Finally, the effects queue is evaluated in order with the current environment and the accumulator. Each effect is
+presumed to have a side effect and may invoke other effect handlers directly. Asynchronous operations may invoke
+dispatch to delegate to event handlers when their work is complete. 
+
+In the event of an error, optional `errorFx` handlers are called with the accumulator containing the stack, queue and
+accumulated state for the event that was originally dispatched.
 
 
+# Code
 
+## Events
 
-
-# Events
-
-Events are modeled as an event name and optional payload argument:
+Events are modeled as a tuple of an event name and optional payload argument:
 
 ```js
 const evt = {
   INITIALIZE_DB: 'initialize-db',
-  ROUTE_CHANGED: 'route/changed',
-  NAV_TO: 'nav/to',
-  SET_TODO_TEXT: 'todo/set-text',
-  CHANGE_FILTER: 'filters/change',
-  ADD_TODO: 'todo/add',
-  TOGGLE_DONE: 'todo/toggle-status',
-  BEGIN_REMOVE_TODOS: 'todo/begin-remove',
-  TODOS_REMOVED: 'todo/removed',
-  MARK_ALL_DONE: 'todo/mark-all-done',
-  CLEAR_ALL: 'todo/clear-all',
-  CLEAR_ALL_DONE: 'todo/clear-all-done',
-  TODO_STATUS_CHANGED: 'todo/status-changed',
-  SHOW_NOTIFICATION: 'notification/show',
-  HIDE_NOTIFICATION: 'notification/hide',
 }
 
 const {
@@ -100,9 +77,12 @@ dispatch(evt.INITIALIZE_DB, {
 ```
 
 
-# Event effects
+## Event effect handlers
 
-Applications use `regEventFx` to describe the effects events should have.
+`regEventFx` describes the effects events should have. 
+
+The `db` effect can be invoked with the next state value or a reducer function that returns the next state as a function
+of the current one.
 
 ```js
 regEventFx(evt.ADD_TODO, ({ db }, text) => {
@@ -112,75 +92,66 @@ regEventFx(evt.ADD_TODO, ({ db }, text) => {
 })
 ```
 
-The return value only defines what should happen to the `db`. This allows side effects to be written as pure functions.
+The `db` effect describes the transformation that should be applied to the `db` as the result of the "ADD_TODO" event.
+This allows the handler to remain a pure function, producing the same result for the same arguments.
 
-We can use this to indicate `ADD_TODO` should dispatch another event without actually dispatching it.
+With this pattern, event effect handlers can describe arbitrary side effects that should result from an event and still
+remain pure functions.
+
 
 ```js
-regEventFx(evt.SET_TODO_TEXT, (_,  text) => {
-  return [
+regEventFx(evt.ADD_TODO, ({ db }, _, text) => [
+    ['db', updateIn(['todos'], R.append({ text, done: false }))],
+    ['dispatch', evt.SET_TODO_TEXT, '']
+  ]
+)
+
+regEventFx(evt.SET_TODO_TEXT, (_,  text) => [
     ['db', R.assoc('newTodoText', text)]
   ]
-})
-
-regEventFx(evt.ADD_TODO, ({ db }, _, text) => {
-  return [
-    ['db', updateIn(['todos'], R.append({ text, done: false }))]
-    ['dispatch', evt.SET_TODO_TEXT, '']
-  ]
-})
+)
 ```
 
+Dispatching `SET_TODO_TEXT` from the `ADD_TODO` event effect handler achieves the same result as if we had combined both
+state operations into one, without side effects. 
 
-Dispatching `SET_TODO_TEXT` as part of `ADD_TODO` achieves the same result as writing the state transformation together,
-without sacrificing pure functions:
 
-This pattern can be extended to add other side effects easily and declaratively: 
+This pattern can be used with custom side effects:
 
 ```js
-regEventFx(evt.ADD_TODO, ({ db }, _, text) => {
-  return [
-    ['db', updateIn(['todos'], R.append({ text, done: false }))]
-    ['dispatch', evt.SET_TODO_TEXT, '']
-    ['dispatch', evt.SHOW_NOTIFICATION, {
-      id: 'todo-added-' + Date.now().toString(),
+regFx('notification', ({ fx: { dispatch } }, { type, message, duration = 900 }) => {
+  const id = type + '/' + Date.now().toString()
+
+  const timeout = setTimeout(() => dispatch(evt.HIDE_NOTIFICATION, { id }), duration)
+  
+  dispatch(evt.SHOW_NOTIFICATION, { id, type, message, timeout })
+})
+
+regFx('clearTimeout', (_, n) => {
+  clearTimeout(n)
+})
+
+regEventFx(evt.ADD_TODO, ({ db }, _, text) => [
+    ['db', updateIn(['todos'], R.append({ text, done: false }))],
+    ['dispatch', evt.SET_TODO_TEXT, ''],
+    ['notification',  {
       type: 'success',
       message: 'Todo added.',
       duration: 5000
     }]
-  ]
-})
+])
 
-regEventFx(evt.SHOW_NOTIFICATION, ({ db }, _, { id, type, message, duration = 900 }) => {
-  // Queue a timeout that will dispatch the `HIDE_NOTIFICATION` event 
-  // with the id of this notification 
-  const timeout =  setTimeout(() => dispatch(evt.HIDE_NOTIFICATION, { id }), duration)
-  // Update the current state with this notification, will be available to all component subscribers
-  // namely those that subscribe to the list of notifications and render them
-  return {
-    db: updateIn(['notifications'], R.append({
-      id,
-      type,
-      message,
-      timeout
-    }))
-  }
-})
+regEventFx(evt.SHOW_NOTIFICATION, ({ db }, _, { id, type, message, timeout }) => [
+  ['db', updateIn(['notifications'], R.append({ id, type, message, timeout })) ]
+])
 
 regEventFx(evt.HIDE_NOTIFICATION, ({ db }, _, { id }) => {
-  // Get the notification from the global state (`getNotificationMap` 
-  // is a memoized selector function that 
-  // indexes the list of notifications by `id`)
-  const notification = R.prop(id, getNotificationsMap(db))
+  const notification = R.find(x => x.id === id, R.path(['notifications'], db))
   
-  // Clear the notification's timeout
-  clearTimeout(notification.timeout)
-
-  // Remove this notification from the list of notifications. Subscribers will be notified, 
-  // components won't render it anymore
-  return {
-    db: updateIn(['notifications'], R.reject(R.propEq('id', id)))
-  }
+  return [
+    ['db', updateIn(['notifications'], R.reject(R.propEq('id', id)))],
+    ['clearTimeout', notification.timeout]
+  ]
 })
 ```
 
