@@ -10,6 +10,7 @@ import {DimensionalBox} from "../components/DimensionalBox";
 import {whenSmallScreen} from "../theme";
 import {whenTablet} from "../theme";
 import {whenMobile} from "../theme";
+import {Footer} from "../components/Footer";
 
 const H1 = ({id, children}) => <h1 id={id} css={{
   fontSize: 40,
@@ -129,7 +130,7 @@ const Container = styled.div({
   position: 'relative',
   '-webkit-overflow-scrolling': 'touch',
 
-  '& > :last-child': {
+  '& > :last-child > :first-child': {
     maxWidth: 720,
     display: 'flex',
     flexDirection: 'column',
@@ -160,8 +161,8 @@ const Container = styled.div({
 
 const tocRelLinks = (toc) => {
   return toc.split('href=')
-            .filter(x => x.startsWith('"'))
-            .map(x => x.slice(x.indexOf('#') + 1, x.indexOf('>') - 1))
+    .filter(x => x.startsWith('"'))
+    .map(x => x.slice(x.indexOf('#') + 1, x.indexOf('>') - 1))
 }
 
 export default class Template extends React.Component {
@@ -179,21 +180,25 @@ export default class Template extends React.Component {
   render() {
     const {data} = this.props
     const {markdownRemark} = data
-    const {frontmatter, htmlAst, headings,tableOfContents:tocHTML,
+    const {
+      frontmatter, htmlAst, headings, tableOfContents: tocHTML,
     } = markdownRemark
 
     const rellinks = tocRelLinks(tocHTML)
 
     const tableOfContents = headings && headings.filter(x => x.depth <= 2)
-                                                .map((x, i) => ({
-                                                  id: rellinks[i],
-                                                  innerHTML: x.value
-                                                }))
+      .map((x, i) => ({
+        id: rellinks[i],
+        innerHTML: x.value
+      }))
     return (
       <Layout showToc={true} tableOfContents={tableOfContents}>
         <Container>
           <TableOfContents tableOfContents={tableOfContents} rootCss={{[whenMobile]: {display: 'none'}}}/>
-          {renderAst(htmlAst)}
+          <div>
+              {renderAst(htmlAst)}
+            <Footer floating/>
+          </div>
         </Container>
       </Layout>
     )

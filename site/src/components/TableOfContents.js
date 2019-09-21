@@ -169,8 +169,10 @@ export class TableOfContents extends React.Component {
     return (
       <Container rootCss={rootCss}>
         {/*<Search/>*/}
-        <Content rootCss={{[whenTablet]: {display: 'none'},}}
-                 dangerouslySetInnerHTML={{__html: this.state.tableOfContents}}/>
+        <DropdownItems
+          items={this.props.tableOfContents}
+          onClick={this.onDropdownItemClick}
+        />
         <DimensionalBox handleHeight={true}
                         rootCss={{
                           display: 'none',
@@ -239,7 +241,10 @@ export class TableOfContents extends React.Component {
             boxShadow: '0 4px 16px 0 rgba(20,27,46,0.07)',
             zIndex: 12,
           }}>
-            <Content dangerouslySetInnerHTML={{__html: this.state.tableOfContents}}/>
+            <DropdownItems
+              items={this.props.tableOfContents}
+              onClick={this.onDropdownItemClick}
+            />
           </div>
         </div>
       </Container>

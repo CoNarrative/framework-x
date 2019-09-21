@@ -26,7 +26,7 @@ const MulletManMain = () =>
 export const Banner = ({children, rootCss, wrapCss}) => (
   <div css={{display: 'flex', justifyContent: 'center', paddingTop: 64, paddingBottom: 80, ...rootCss,}}>
     <div css={{
-      width: '100%',
+      width: '100vw',
       maxWidth: 1440,
       display: 'flex',
       justifyContent: 'space-between',
