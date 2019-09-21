@@ -169,13 +169,14 @@ const reduceEventEffects = (env, acc, event) => {
 }
 
 export const dispatchFx = (env, event) => {
-  const finalEvent = Array.isArray(event[0]) ? event[0] : event
-  if (!finalEvent[0]) throw new Error('Dispatch requires a valid event key')
+  if (!Array.isArray(event)) {
+    throw new Error('fx.dispatch requires an event tuple')
+  }
 
   let acc = createAccum(env)
 
   try {
-    reduceEventEffects(env, acc, finalEvent)
+    reduceEventEffects(env, acc, event)
 
     acc.queue.unshift(['setDb', acc.state.db], ['notifyStateListeners'])
 

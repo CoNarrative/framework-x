@@ -108,7 +108,7 @@ const createAccum = <E extends AnyKV & { state: any }>(env: E): Accum<E> => ({
   queue: []
 })
 
-type EventVector<E> = [E extends { events: any } ? EventName<E> : string, any]
+type EventVector<E> = [E extends { events: any } ? EventName<E> : string, any?]
 /**
  * Reduces an event's effects recursively, modifying the provided accumulator with the results of the execution
  * ReduceFx are called with `acc.state` and pushed to `acc.stack`.
@@ -151,13 +151,17 @@ const reduceEventEffects = <E extends Required<EnvWith<'state' | 'eventFx' | 're
 
 const dispatchFx = <E extends DispatchEnv<E>>(
   env: E,
-  event
+  event: EventVector<E>
 ) => {
-  const finalEvent = Array.isArray(event[0]) ? event[0] : event
-  if (!finalEvent[0]) throw new Error('Dispatch requires a valid event key')
+  if (!Array.isArray(event)) {
+
+    throw new Error('fx.dispatch requires an event tuple')
+  }
+
   let acc = createAccum(env)
+
   try {
-    reduceEventEffects(env, acc, finalEvent)
+    reduceEventEffects(env, acc, event)
 
     acc.queue.unshift(['setDb', acc.state.db], ['notifyStateListeners'])
 
@@ -223,6 +227,7 @@ export const defaultEnv = (): DefaultEnv => ({
   dbListeners: [],
   eventListeners: [],
 })
+
 const mergeEnv = <E>(args?: E extends IEnv ? E : never) => {
   const defaultEnvValue = defaultEnv()
   if (typeof args !== 'undefined') {

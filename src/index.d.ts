@@ -63,7 +63,8 @@ type Accum<E extends any> = {
   state: E['state'],
   reductions: any[],
   stack: EffectTuple<E>[],
-  queue: LooseEffectDescription[] }
+  queue: LooseEffectDescription[]
+}
 
 export interface DefaultEnv {
   state: { db: any }

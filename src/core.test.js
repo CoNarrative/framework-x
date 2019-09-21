@@ -63,6 +63,7 @@ describe('core/createStore', () => {
     expect(env.eventFx['my-evt'][1].name).toEqual('dynRegister')
   })
 })
+
 describe('core/setState', () => {
   it('should set and notify by default', () => {
     let stateNotifs = []
@@ -96,6 +97,7 @@ describe('core/setState', () => {
     expect(stateNotifs.length).toEqual(0)
   })
 })
+
 describe('core/fx.apply', () => {
   it('should return a list of effect descriptions when f returns null or undefined', () => {
     const { env } = createStore()
@@ -230,6 +232,59 @@ describe('core/dispatch', () => {
     dispatch('event-0')
     expect(nNotifications).toEqual(1)
   })
+
+  it('should steal execution when called from an effect during effect processing', () => {
+    jest.useFakeTimers()
+    const { regEventFx, regFx, dispatch, subscribeToState } = createStore()
+
+    subscribeToState(db => {
+    })
+
+    let order = []
+
+    regFx('asyncEffect', (env) => {
+      setTimeout(() => { env.fx.dispatch(env, ['fromAsync', 'async']) }, 5)
+    })
+
+    regFx('syncEffect1', (env) => { env.fx.dispatch(env, ['from1', 'sync']) })
+
+    regFx('fromDispatched1', () => { order.push('fromDispatched1') })
+
+    regFx('syncEffect2', (env) => { env.fx.dispatch(env, ['from2', 'sync']) })
+
+    regEventFx('from1', () => {
+      order.push('from1')
+      return [['fromDispatched1']]
+    })
+
+    regEventFx('from2', () => {
+      order.push('from2')
+      return []
+    })
+
+    regEventFx('fromAsync', () => {
+      order.push('fromAsync')
+      return []
+    })
+
+    regEventFx('first', () => {
+      return [
+        ['asyncEffect'],
+        ['syncEffect1'],
+        ['syncEffect2']
+      ]
+    })
+
+    regEventFx('done', ({ db }, msg) => {
+      console.log('msg', msg)
+      return []
+    })
+    dispatch('first')
+
+    jest.runTimersToTime(1000)
+    expect(order).toEqual(['from1','fromDispatched1','from2','fromAsync'])
+    jest.resetAllMocks()
+  })
 })
 
 describe('event stream', () => {
@@ -326,6 +381,7 @@ describe('one-time time fx', () => {
     setTimeout(() => logOut(env), 1000 / 60 * ticksBeforeLogout)
 
     jest.runTimersToTime(1000)
+    // don't understand jest timers...timers above are affecting this
     expect(env.state.timers.autoLogout.fn).toHaveBeenCalledTimes(ticksBeforeLogout + 1)
     expect(replace).toHaveBeenCalledTimes(1)
     // I feel like we incur more mental burden with "always on" effects than we'd like at this stage
