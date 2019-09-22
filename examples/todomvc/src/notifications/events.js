@@ -5,7 +5,7 @@ import { updateIn } from '../util'
 import { getNotificationsMap } from './selectors'
 
 
-regEventFx(evt.SHOW_NOTIFICATION, ({ db }, _, { id, type, message, duration = 900 }) => {
+regEventFx(evt.SHOW_NOTIFICATION, ({ db }, { id, type, message, duration = 900 }) => {
   const timeout = duration
                   ? setTimeout(() => dispatch(evt.HIDE_NOTIFICATION, { id }), duration)
                   : null
@@ -20,7 +20,7 @@ regEventFx(evt.SHOW_NOTIFICATION, ({ db }, _, { id, type, message, duration = 90
   }
 })
 
-regEventFx(evt.HIDE_NOTIFICATION, ({ db }, _, { id }) => {
+regEventFx(evt.HIDE_NOTIFICATION, ({ db }, { id }) => {
   const notification = R.prop(id, getNotificationsMap(db))
 
   if (!notification) {

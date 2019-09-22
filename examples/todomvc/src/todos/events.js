@@ -8,13 +8,13 @@ import { regEventFx } from '../store'
 import { updateIn } from '../util'
 
 
-regEventFx(evt.INITIALIZE_DB, (_, __, state = {}) => {
+regEventFx(evt.INITIALIZE_DB, (_, state = {}) => {
   return {
     db: state
   }
 })
 
-regEventFx(evt.SET_TODO_TEXT, (_, __, value) => {
+regEventFx(evt.SET_TODO_TEXT, (_, value) => {
   return {
     db: R.assoc('newTodoText', value)
   }
@@ -37,7 +37,7 @@ const routeForFilter = (filterName) => {
   }
 }
 
-regEventFx(evt.CHANGE_FILTER, ({ db }, _, value) => {
+regEventFx(evt.CHANGE_FILTER, ({ db }, value) => {
   const route = routeForFilter(value)
   return [
     fx.dispatch(evt.NAV_TO, route)
@@ -57,7 +57,7 @@ regEventFx(evt.ADD_TODO, ({ db }) => {
   ]
 })
 
-regEventFx(evt.TOGGLE_DONE, ({ db }, _, doneText) => {
+regEventFx(evt.TOGGLE_DONE, ({ db }, doneText) => {
   return [
     fx.db(updateIn(['todos'],
       R.map(todo =>
@@ -92,7 +92,7 @@ regEventFx(evt.CLEAR_ALL_DONE, ({ db }) => {
   ]
 })
 
-regEventFx(evt.BEGIN_REMOVE_TODOS, (_, __, toRemove) => {
+regEventFx(evt.BEGIN_REMOVE_TODOS, (_, toRemove) => {
   const n = toRemove.length
   return [
     fx.dispatch(evt.SHOW_NOTIFICATION, {
@@ -104,7 +104,7 @@ regEventFx(evt.BEGIN_REMOVE_TODOS, (_, __, toRemove) => {
   ]
 })
 
-regEventFx(evt.TODOS_REMOVED, (_, __, removed) => {
+regEventFx(evt.TODOS_REMOVED, (_, removed) => {
   const n = removed.length
   return [
     fx.dispatch(evt.SHOW_NOTIFICATION, {
@@ -116,7 +116,7 @@ regEventFx(evt.TODOS_REMOVED, (_, __, removed) => {
   ]
 })
 
-regEventFx(evt.TODO_STATUS_CHANGED, ({ db }, _, todoText) => {
+regEventFx(evt.TODO_STATUS_CHANGED, ({ db }, todoText) => {
   const isDone = R.path([todoText, 'done'], getTodosByText(db))
   return [
     fx.dispatch(evt.SHOW_NOTIFICATION,

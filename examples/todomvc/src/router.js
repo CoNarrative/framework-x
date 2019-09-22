@@ -17,9 +17,9 @@ const { pushNamedRoute, replaceNamedRoute, listen } = createRouter({
   routes,
 })
 
-regFx('route', args => pushNamedRoute.apply(null, args))
+regFx('route', (_, args) => pushNamedRoute.apply(null, args))
 
-regFx('redirect', args => replaceNamedRoute.apply(null, args))
+regFx('redirect', (_, args) => replaceNamedRoute.apply(null, args))
 
 
 const getRouteEffects = ({ db, match, type, route, prevRoute }) => {
@@ -29,7 +29,7 @@ const getRouteEffects = ({ db, match, type, route, prevRoute }) => {
   return {}
 }
 
-regEventFx(evt.NAV_TO, ({ db }, _, [id, params, options]) => {
+regEventFx(evt.NAV_TO, ({ db }, [id, params, options]) => {
   return [
     fx.db(R.assocPath(['router', 'match'], {
       params,
@@ -39,7 +39,7 @@ regEventFx(evt.NAV_TO, ({ db }, _, [id, params, options]) => {
   ]
 })
 
-regEventFx(evt.ROUTE_CHANGED, ({ db }, _, locationAndMatch) => {
+regEventFx(evt.ROUTE_CHANGED, ({ db }, locationAndMatch) => {
   const { match, type } = locationAndMatch
   const route = R.path(['match', 'route'], locationAndMatch)
   const prevRoute = R.path(

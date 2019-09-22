@@ -36,7 +36,7 @@ export const VisibilityFilters = component('VisibilityFilters',
         <button
           key={i}
           style={visibilityButtonStyle(id === selectedFilter)}
-          onClick={() => dispatch(event)}>
+          onClick={() => dispatch(...event)}>
           {label}
         </button>
       )}
