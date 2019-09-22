@@ -1,5 +1,5 @@
 import * as R from 'ramda'
-import { dispatch, regFx } from './store'
+import { regFx } from './store'
 
 export const fx = {
   db: (newStateOrReducer) => ['db', newStateOrReducer],
@@ -9,7 +9,7 @@ export const fx = {
 }
 
 const keys = ['body', 'bodyUsed', 'ok', 'status', 'statusText', 'headers', 'redirected', 'url', 'type']
-const fetchFx = ([urlOrReq, successEventOrEventVector, failureEventOrEventVector]) => {
+const fetchFx = (env, [urlOrReq, successEventOrEventVector, failureEventOrEventVector]) => {
   let isVector = { success: true, failure: true }
   let successEventName = successEventOrEventVector
   let failureEventName = failureEventOrEventVector
@@ -30,22 +30,22 @@ const fetchFx = ([urlOrReq, successEventOrEventVector, failureEventOrEventVector
   }
   (async () => {
     const res = await fetch(awesomeness)
-      .catch(e => dispatch(failureEventName,
+      .catch(e => env.fx.dispatch(env, [failureEventName,
         isVector.failure
         ? { res: e, args: failureEventOrEventVector[1] }
-        : e))
+        : e]))
     const data = R.pick(keys, res)
     const json = await res.json().catch(e => console.error('error .json()ing', e))
     if (res.ok) {
-      dispatch(successEventName, isVector.success ? {
+      env.fx.dispatch(env, [successEventName, isVector.success ? {
         res: R.assoc('json', json, data),
         args: successEventOrEventVector[1]
-      } : R.assoc('json', json, data))
+      } : R.assoc('json', json, data)])
     } else {
-      dispatch(failureEventName,
+      env.fx.dispatch(env, [failureEventName,
         isVector.failure
         ? { res: R.assoc('json', json, data), args: failureEventOrEventVector[1] }
-        : R.assoc('json', json, data),)
+        : R.assoc('json', json, data)])
     }
   })()
 }

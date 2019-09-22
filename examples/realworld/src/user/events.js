@@ -4,5 +4,5 @@ import { evt } from '../eventTypes'
 
 
 regResultFx(evt.GET_USER,
-  ({ db }, _, { json: { user } }) => ({ db: R.assoc('user', user) }),
-  (_, __, err) => { console.error('error getting user', err) })
+  ({ db }, { json: { user } }) => ({ db: R.assoc('user', user) }),
+  (_, err) => { console.error('error getting user', err) })

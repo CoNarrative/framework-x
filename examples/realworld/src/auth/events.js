@@ -9,7 +9,7 @@ import { setToken, unsetToken } from './selectors'
 
 export const changeAuthKey = k => e => dispatch(evt.SET_KV, [['auth', k], e.target.value])
 
-regEventFx(evt.USER_REQUESTS_LOGIN, (_, __, { email, password }) => {
+regEventFx(evt.USER_REQUESTS_LOGIN, (_, { email, password }) => {
   return [
     fx.db(R.pipe(
       R.assocPath(['auth', 'isLoading'], true),
@@ -18,7 +18,7 @@ regEventFx(evt.USER_REQUESTS_LOGIN, (_, __, { email, password }) => {
   ]
 })
 
-regResultFx(evt.LOGIN_REQUEST, (_, __, { json: { user } }) => {
+regResultFx(evt.LOGIN_REQUEST, (_, { json: { user } }) => {
   setToken(user.token)
   return [
     fx.db(R.pipe(
@@ -26,14 +26,14 @@ regResultFx(evt.LOGIN_REQUEST, (_, __, { json: { user } }) => {
       R.assoc('user', user))),
     fx.dispatch(evt.NAV_TO, [routeIds.HOME])
   ]
-}, (_, __, res) => {
+}, (_, res) => {
   console.error('login error', res)
   return [fx.db(R.pipe(
     R.dissocPath(['auth', 'isLoading']),
     R.assocPath(['auth', 'errors'], res.json.errors)))]
 })
 
-regEventFx(evt.USER_REQUESTS_REGISTER, (_, __, { username, email, password }) => {
+regEventFx(evt.USER_REQUESTS_REGISTER, (_, { username, email, password }) => {
   return [
     fx.db(R.pipe(
       R.assocPath(['auth', 'isLoading'], true),
@@ -42,14 +42,14 @@ regEventFx(evt.USER_REQUESTS_REGISTER, (_, __, { username, email, password }) =>
   ]
 })
 
-regResultFx(evt.REGISTER_REQUEST, (_, __, { json: { user } }) => {
+regResultFx(evt.REGISTER_REQUEST, (_, { json: { user } }) => {
   setToken(user.token)
   return [fx.db(R.pipe(
     R.dissocPath(['auth', 'isLoading']),
     R.assoc('user', user)
   )),
     fx.dispatch(evt.NAV_TO, [routeIds.HOME])]
-}, (_,__, res) => {
+}, (_, res) => {
   console.error('register error', res)
   return [fx.db(R.pipe(
     R.dissocPath(['auth', 'isLoading']),

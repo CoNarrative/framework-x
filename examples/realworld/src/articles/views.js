@@ -1,5 +1,6 @@
 import React from 'react'
-import { component, createSub } from 'framework-x'
+import * as R from 'ramda'
+import { component, createSub, derive } from 'framework-x'
 import { canModifyArticle, getArticle, getArticleId, getComments } from './selectors'
 import { getCommentErrors, getCommentForm } from '../comments/selectors'
 import { getUser } from '../user/selectors'
@@ -13,11 +14,14 @@ import { Link } from '../components/Link'
 
 
 const CommentInput = component('CommentInput',
-  createSub({ getCommentForm, getUser }), ({ commentForm: { body }, user }) =>
+  createSub({
+    value: derive([getCommentForm], R.pathOr('', ['body'])),
+    getUser
+  }), ({ value, user, dispatch }) =>
     <form className="card comment-form">
       <div className="card-block">
           <textarea className="form-control" placeholder="Write a comment..." rows="3"
-                    value={body}
+                    value={value}
                     onChange={({ target: { value } }) =>
                       dispatch(evt.SET_KV, [['comment', 'form', 'body'], value])} />
       </div>

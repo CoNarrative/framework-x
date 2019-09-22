@@ -17,9 +17,9 @@ const history = createHashHistory()
 
 const { pushNamedRoute, replaceNamedRoute, listen } = createRouter({ history, routes })
 
-regFx('route', args => pushNamedRoute.apply(null, args))
+regFx('route', (_, args) => pushNamedRoute.apply(null, args))
 
-regFx('redirect', args => replaceNamedRoute.apply(null, args))
+regFx('redirect', (_, args) => replaceNamedRoute.apply(null, args))
 
 const getRouteEffects = ({ db, match, type, route, query, prevRoute }) => {
   const initialLoad = type === 'INITIAL'
@@ -41,7 +41,7 @@ const getRouteEffects = ({ db, match, type, route, query, prevRoute }) => {
   return {}
 }
 
-regEventFx(evt.NAV_TO, ({ db }, _, [id, params, query]) => [
+regEventFx(evt.NAV_TO, ({ db }, [id, params, query]) => [
   fx.db(R.assocPath(['router', 'match'], {
     params,
     route: R.find(R.propEq('id', id), routes)
@@ -49,7 +49,7 @@ regEventFx(evt.NAV_TO, ({ db }, _, [id, params, query]) => [
   ['route', [id, params, query]]
 ])
 
-regEventFx(evt.ROUTE_CHANGED, ({ db }, _, locationAndMatch) => {
+regEventFx(evt.ROUTE_CHANGED, ({ db }, locationAndMatch) => {
   const { match, type, search: query } = locationAndMatch
   const route = R.path(['match', 'route'], locationAndMatch)
   const prevRoute = R.path(['match', 'route'], R.head(R.pathOr([], ['router', 'history'], db)))
