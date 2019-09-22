@@ -1,6 +1,6 @@
 import React, { Component, PureComponent } from 'react'
 import { Context } from './context'
-import hoistStatics from 'hoist-non-react-statics'
+// import hoistStatics from 'hoist-non-react-statics'
 
 const getNonChildProps = props => {
   const otherProps = Object.assign({}, props)
