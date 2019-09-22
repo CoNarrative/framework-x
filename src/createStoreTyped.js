@@ -1,19 +1,16 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const util_1 = require("./util");
 const checkType = (op, type) => {
     if (typeof (type) !== 'string')
         throw new Error(`${op} requires a string as the fx key`);
     if (type.length === 0)
         throw new Error(`${op} fx key cannot be a zero-length string`);
 };
-exports.regFx = (env, type, fn) => {
+export const regFx = (env, type, fn) => {
     env.fx[type] = fn;
 };
-exports.regEventFx = (env, type, fn) => {
+export const regEventFx = (env, type, fn) => {
     env.eventFx[type] = [...env.eventFx[type] || [], fn];
 };
-exports.regReduceFx = (env, type, fn) => {
+export const regReduceFx = (env, type, fn) => {
     env.reduceFx[type] = fn;
 };
 /**
@@ -24,7 +21,7 @@ exports.regReduceFx = (env, type, fn) => {
  * @param args
  * @returns {*}
  */
-exports.evalFx = (env, [fxName, args]) => {
+export const evalFx = (env, [fxName, args]) => {
     const effect = env.fx[fxName];
     if (!effect) {
         throw new Error(`No fx handler for effect "${fxName}". Try registering a handler using "regFx('${fxName}', ({ effect }) => ({...some side-effect})"`);
@@ -136,13 +133,13 @@ const dispatchFx = (env, event) => {
  *
  * @param fx
  */
-exports.createFxDescriptors = (fx) => {
+export const createFxDescriptors = (fx) => {
     return Object.entries(fx).reduce((a, [k, _]) => {
         a[k] = (x) => [k, x];
         return a;
     }, {});
 };
-exports.defaultEnv = () => ({
+export const defaultEnv = () => ({
     state: { db: {} },
     reduceFx: {
         db: ({ fx, }, acc, newStateOrReducer) => {
@@ -155,24 +152,20 @@ exports.defaultEnv = () => ({
         applyImpure: applyFxImpure,
         setDb,
         // todo.  Eval/all effects could have statically registered other effects if passed in
-        eval: exports.evalFx,
+        eval: evalFx,
         // todo. This could be enriched with event types (would need to pass in)
         // to allow typed event names in return from regEventFx
         dispatch: dispatchFx,
-        //todo. @types/reselect
-        notifyStateListeners: util_1.derive([
-            x => x.dbListeners,
-            x => x.state && x.state.db,
-        ], (a, b) => {
-            a && a.forEach((f) => f(b));
-        }),
+        notifyStateListeners: (env) => {
+            env.dbListeners.forEach(f => f(env.state.db));
+        },
         // todo. only useful when events
         notifyEventListeners: (env, event) => env.eventListeners.forEach((f) => f(event)),
     },
     errorFx: {
         'dispatch-error': (env, acc, e) => {
-            acc.queue.shift();
-            env.fx.applyImpure(env, env.fx.eval, acc.queue);
+            console.error(acc);
+            console.error(e);
         }
     },
     events: {},
@@ -181,7 +174,7 @@ exports.defaultEnv = () => ({
     eventListeners: [],
 });
 const mergeEnv = (args) => {
-    const defaultEnvValue = exports.defaultEnv();
+    const defaultEnvValue = defaultEnv();
     if (typeof args !== 'undefined') {
         const merged = Object.entries(defaultEnvValue).reduce((a, [k, v]) => {
             if (defaultEnvValue.hasOwnProperty(k) && args.hasOwnProperty(k)) {
@@ -201,7 +194,7 @@ const mergeEnv = (args) => {
         return defaultEnvValue;
     }
 };
-exports.createStore = (args) => {
+export const createStore = (args) => {
     const env = mergeEnv(args);
     /* Hacked a bit to support redux devtools  */
     env.eventListeners.forEach(m => m({}, {

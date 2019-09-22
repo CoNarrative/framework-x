@@ -1,4 +1,3 @@
-import { derive } from './util'
 import {
   DefaultEnv,
   IEnv,
@@ -203,13 +202,9 @@ export const defaultEnv = (): DefaultEnv => ({
     // to allow typed event names in return from regEventFx
     dispatch: dispatchFx,
 
-    //todo. @types/reselect
-    notifyStateListeners: derive([
-      x => x.dbListeners,
-      x => x.state && x.state.db,
-    ], (a: any[], b: any) => {
-      a && a.forEach((f: any) => f(b))
-    }),
+    notifyStateListeners: (env) => {
+      env.dbListeners.forEach(f => f(env.state.db))
+    },
 
     // todo. only useful when events
     notifyEventListeners: (env: DefaultEnv, event: [string, any]) =>
@@ -217,8 +212,8 @@ export const defaultEnv = (): DefaultEnv => ({
   },
   errorFx: {
     'dispatch-error': (env: DefaultEnv, acc: Accum<DefaultEnv>, e: any) => {
-      acc.queue.shift()
-      env.fx.applyImpure(env, env.fx.eval, acc.queue)
+      console.error(acc)
+      console.error(e)
     }
   },
   events: {},
