@@ -24,7 +24,7 @@ regFx('redirect', (_, args) => replaceNamedRoute.apply(null, args))
 
 const getRouteEffects = ({ db, match, type, route, prevRoute }) => {
   if (type === 'INITIAL') {
-    return { dispatch: [evt.SHOW_NOTIFICATION, {id: 'welcome',message: "Welcome!"}] }
+    return { notification: { type: 'success', message: 'Welcome!' } }
   }
   return {}
 }

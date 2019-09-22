@@ -48,8 +48,7 @@ regEventFx(evt.ADD_TODO, ({ db }) => {
   return [
     fx.db(updateIn(['todos'], R.append({ text: getNewTodoText(db), done: false }))),
     fx.dispatch(evt.SET_TODO_TEXT, ''),
-    fx.dispatch(evt.SHOW_NOTIFICATION, {
-      id: 'todo-added-' + Date.now().toString(),
+    fx.notification({
       type: 'success',
       message: 'Todo added.',
       duration: 5000
@@ -95,11 +94,12 @@ regEventFx(evt.CLEAR_ALL_DONE, ({ db }) => {
 regEventFx(evt.BEGIN_REMOVE_TODOS, (_, toRemove) => {
   const n = toRemove.length
   return [
-    fx.dispatch(evt.SHOW_NOTIFICATION, {
+    fx.notification({
       type: 'success',
       message: `Removing ${n} ${R.all(R.prop('done'), toRemove)
                                 ? 'completed'
-                                : ''} todo${n === 1 ? '' : 's'}`
+                                : ''} todo${n === 1 ? '' : 's'}`,
+      duration: 1300
     })
   ]
 })
@@ -107,11 +107,12 @@ regEventFx(evt.BEGIN_REMOVE_TODOS, (_, toRemove) => {
 regEventFx(evt.TODOS_REMOVED, (_, removed) => {
   const n = removed.length
   return [
-    fx.dispatch(evt.SHOW_NOTIFICATION, {
+    fx.notification({
       type: 'success',
       message: `${n} ${R.all(R.prop('done'), removed)
                        ? 'completed'
-                       : ''} todo${n === 1 ? '' : 's'} was removed.`
+                       : ''} todo${n === 1 ? ' was' : 's were'}  removed.`,
+      duration: 1300
     })
   ]
 })
@@ -119,10 +120,10 @@ regEventFx(evt.TODOS_REMOVED, (_, removed) => {
 regEventFx(evt.TODO_STATUS_CHANGED, ({ db }, todoText) => {
   const isDone = R.path([todoText, 'done'], getTodosByText(db))
   return [
-    fx.dispatch(evt.SHOW_NOTIFICATION,
-      R.zipObj(['id', 'message', 'duration'],
-        isDone ? ['todo-done-' + Date.now().toString(), 'Great job!', 3000]
-               : ['todo-undone' + Date.now().toString(), 'Todo not done', 3000]
+    fx.notification(
+      R.zipObj(['type','message', 'duration'],
+        isDone ? ['success','Great job!', 3000]
+               : ['success', 'Todo not done', 3000]
       )
     )
   ]

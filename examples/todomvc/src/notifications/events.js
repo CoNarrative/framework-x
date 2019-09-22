@@ -1,35 +1,31 @@
 import * as R from 'ramda'
 import { evt } from '../eventTypes'
-import { dispatch, regEventFx } from '../store'
+import { regEventFx, regFx } from '../store'
 import { updateIn } from '../util'
-import { getNotificationsMap } from './selectors'
 
 
-regEventFx(evt.SHOW_NOTIFICATION, ({ db }, { id, type, message, duration = 900 }) => {
-  const timeout = duration
-                  ? setTimeout(() => dispatch(evt.HIDE_NOTIFICATION, { id }), duration)
-                  : null
+regFx('notification', (env, { type, message, duration = 900 }) => {
+  const { fx: { dispatch } } = env
+  const id = type + '/' + performance.now()
 
-  return {
-    db: updateIn(['notifications'], R.append({
-      id,
-      type,
-      message,
-      timeout
-    }))
-  }
+  const timeout = setTimeout(() => dispatch(env, [evt.HIDE_NOTIFICATION, { id }]), duration)
+
+  dispatch(env, [evt.SHOW_NOTIFICATION, { id, type, message, timeout }])
 })
 
+regFx('clearTimeout', (_, n) => {
+  clearTimeout(n)
+})
+
+regEventFx(evt.SHOW_NOTIFICATION, ({ db },  { id, type, message, timeout }) => [
+  ['db', updateIn(['notifications'], R.append({ id, type, message, timeout }))]
+])
+
 regEventFx(evt.HIDE_NOTIFICATION, ({ db }, { id }) => {
-  const notification = R.prop(id, getNotificationsMap(db))
+  const notification = R.find(x => x.id === id, R.path(['notifications'], db))
 
-  if (!notification) {
-    return
-  }
-
-  clearTimeout(notification.timeout)
-
-  return {
-    db: updateIn(['notifications'], R.reject(R.propEq('id', id)))
-  }
+  return [
+    ['db', updateIn(['notifications'], R.reject(R.propEq('id', id)))],
+    ['clearTimeout', notification.timeout]
+  ]
 })
