@@ -16,10 +16,11 @@ const dispatchFx = (type, payload) => ['dispatch', [type, payload]]
 describe('core/createStore', () => {
   it('should have default effects if not provided', () => {
     const { env } = createStore()
+    const def = defaultEnv()
     expect(R.intersection(
-      R.keys(defaultEnv().fx),
+      R.keys(def.fx),
       R.keys(env.fx)))
-      .toEqual(R.keys(defaultEnv().fx))
+      .toEqual(R.keys(def.fx))
   })
   it('should have default effects if custom effects provided', () => {
     const fx = { 'foo': () => {} }
@@ -300,7 +301,6 @@ describe('event stream', () => {
         'my-evt': [() => [['dispatch', ['my-evt2', 'a', 'b']]]],
         'my-evt2': [() => {}]
       }
-
     })
     dispatch('my-evt')
 
@@ -381,28 +381,7 @@ describe('one-time time fx', () => {
     setTimeout(() => logOut(env), 1000 / 60 * ticksBeforeLogout)
 
     jest.runTimersToTime(1000)
-    // don't understand jest timers...timers above are affecting this
     expect(env.state.timers.autoLogout.fn).toHaveBeenCalledTimes(ticksBeforeLogout + 1)
     expect(replace).toHaveBeenCalledTimes(1)
-    // I feel like we incur more mental burden with "always on" effects than we'd like at this stage
-    // It can be mysterious why they happen, because they just sort of ...happen.
-    //
-    // We can reduce what's going on in this case:
-    // A particular effect (dispatch force-log-out) obtains when a predicate (.getItem user === falsy)
-    // is true for a particular stateful thing (localStorage)
-    // the function runs 60 times per second
-    // the function produces an effect at most once: when the predicate obtains, the rule is no longer applicable
-    //
-    // In the general case:
-    // a particular effect or set of effects can result
-    // a particular predicate function may gate the result
-    // particular stateful things may be affected
-    // the function runs every X ms
-    // its effects may happen 0 or more times as the result of some state
-    // the function may be destroyed as a result of some state
-    //
-    // dispatching an event helps provide more information since we have better tracking of events than raw effects
-    // the dispatched event or another could contain information about why the event was dispatched
-    // but would need to be encoded case-by-case
   })
 })
