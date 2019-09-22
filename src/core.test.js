@@ -1,5 +1,5 @@
 import * as R from 'ramda'
-import { createStore, identityEnv } from './createStore'
+import { createStore, defaultEnv } from './createStoreTyped'
 import { derive } from './util'
 
 const evt = {
@@ -17,14 +17,14 @@ describe('core/createStore', () => {
   it('should have default effects if not provided', () => {
     const { env } = createStore()
     expect(R.intersection(
-      R.keys(identityEnv().fx),
+      R.keys(defaultEnv().fx),
       R.keys(env.fx)))
-      .toEqual(R.keys(identityEnv().fx))
+      .toEqual(R.keys(defaultEnv().fx))
   })
   it('should have default effects if custom effects provided', () => {
     const fx = { 'foo': () => {} }
     const { env } = createStore({ fx })
-    const expected = R.concat(R.keys(identityEnv().fx), R.keys(fx))
+    const expected = R.concat(R.keys(defaultEnv().fx), R.keys(fx))
     expect(R.intersection(R.keys(env.fx), expected)).toEqual(expected)
   })
   it('supports dynamic and static fx and eventFx definitions', () => {

@@ -50,8 +50,6 @@ export const evalFx = <E extends { fx: any }>(
   }
   return effect(env, args)
 }
-// evalFx({ fx: { foo: (e: any, a: number) => "" } }, ['foo', 'bar'])
-
 
 /**
  * Returns a list of effect definitions called with f
@@ -69,7 +67,7 @@ const applyFx = <E extends { fx: any }>(
   effects: Array<EffectTuple<E['fx']>>): any => {
   return effects.reduce((a: any[], effect: any) => {
     const ret = f(env, effect)
-    a.push(ret == null ? ret : effect)
+    a.push(ret != null ? ret : effect)
     return a
   }, [])
 }
@@ -209,7 +207,9 @@ export const defaultEnv = (): DefaultEnv => ({
     notifyStateListeners: derive([
       x => x.dbListeners,
       x => x.state && x.state.db,
-    ], (a: any[], b: any) => a.forEach((f: any) => f(b))),
+    ], (a: any[], b: any) => {
+      a && a.forEach((f: any) => f(b))
+    }),
 
     // todo. only useful when events
     notifyEventListeners: (env: DefaultEnv, event: [string, any]) =>
@@ -232,7 +232,12 @@ const mergeEnv = <E>(args?: E extends IEnv ? E : never) => {
   if (typeof args !== 'undefined') {
     const merged = Object.entries(defaultEnvValue).reduce((a, [k, v]) => {
       if (defaultEnvValue.hasOwnProperty(k) && args.hasOwnProperty(k)) {
+        if (Array.isArray(defaultEnvValue[k])) {
+          a[k] = args[k]
+          return a
+        }
         a[k] = Object.assign({}, defaultEnvValue[k], args[k])
+        return a
       }
       a[k] = v
       return a
