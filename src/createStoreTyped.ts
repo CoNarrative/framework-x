@@ -150,7 +150,8 @@ const dispatchFx = <E extends DispatchEnv<E>>(
   event: EventVector<E>
 ) => {
   if (!Array.isArray(event)) {
-    throw new Error('fx.dispatch requires an event tuple')
+    console.error('fx.dispatch called with wrong arguments.\n\nExpected: env, [eventName, payload?]\n\nReceived:', env, event)
+    throw new Error('fx.dispatch called with wrong arguments')
   }
 
   let acc = createAccum(env)

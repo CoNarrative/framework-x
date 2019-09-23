@@ -1,13 +1,12 @@
-import * as queryString from 'query-string'
 import * as R from 'ramda'
 import { createHashHistory } from 'history'
 import { createRouter } from 'framework-x'
 import * as api from './api'
-import { isLoggedIn } from './auth/selectors'
 import { evt } from './eventTypes'
 import { fx } from './fx'
 import { routes } from './routes'
 import { dispatch, regEventFx, regFx } from './store'
+import { getUser } from './user/selectors'
 import { updateIn } from './util'
 
 
@@ -23,7 +22,7 @@ regFx('redirect', (_, args) => replaceNamedRoute.apply(null, args))
 
 const getRouteEffects = ({ db, match, type, route, query, prevRoute }) => {
   const initialLoad = type === 'INITIAL'
-  if (initialLoad && isLoggedIn()) {
+  if (initialLoad && getUser(db)) {
     dispatch(evt.API_REQUEST, [evt.GET_USER, api.auth.current()])
   }
 

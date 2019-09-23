@@ -1,6 +1,5 @@
 import * as R from 'ramda'
 import * as api from './api'
-import { isLoggedIn } from './auth/selectors'
 import { evt } from './eventTypes'
 import { fx } from './fx'
 import { getUser } from './user/selectors'
@@ -20,11 +19,11 @@ export const routeIds = {
 export const routes = [{
   id: routeIds.HOME, path: '/',
   onEnter: (db, params, query) =>
-    (isLoggedIn() ? [fx.dispatch(evt.API_REQUEST, [evt.GET_USER, api.auth.current()])] : [])
+    (getUser(db) ? [fx.dispatch(evt.API_REQUEST, [evt.GET_USER, api.auth.current()])] : [])
       .concat([
         fx.dispatch(evt.API_REQUEST, [evt.GET_TAGS, api.tags.getAll()]),
         fx.dispatch(evt.API_REQUEST,
-          [evt.GET_ARTICLES, isLoggedIn() ? api.articles.feed() : api.articles.matching(query)])
+          [evt.GET_ARTICLES, getUser(db) ? api.articles.feed() : api.articles.matching(query)])
       ])
 }, {
   id: routeIds.LOGIN, path: '/login',
@@ -76,7 +75,7 @@ export const routes = [{
   id: routeIds.SETTINGS, path: '/settings',
   onEnter: (db, params, query) => {
     //todo. guard  if not logged in / redirect
-    return (isLoggedIn()
+    return (getUser(db)
             ? [fx.dispatch(evt.API_REQUEST, [evt.GET_USER, api.auth.current()])]
             : [])
       .concat([fx.dispatch(evt.API_REQUEST, [evt.GET_PROFILE, api.profile.get(R.prop('username', getUser(db)))])])

@@ -25,8 +25,8 @@ export const regResultFx = (eventName, successBranch, failureBranch,
   regEventFx(failureEventName, failureBranch)
 }
 
-regEventFx(evt.API_REQUEST, (_, [eventName, [method, endpoint, body], args]) => {
-  const token = getToken()
+regEventFx(evt.API_REQUEST, ({ db }, [eventName, [method, endpoint, body], args]) => {
+  const token = getToken(db)
   const req = apiRequest(method, endpoint, body)
   return [
     fx.fetch(token ? R.assocPath(['headers', 'authorization'], ` Token ${token}`, req) : req,

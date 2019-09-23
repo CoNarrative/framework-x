@@ -5,7 +5,9 @@ export const fx = {
   db: (newStateOrReducer) => ['db', newStateOrReducer],
   dispatch: (...args) => ['dispatch', args],
   fetch: (urlOrReq, successEventOrEventVector, failureEventOrEventVector) =>
-    ['fetch', [urlOrReq, successEventOrEventVector, failureEventOrEventVector]]
+    ['fetch', [urlOrReq, successEventOrEventVector, failureEventOrEventVector]],
+  localStorageUnsetToken: () => ['localStorage', ['removeItem', ['jwt']]],
+  localStorageSetToken: (token) => ['localStorage', ['setItem', ['jwt', token]]]
 }
 
 const keys = ['body', 'bodyUsed', 'ok', 'status', 'statusText', 'headers', 'redirected', 'url', 'type']
@@ -50,3 +52,13 @@ const fetchFx = (env, [urlOrReq, successEventOrEventVector, failureEventOrEventV
   })()
 }
 regFx('fetch', fetchFx)
+
+export const regLocalStorageFx = ({ localStorage, setState }) => {
+  regFx('localStorage', (env, fnOrMethodArgs) => {
+    if (typeof fnOrMethodArgs === 'function') {
+      fnOrMethodArgs(localStorage, setState)
+      return
+    }
+    localStorage[fnOrMethodArgs[0]](...fnOrMethodArgs[1])
+  })
+}

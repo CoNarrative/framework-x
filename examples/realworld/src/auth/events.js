@@ -5,7 +5,6 @@ import { routeIds } from '../routes'
 import { dispatch, regEventFx } from '../store'
 import { fx } from '../fx'
 import * as api from '../api'
-import { setToken, unsetToken } from './selectors'
 
 export const changeAuthKey = k => e => dispatch(evt.SET_KV, [['auth', k], e.target.value])
 
@@ -19,12 +18,13 @@ regEventFx(evt.USER_REQUESTS_LOGIN, (_, { email, password }) => {
 })
 
 regResultFx(evt.LOGIN_REQUEST, (_, { json: { user } }) => {
-  setToken(user.token)
   return [
     fx.db(R.pipe(
       R.dissocPath(['auth', 'isLoading']),
-      R.assoc('user', user))),
-    fx.dispatch(evt.NAV_TO, [routeIds.HOME])
+      R.assoc('user', user),
+      R.assoc('token',user.token))),
+    fx.dispatch(evt.NAV_TO, [routeIds.HOME]),
+    fx.localStorageSetToken(user.token)
   ]
 }, (_, res) => {
   console.error('login error', res)
@@ -43,11 +43,11 @@ regEventFx(evt.USER_REQUESTS_REGISTER, (_, { username, email, password }) => {
 })
 
 regResultFx(evt.REGISTER_REQUEST, (_, { json: { user } }) => {
-  setToken(user.token)
   return [fx.db(R.pipe(
     R.dissocPath(['auth', 'isLoading']),
-    R.assoc('user', user)
-  )),
+    R.assoc('user', user),
+    R.assoc('token', user.token))),
+    fx.localStorageSetToken(user.token),
     fx.dispatch(evt.NAV_TO, [routeIds.HOME])]
 }, (_, res) => {
   console.error('register error', res)
@@ -57,6 +57,9 @@ regResultFx(evt.REGISTER_REQUEST, (_, { json: { user } }) => {
 })
 
 regEventFx(evt.USER_REQUESTS_LOGOUT, () => {
-  unsetToken()
-  return [fx.db(R.dissoc('user')), fx.dispatch(evt.NAV_TO, [routeIds.HOME])]
+  return [
+    fx.db(R.pipe(R.dissoc('user'),R.dissoc('token'))),
+    fx.dispatch(evt.NAV_TO, [routeIds.HOME]),
+    fx.localStorageUnsetToken()
+  ]
 })

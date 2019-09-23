@@ -8,7 +8,6 @@ import { getUser } from '../user/selectors'
 import { ArticleList } from './ArticleList'
 import { dispatch } from '../store'
 import { NavLink } from './Link'
-import { isLoggedIn } from '../auth/selectors'
 import { Tags } from '../tags/views'
 
 
@@ -56,9 +55,9 @@ const Banner = () =>
   </div>
 
 
-export const Home = () =>
+export const Home = component('Home', createSub({ getUser }), ({ user }) =>
   <div className="home-page">
-    {!isLoggedIn() && <Banner />}
+    {!user && <Banner />}
     <div className="container page">
       <div className="row">
         <MainView />
@@ -71,5 +70,4 @@ export const Home = () =>
       </div>
     </div>
   </div>
-
-
+)
