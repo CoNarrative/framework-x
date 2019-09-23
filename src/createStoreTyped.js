@@ -31,20 +31,20 @@ export const evalFx = (env, [fxName, args]) => {
 /**
  * Returns a list of effect definitions called with f
  * with the result of calling f on the effect definitions or the effect definition
- * unchanged if the result is null or undefined
+ * unchanged if the result is null or undefined.
  * @param env
  * @param f
  * @param effects
  * @returns {*}
  */
-const applyFx = (env, f, effects) => {
+export const applyFx = (env, f, effects) => {
     return effects.reduce((a, effect) => {
         const ret = f(env, effect);
         a.push(ret != null ? ret : effect);
         return a;
     }, []);
 };
-const applyFxImpure = (env, f, acc) => {
+export const applyFxImpure = (env, f, acc) => {
     const len = acc.queue.length;
     const q = Object.assign({}, acc.queue);
     for (let i = 0; i < len; i++) {
@@ -54,7 +54,7 @@ const applyFxImpure = (env, f, acc) => {
         acc.queue.shift();
     }
 };
-const setDb = (x, newStateOrReducer) => {
+export const setDb = (x, newStateOrReducer) => {
     if (typeof newStateOrReducer !== 'function') {
         x.state.db = newStateOrReducer;
     }
@@ -66,21 +66,25 @@ const setDb = (x, newStateOrReducer) => {
         }
     }
 };
-const createAccum = (env) => ({
+/**
+ * Returns a new accumulator suitable for use with `reduceEventEffects`.
+ * @param env
+ */
+export const createAccum = (env) => ({
     state: Object.assign({}, env.state),
     reductions: [],
     stack: [],
     queue: []
 });
 /**
- * Reduces an event's effects recursively, modifying the provided accumulator with the results of the execution
+ * Reduces an event's effects recursively, modifying the provided accumulator with the results of the execution.
  * ReduceFx are called with `acc.state` and pushed to `acc.stack`.
  * All other effects are queued to `acc.queue`.
  * @param env
  * @param acc
  * @param event
  */
-const reduceEventEffects = (env, acc, event) => {
+export const reduceEventEffects = (env, acc, event) => {
     acc.queue.push(['notifyEventListeners', event]);
     const [type, args] = event;
     const eventHandlers = env.eventFx[type];
@@ -97,7 +101,8 @@ const reduceEventEffects = (env, acc, event) => {
             let rfx = env.reduceFx[k];
             if (rfx) {
                 const ret = rfx(env, acc, v);
-                acc.reductions.push(effect, ret);
+                acc.stack.push(effect);
+                acc.reductions.push(ret);
             }
             else if (k !== 'dispatch') {
                 acc.queue.push(effect);
@@ -108,7 +113,7 @@ const reduceEventEffects = (env, acc, event) => {
         });
     });
 };
-const dispatchFx = (env, event) => {
+export const dispatchFx = (env, event) => {
     if (!Array.isArray(event)) {
         console.error('fx.dispatch called with wrong arguments.\n\nExpected: env, [eventName, payload?]\n\nReceived:', env, event);
         throw new Error('fx.dispatch called with wrong arguments');
@@ -131,7 +136,6 @@ const dispatchFx = (env, event) => {
 };
 /**
  * Returns a map of functions with typed effect descriptions suitable for returning from EventFx
- *
  * @param fx
  */
 export const createFxDescriptors = (fx) => {
@@ -164,10 +168,10 @@ export const defaultEnv = () => ({
         notifyEventListeners: (env, event) => env.eventListeners.forEach((f) => f(event)),
     },
     errorFx: {
-        'dispatch-error': (env, acc, e) => {
-            console.error(acc);
-            console.error(e);
-        }
+    // 'dispatch-error': (env: DefaultEnv, acc: Accum<DefaultEnv>, e: any) => {
+    //   console.error(acc)
+    //   console.error(e)
+    // }
     },
     events: {},
     eventFx: {},

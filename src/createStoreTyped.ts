@@ -53,13 +53,13 @@ export const evalFx = <E extends { fx: any }>(
 /**
  * Returns a list of effect definitions called with f
  * with the result of calling f on the effect definitions or the effect definition
- * unchanged if the result is null or undefined
+ * unchanged if the result is null or undefined.
  * @param env
  * @param f
  * @param effects
  * @returns {*}
  */
-const applyFx = <E extends { fx: any }>(
+export const applyFx = <E extends { fx: any }>(
   env: E,
   f: (env: E,
       effect: EffectTuple<E['fx']>) => any,
@@ -71,7 +71,7 @@ const applyFx = <E extends { fx: any }>(
   }, [])
 }
 
-const applyFxImpure = <E>(
+export const applyFxImpure = <E>(
   env: E,
   f: (env: E, effect: LooseEffectDescription) => any,
   acc: Accum<E>
@@ -86,7 +86,7 @@ const applyFxImpure = <E>(
   }
 }
 
-const setDb = <E extends { state: { db: any } }>(x: E, newStateOrReducer: NewStateOrReducer<E>) => {
+export const setDb = <E extends { state: { db: any } }>(x: E, newStateOrReducer: NewStateOrReducer<E>) => {
   if (typeof newStateOrReducer !== 'function') {
     x.state.db = newStateOrReducer
   } else {
@@ -98,7 +98,11 @@ const setDb = <E extends { state: { db: any } }>(x: E, newStateOrReducer: NewSta
   }
 }
 
-const createAccum = <E extends AnyKV & { state: any }>(env: E): Accum<E> => ({
+/**
+ * Returns a new accumulator suitable for use with `reduceEventEffects`.
+ * @param env
+ */
+export const createAccum = <E extends AnyKV & { state: any }>(env: E): Accum<E> => ({
   state: Object.assign({}, env.state),
   reductions: [],
   stack: [],
@@ -106,14 +110,14 @@ const createAccum = <E extends AnyKV & { state: any }>(env: E): Accum<E> => ({
 })
 
 /**
- * Reduces an event's effects recursively, modifying the provided accumulator with the results of the execution
+ * Reduces an event's effects recursively, modifying the provided accumulator with the results of the execution.
  * ReduceFx are called with `acc.state` and pushed to `acc.stack`.
  * All other effects are queued to `acc.queue`.
  * @param env
  * @param acc
  * @param event
  */
-const reduceEventEffects = <E extends Required<EnvWith<'state' | 'eventFx' | 'reduceFx'>> & { events?: any }>(
+export const reduceEventEffects = <E extends Required<EnvWith<'state' | 'eventFx' | 'reduceFx'>> & { events?: any }>(
   env: E,
   acc: Accum<E>,
   event: EventVector<E>
@@ -135,7 +139,8 @@ const reduceEventEffects = <E extends Required<EnvWith<'state' | 'eventFx' | 're
       let rfx = env.reduceFx[k]
       if (rfx) {
         const ret = rfx(env, acc, v)
-        acc.reductions.push(effect, ret)
+        acc.stack.push(effect)
+        acc.reductions.push(ret)
       } else if (k !== 'dispatch') {
         acc.queue.push(effect)
       } else {
@@ -145,7 +150,7 @@ const reduceEventEffects = <E extends Required<EnvWith<'state' | 'eventFx' | 're
   })
 }
 
-const dispatchFx = <E extends DispatchEnv<E>>(
+export const dispatchFx = <E extends DispatchEnv<E>>(
   env: E,
   event: EventVector<E>
 ) => {
@@ -175,7 +180,6 @@ const dispatchFx = <E extends DispatchEnv<E>>(
 }
 /**
  * Returns a map of functions with typed effect descriptions suitable for returning from EventFx
- *
  * @param fx
  */
 export const createFxDescriptors = <Fx extends { [k: string]: (...args: any) => any }>(fx: Fx) => {
@@ -212,10 +216,10 @@ export const defaultEnv = (): DefaultEnv => ({
       env.eventListeners!.forEach((f: any) => f(event)),
   },
   errorFx: {
-    'dispatch-error': (env: DefaultEnv, acc: Accum<DefaultEnv>, e: any) => {
-      console.error(acc)
-      console.error(e)
-    }
+    // 'dispatch-error': (env: DefaultEnv, acc: Accum<DefaultEnv>, e: any) => {
+    //   console.error(acc)
+    //   console.error(e)
+    // }
   },
   events: {},
   eventFx: {},
