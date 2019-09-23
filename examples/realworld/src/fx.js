@@ -1,5 +1,4 @@
 import * as R from 'ramda'
-import { regFx } from './store'
 
 export const fx = {
   db: (newStateOrReducer) => ['db', newStateOrReducer],
@@ -11,7 +10,7 @@ export const fx = {
 }
 
 const keys = ['body', 'bodyUsed', 'ok', 'status', 'statusText', 'headers', 'redirected', 'url', 'type']
-const fetchFx = (env, [urlOrReq, successEventOrEventVector, failureEventOrEventVector]) => {
+export const fetchFx = (env, [urlOrReq, successEventOrEventVector, failureEventOrEventVector]) => {
   let isVector = { success: true, failure: true }
   let successEventName = successEventOrEventVector
   let failureEventName = failureEventOrEventVector
@@ -51,14 +50,12 @@ const fetchFx = (env, [urlOrReq, successEventOrEventVector, failureEventOrEventV
     }
   })()
 }
-regFx('fetch', fetchFx)
 
-export const regLocalStorageFx = ({ localStorage, setState }) => {
-  regFx('localStorage', (env, fnOrMethodArgs) => {
+export const localStorageFx = ({ localStorage, setState }) =>
+  (env, fnOrMethodArgs) => {
     if (typeof fnOrMethodArgs === 'function') {
       fnOrMethodArgs(localStorage, setState)
       return
     }
     localStorage[fnOrMethodArgs[0]](...fnOrMethodArgs[1])
-  })
-}
+  }
