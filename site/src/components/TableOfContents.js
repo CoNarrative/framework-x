@@ -65,6 +65,8 @@ const Content = styled.div(props => ({
   flexShrink: 0,
   flexGrow: 1,
   paddingLeft: 20,
+  paddingTop: '1.2rem',
+  paddingBottom: '0.4rem',
 
   '& ul': {
     listStyleType: 'none',
@@ -76,12 +78,7 @@ const Content = styled.div(props => ({
   },
 
   // First Header Container
-  '& > ul > li': {
-    marginBottom: '0.8rem',
-  },
-
-  // First Header Text
-  '& > ul > li > p > a': {
+  '& > li': {
     color: props.active ? theme.darkTeal : theme.black,
     marginBottom: props.mobile ? 0 : '0.8rem',
     marginTop: 0,
@@ -89,6 +86,11 @@ const Content = styled.div(props => ({
     fontSize: '1.2rem',
     fontWeight: 600,
     fontFamily: 'Animosa',
+  },
+
+  '& > li > code': {
+    fontSize: '0.84rem',
+    fontWeight: 500,
   },
 
   // Nested list items container
@@ -136,9 +138,9 @@ const Topic = ({active, topic, subtopics, rootCss, mobile}) => (
     </div>
   </div>
 )
-const DropdownItems = ({items,onClick})=>{
+const DropdownItems = ({items,onClick, rootCss})=>{
   return  (
-    <Content>
+    <Content rootCss={rootCss}>
         {items && items.map(({id,innerHTML},i)=>{
         return <li key={i}
                    onClick={()=>onClick(id)}
@@ -172,6 +174,7 @@ export class TableOfContents extends React.Component {
         <DropdownItems
           items={this.props.tableOfContents}
           onClick={this.onDropdownItemClick}
+          rootCss={{[whenTablet]: {display: 'none'}}}
         />
         <DimensionalBox handleHeight={true}
                         rootCss={{

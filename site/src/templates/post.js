@@ -150,7 +150,7 @@ const Container = styled.div({
     },
 
     '& > :first-child': {
-      paddingTop: 48,
+      paddingTop: 24,
     },
 
     '& > :last-child': {
