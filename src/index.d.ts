@@ -66,11 +66,14 @@ type Accum<E extends any> = {
   reductions: any[],
   stack: EffectTuple<E>[],
   queue: LooseEffectDescription[]
+  events:any[]
 }
 
 export interface DefaultEnv {
   state: { db: any }
-  reduceFx: { db: (env: DefaultEnv, acc: any, newStateOrReducer: any) => any }
+  reduceFx: {
+    db: (env: DefaultEnv, acc: any, newStateOrReducer: any) => any
+  }
   fx: {
     dispatch: (env: DefaultEnv, event: [string, any] | [string]) => void
     eval: (env: DefaultEnv, effect: EffectTuple<Omit<DefaultEnv['fx'], 'eval'>>) => void
@@ -79,6 +82,8 @@ export interface DefaultEnv {
     setDb: (x: { state: { db: any } }, newStateOrReducer: any) => void
     notifyStateListeners: any
     notifyEventListeners: any
+    handleError: (env: any, acc: any, e: Error) => void
+    resume: (env: DefaultEnv, prevAcc: any, acc: any) => void
   }
   events: any,
   eventFx: any,

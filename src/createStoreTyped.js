@@ -1,3 +1,14 @@
+export const fxErrorTypes = ['event-fx/unhandled', 'fx/unhandled', 'fx.dispatch/arguments', 'fx.db/arguments'];
+export class FxError extends Error {
+    constructor(type, data) {
+        super();
+        this.namespace = 'framework-x';
+        this.name = 'error';
+        this.isRecoverable = true;
+        this.type = type;
+        this.data = data;
+    }
+}
 const checkType = (op, type) => {
     if (typeof (type) !== 'string')
         throw new Error(`${op} requires a string as the fx key`);
@@ -13,6 +24,9 @@ export const regEventFx = (env, type, fn) => {
 export const regReduceFx = (env, type, fn) => {
     env.reduceFx[type] = fn;
 };
+export const regErrorFx = (env, type, fn) => {
+    env.errorFx[type] = fn;
+};
 /**
  * Evaluates an effect definition using the handler defined in the provided environment.
  * May perform computation that alters the environment. Returns the result of the effect handler.
@@ -24,7 +38,14 @@ export const regReduceFx = (env, type, fn) => {
 export const evalFx = (env, [fxName, args]) => {
     const effect = env.fx[fxName];
     if (!effect) {
-        throw new Error(`No fx handler for effect "${fxName}". Try registering a handler using "regFx('${fxName}', ({ effect }) => ({...some side-effect})"`);
+        throw new FxError('fx/unhandled', {
+            message: `No fx handler for effect "${fxName}". Try registering a handler using "regFx('${fxName}', ({ effect }) => ({...some side-effect})"`,
+            suggestions: [{
+                    code: `regFx('${fxName}', (env, args) => {\n` +
+                        `\n` +
+                        `})`
+                }]
+        });
     }
     return effect(env, args);
 };
@@ -44,6 +65,12 @@ export const applyFx = (env, f, effects) => {
         return a;
     }, []);
 };
+/**
+ * Applies `f` to effects in `acc.queue`, mutating its `queue` and `stack` as effects are applied with `f`.
+ * @param env
+ * @param f
+ * @param acc
+ */
 export const applyFxImpure = (env, f, acc) => {
     const len = acc.queue.length;
     const q = Object.assign({}, acc.queue);
@@ -61,8 +88,12 @@ export const setDb = (x, newStateOrReducer) => {
     else {
         x.state.db = newStateOrReducer(x.state.db);
         if (typeof x.state.db === 'function') {
-            throw new Error('db fxReg request was a reducer function that returned a function. '
-                + 'If you are using ramda, you probably didn\'t finish currying all the args');
+            throw new FxError('fx.db/arguments', {
+                message: 'db fxReg request was a reducer function that returned a function. '
+                    + 'If you are using ramda, you probably didn\'t finish currying all the args',
+                expected: '[env, db => db]',
+                received: '[env, db => db => x]'
+            });
         }
     }
 };
@@ -74,7 +105,8 @@ export const createAccum = (env) => ({
     state: Object.assign({}, env.state),
     reductions: [],
     stack: [],
-    queue: []
+    queue: [],
+    events: []
 });
 /**
  * Reduces an event's effects recursively, modifying the provided accumulator with the results of the execution.
@@ -85,11 +117,19 @@ export const createAccum = (env) => ({
  * @param event
  */
 export const reduceEventEffects = (env, acc, event) => {
+    acc.events.push(event);
     acc.queue.push(['notifyEventListeners', event]);
     const [type, args] = event;
     const eventHandlers = env.eventFx[type];
     if (!eventHandlers)
-        throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`);
+        throw new FxError('event-fx/unhandled', {
+            message: `No event fx handler for dispatched event "${type}"`,
+            suggestions: [{
+                    code: `regEventFx('${event[0]}', ({ db }, args) => {\n` +
+                        `  return []\n` +
+                        `})`
+                }]
+        });
     eventHandlers.forEach((handler) => {
         const effects = handler(Object.assign({}, acc.state), args);
         if (!effects) {
@@ -113,25 +153,67 @@ export const reduceEventEffects = (env, acc, event) => {
         });
     });
 };
+/**
+ * Called when an event is dispatched. Obtains a reduction from eventFx for the supplied event.
+ * Prepends setDb and notifyStateListeners to the resulting side-effects list.
+ * Catches all exceptions during eventFx and fx evaluation. Recoverable exceptions are forwarded to their registered
+ * errorFx handlers or logged.
+ * @param env
+ * @param event
+ */
 export const dispatchFx = (env, event) => {
-    if (!Array.isArray(event)) {
-        console.error('fx.dispatch called with wrong arguments.\n\nExpected: env, [eventName, payload?]\n\nReceived:', env, event);
-        throw new Error('fx.dispatch called with wrong arguments');
-    }
     let acc = createAccum(env);
     try {
+        if (!Array.isArray(event)) {
+            acc.events.push(event);
+            throw new FxError('fx.dispatch/arguments', {
+                message: 'fx.dispatch called with wrong arguments.',
+                expected: '[env, [eventName, payload?]]',
+                received: [env, event]
+            });
+        }
         reduceEventEffects(env, acc, event);
         acc.queue.unshift(['setDb', acc.state.db], ['notifyStateListeners']);
         env.fx.applyImpure(env, env.fx.eval, acc);
     }
     catch (e) {
-        if (env.errorFx && Object.keys(env.errorFx).length > 0) {
-            Object.entries(env.errorFx).forEach(([_, handler]) => {
-                handler(env, acc, e);
-            });
-            return;
-        }
-        console.error(e);
+        env.fx.handleError(env, acc, e);
+    }
+};
+/**
+ * Root error effect handler. Delegates to `errorFx` registered in the provided environment.
+ * Error is logged if no errorFx are registered.
+ * @param env
+ * @param acc
+ * @param e
+ */
+export const rootErrorFx = (env, acc, e) => {
+    // need to know if someone handled this error
+    // may want "only errors an app originated" to be handled  in which case
+    // reg an errorFx for the  error type
+    // but, also want something like devtools to handle any error not handled by app errorFx
+    if (e.isResumable && env.errorFx && env.errorFx[e.name]) {
+        env.errorFx[e.name](env, acc, e);
+        return;
+    }
+    console.error(e);
+};
+/**
+ * Clears the in-progress execution in `prevAcc` and continues with the one provided.
+ * @param env
+ * @param prevAcc
+ * @param acc
+ */
+export const resumeFx = (env, prevAcc, acc) => {
+    if (!prevAcc)
+        throw new Error('resume requires the accumulator passed to errorFx');
+    // @ts-ignore
+    prevAcc = null;
+    try {
+        env.fx.applyImpure(env, env.fx.eval, acc);
+    }
+    catch (e) {
+        env.fx.handleError(env, acc, e);
     }
 };
 /**
@@ -156,23 +238,16 @@ export const defaultEnv = () => ({
         apply: applyFx,
         applyImpure: applyFxImpure,
         setDb,
-        // todo.  Eval/all effects could have statically registered other effects if passed in
         eval: evalFx,
-        // todo. This could be enriched with event types (would need to pass in)
-        // to allow typed event names in return from regEventFx
         dispatch: dispatchFx,
+        resume: resumeFx,
+        handleError: rootErrorFx,
         notifyStateListeners: (env) => {
             env.dbListeners.forEach(f => f(env.state.db));
         },
-        // todo. only useful when events
         notifyEventListeners: (env, event) => env.eventListeners.forEach((f) => f(event)),
     },
-    errorFx: {
-    // 'dispatch-error': (env: DefaultEnv, acc: Accum<DefaultEnv>, e: any) => {
-    //   console.error(acc)
-    //   console.error(e)
-    // }
-    },
+    errorFx: {},
     events: {},
     eventFx: {},
     dbListeners: [],
@@ -224,17 +299,21 @@ export const createStore = (args) => {
                 ['setDb', newStateOrReducer],
             ].concat(notify ? [['notifyStateListeners']] : []));
         },
-        regEventFx: (eventName, fn) => {
-            checkType('regEventFx', eventName);
-            env.eventFx[eventName] = [...env.eventFx[eventName] || [], fn];
-        },
         regFx: (type, fn) => {
             checkType('regFx', type);
             env.fx[type] = fn;
         },
+        regEventFx: (eventName, fn) => {
+            checkType('regEventFx', eventName);
+            env.eventFx[eventName] = [...env.eventFx[eventName] || [], fn];
+        },
         regReduceFx: (type, fn) => {
             checkType('regReduceFx', type);
             env.reduceFx[type] = fn;
+        },
+        regErrorFx: (type, fn) => {
+            checkType('regErrorFx', type);
+            env.errorFx[type] = fn;
         },
         subscribeToState: f => env.dbListeners.push(f)
     };

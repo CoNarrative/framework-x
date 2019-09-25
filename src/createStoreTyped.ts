@@ -11,8 +11,34 @@ import {
   DispatchEnv,
   EnvWith,
   EventVector,
+  ErrorEffect,
 } from "./index"
 
+
+export const fxErrorTypes = ['event-fx/unhandled', 'fx/unhandled', 'fx.dispatch/arguments', 'fx.db/arguments']
+
+export type FxErrorType = typeof fxErrorTypes | string
+
+export  type FxErrorData = any & {
+  message: string
+  expected: any
+  received: any
+  suggestions: (any & { code: string })[]
+}
+
+export class FxError extends Error {
+  public namespace = 'framework-x'
+  public name = 'error'
+  public type: FxErrorType
+  public data: FxErrorData
+  public isRecoverable = true
+
+  constructor(type: string, data?: any) {
+    super()
+    this.type = type
+    this.data = data
+  }
+}
 
 const checkType = (op, type) => {
   if (typeof (type) !== 'string') throw new Error(`${op} requires a string as the fx key`)
@@ -31,6 +57,10 @@ export const regReduceFx = (env, type, fn) => {
   env.reduceFx[type] = fn
 }
 
+export const regErrorFx = (env, type, fn) => {
+  env.errorFx[type] = fn
+}
+
 /**
  * Evaluates an effect definition using the handler defined in the provided environment.
  * May perform computation that alters the environment. Returns the result of the effect handler.
@@ -45,7 +75,15 @@ export const evalFx = <E extends { fx: any }>(
 ) => {
   const effect = env.fx[fxName]
   if (!effect) {
-    throw new Error(`No fx handler for effect "${fxName}". Try registering a handler using "regFx('${fxName}', ({ effect }) => ({...some side-effect})"`)
+    throw new FxError('fx/unhandled', {
+      message: `No fx handler for effect "${fxName}". Try registering a handler using "regFx('${fxName}', ({ effect }) => ({...some side-effect})"`,
+      suggestions: [{
+        code:
+          `regFx('${fxName}', (env, args) => {\n` +
+          `\n` +
+          `})`
+      }]
+    })
   }
   return effect(env, args)
 }
@@ -71,6 +109,12 @@ export const applyFx = <E extends { fx: any }>(
   }, [])
 }
 
+/**
+ * Applies `f` to effects in `acc.queue`, mutating its `queue` and `stack` as effects are applied with `f`.
+ * @param env
+ * @param f
+ * @param acc
+ */
 export const applyFxImpure = <E>(
   env: E,
   f: (env: E, effect: LooseEffectDescription) => any,
@@ -92,8 +136,12 @@ export const setDb = <E extends { state: { db: any } }>(x: E, newStateOrReducer:
   } else {
     x.state.db = newStateOrReducer(x.state.db)
     if (typeof x.state.db === 'function') {
-      throw new Error('db fxReg request was a reducer function that returned a function. '
-        + 'If you are using ramda, you probably didn\'t finish currying all the args')
+      throw new FxError('fx.db/arguments', {
+        message: 'db fxReg request was a reducer function that returned a function. '
+          + 'If you are using ramda, you probably didn\'t finish currying all the args',
+        expected: '[env, db => db]',
+        received: '[env, db => db => x]'
+      })
     }
   }
 }
@@ -106,7 +154,8 @@ export const createAccum = <E extends AnyKV & { state: any }>(env: E): Accum<E> 
   state: Object.assign({}, env.state),
   reductions: [],
   stack: [],
-  queue: []
+  queue: [],
+  events: []
 })
 
 /**
@@ -122,10 +171,19 @@ export const reduceEventEffects = <E extends Required<EnvWith<'state' | 'eventFx
   acc: Accum<E>,
   event: EventVector<E>
 ) => {
+  acc.events.push(event)
   acc.queue.push(['notifyEventListeners', event])
   const [type, args] = event
   const eventHandlers = env.eventFx[type]
-  if (!eventHandlers) throw new Error(`No event fx handler for dispatched event "${type}". Try registering a handler using "regEventFx('${type}', ({ db }) => ({...some effects})"`)
+  if (!eventHandlers) throw new FxError('event-fx/unhandled', {
+    message: `No event fx handler for dispatched event "${type}"`,
+    suggestions: [{
+      code:
+        `regEventFx('${event[0]}', ({ db }, args) => {\n` +
+        `  return []\n` +
+        `})`
+    }]
+  })
 
   eventHandlers.forEach((handler) => {
     const effects = handler({ ...acc.state }, args)
@@ -150,18 +208,31 @@ export const reduceEventEffects = <E extends Required<EnvWith<'state' | 'eventFx
   })
 }
 
+/**
+ * Called when an event is dispatched. Obtains a reduction from eventFx for the supplied event.
+ * Prepends setDb and notifyStateListeners to the resulting side-effects list.
+ * Catches all exceptions during eventFx and fx evaluation. Recoverable exceptions are forwarded to their registered
+ * errorFx handlers or logged.
+ * @param env
+ * @param event
+ */
 export const dispatchFx = <E extends DispatchEnv<E>>(
   env: E,
   event: EventVector<E>
 ) => {
-  if (!Array.isArray(event)) {
-    console.error('fx.dispatch called with wrong arguments.\n\nExpected: env, [eventName, payload?]\n\nReceived:', env, event)
-    throw new Error('fx.dispatch called with wrong arguments')
-  }
 
   let acc = createAccum(env)
 
   try {
+    if (!Array.isArray(event)) {
+      acc.events.push(event)
+      throw new FxError(
+        'fx.dispatch/arguments', {
+          message: 'fx.dispatch called with wrong arguments.',
+          expected: '[env, [eventName, payload?]]',
+          received: [env, event]
+        })
+    }
     reduceEventEffects(env, acc, event)
 
     acc.queue.unshift(['setDb', acc.state.db], ['notifyStateListeners'])
@@ -169,15 +240,49 @@ export const dispatchFx = <E extends DispatchEnv<E>>(
     env.fx.applyImpure(env, env.fx.eval, acc)
 
   } catch (e) {
-    if (env.errorFx && Object.keys(env.errorFx).length > 0) {
-      Object.entries(env.errorFx).forEach(([_, handler]) => {
-        handler(env, acc, e)
-      })
-      return
-    }
-    console.error(e)
+    env.fx.handleError(env, acc, e)
   }
 }
+
+
+/**
+ * Root error effect handler. Delegates to `errorFx` registered in the provided environment.
+ * Error is logged if no errorFx are registered.
+ * @param env
+ * @param acc
+ * @param e
+ */
+export const rootErrorFx = <E>(env: E & { errorFx?: ErrorEffect<E> }, acc: Accum<E>, e: Error) => {
+  // need to know if someone handled this error
+  // may want "only errors an app originated" to be handled  in which case
+  // reg an errorFx for the  error type
+  // but, also want something like devtools to handle any error not handled by app errorFx
+  if ((e as any).isResumable && env.errorFx && env.errorFx[e.name]) {
+    env.errorFx[e.name](env, acc, e)
+    return
+  }
+  console.error(e)
+}
+
+/**
+ * Clears the in-progress execution in `prevAcc` and continues with the one provided.
+ * @param env
+ * @param prevAcc
+ * @param acc
+ */
+export const resumeFx = <E>(env: E & EnvWith<'fx'>, prevAcc: Accum<any>, acc: Accum<any>) => {
+  if (!prevAcc) throw new Error('resume requires the accumulator passed to errorFx')
+
+  // @ts-ignore
+  prevAcc = null
+
+  try {
+    env.fx.applyImpure(env, env.fx.eval, acc)
+  } catch (e) {
+    env.fx.handleError(env, acc, e)
+  }
+}
+
 /**
  * Returns a map of functions with typed effect descriptions suitable for returning from EventFx
  * @param fx
@@ -201,26 +306,17 @@ export const defaultEnv = (): DefaultEnv => ({
     apply: applyFx,
     applyImpure: applyFxImpure,
     setDb,
-    // todo.  Eval/all effects could have statically registered other effects if passed in
     eval: evalFx,
-    // todo. This could be enriched with event types (would need to pass in)
-    // to allow typed event names in return from regEventFx
     dispatch: dispatchFx,
-
+    resume: resumeFx,
+    handleError: rootErrorFx,
     notifyStateListeners: (env) => {
       env.dbListeners.forEach(f => f(env.state.db))
     },
-
-    // todo. only useful when events
     notifyEventListeners: (env: DefaultEnv, event: [string, any]) =>
       env.eventListeners!.forEach((f: any) => f(event)),
   },
-  errorFx: {
-    // 'dispatch-error': (env: DefaultEnv, acc: Accum<DefaultEnv>, e: any) => {
-    //   console.error(acc)
-    //   console.error(e)
-    // }
-  },
+  errorFx: {},
   events: {},
   eventFx: {},
   dbListeners: [],
@@ -288,13 +384,6 @@ export const createStore = <E>(args?: E extends IEnv ? E : never) => {
         ['setDb', newStateOrReducer],
       ].concat(notify ? [['notifyStateListeners']] : []))
     },
-    regEventFx: (
-      eventName: EventName,
-      fn: (state: Env['state'], args: any) => EffectDescription<Env['fx']>
-    ) => {
-      checkType('regEventFx', eventName)
-      env.eventFx[eventName] = [...env.eventFx[eventName] || [], fn]
-    },
     regFx: (
       type: string,
       fn: (env: Env, args: any) => void
@@ -302,12 +391,26 @@ export const createStore = <E>(args?: E extends IEnv ? E : never) => {
       checkType('regFx', type)
       env.fx[type] = fn
     },
+    regEventFx: (
+      eventName: EventName,
+      fn: (state: Env['state'], args: any) => EffectDescription<Env['fx']>
+    ) => {
+      checkType('regEventFx', eventName)
+      env.eventFx[eventName] = [...env.eventFx[eventName] || [], fn]
+    },
     regReduceFx: (
       type: string,
       fn: (env: Env, acc: Accum<Env>, args: any) => Env['state']
     ) => {
       checkType('regReduceFx', type)
       env.reduceFx[type] = fn
+    },
+    regErrorFx: (
+      type: string,
+      fn: (env: Env, acc: Accum<Env>, args: any) => Env['state']
+    ) => {
+      checkType('regErrorFx', type)
+      env.errorFx[type] = fn
     },
     subscribeToState: f => env.dbListeners!.push(f)
   }
