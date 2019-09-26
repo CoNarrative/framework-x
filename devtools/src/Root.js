@@ -1,30 +1,41 @@
 import React from 'react'
-import { ErrorScreen } from './ErrorScreen'
+import PropTypes from 'prop-types'
+import { Context } from './context'
 
 
-export class Root extends React.Component {
-  constructor(props) {
-    super(props)
-    const { subscribeToError } = this.props
-    if (!subscribeToError) throw new Error('Must provide subscribeToError')
-    this.state = { env: null, acc: null, error: null }
-    subscribeToError((env, acc, error) => {
-      this.setState({ env, acc, error })
-    })
+export class Provider extends React.Component {
+  static propTypes = {
+    getState: PropTypes.func.isRequired,
+    subscribeToState: PropTypes.func.isRequired,
+    dispatch: PropTypes.func
   }
 
-  reset() {
-    this.setState({ error: null, env: null, acc: null })
+  constructor(props) {
+    super(props)
+    const { subscribeToState, dispatch, getState } = this.props
+    if (!subscribeToState || !dispatch || !getState) throw new Error('Must provide subscribeToState, dispatch, and getState')
+    this.state = { appState: getState() }
+    this.value = {
+      appState: this.state.appState,
+      dispatch
+    }
+    subscribeToState(state => this.setState({ appState: state }))
   }
 
   render() {
+    if (this.state.appState !== this.value.state) {
+      // Force a new object (required to trigger propagation)
+      this.value = {
+        appState: this.state.appState,
+        dispatch: this.value.dispatch
+      }
+    }
     return (
-      <ErrorScreen
-        error={this.state.error}
-        env={this.state.env}
-        acc={this.state.acc}
-        reset={this.reset.bind(this)}
-      />
+      <Context.Provider
+        value={this.value}
+      >
+        {this.props.children}
+      </Context.Provider>
     )
   }
 }

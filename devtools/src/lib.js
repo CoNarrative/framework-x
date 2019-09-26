@@ -1,24 +1,92 @@
 import React from 'react'
-import { regFx } from 'framework-x'
-import { Root } from './Root'
+import { regFx, createStore, createSub } from 'framework-x'
+import { ErrorScreen } from './ErrorScreen'
+import { evt } from './eventTypes'
+import { Provider, } from './Root'
+import { component } from './component'
+import * as R from 'ramda'
 
+const env = R.path(['env'])
+const acc = R.path(['acc'])
+const error = R.path(['error'])
+
+const Root = component('Root', createSub({
+  env,
+  acc,
+  error
+}), ({ env, acc, error, dispatch }) => {
+  if (!error) return null
+  return <ErrorScreen {...{ env, acc, error, dispatch }} />
+})
+
+
+const regErrorScreenFx = ({ regFx, regEventFx }) => {
+  regFx('evalClosure', (env, f) => f())
+  regEventFx(evt.RESET, () => [['db', R.omit(['env', 'acc', 'error'])]])
+  regEventFx(evt.SKIP_EFFECT, ({ db }) => {
+    const { env, acc } = db
+    return [
+      ['dispatch', [evt.RESET]],
+      ['evalClosure', () => {
+        acc.queue.unshift()
+        env.fx.resume(env, acc, acc)
+      }]]
+  })
+
+  regEventFx(evt.RETRY_EVENT, ({ db }, event) => {
+    const { env } = db
+    return [
+      ['dispatch', [evt.RESET]],
+      ['evalClosure', () => {
+        env.fx.dispatch(env, event)
+      }]]
+  })
+  regEventFx(evt.RETRY_EVENT_WITH_EDIT, ({ db }, event) => {
+    const { env } = db
+    let eventVector
+    try {
+      eventVector = JSON.parse(event)
+    } catch (e) {
+      return [
+        ['db', R.assocPath(['editing', 'event', 'error'],
+          { type: 'json/parse', message: e.message })]]
+    }
+
+    return [
+      ['dispatch', [evt.CANCEL_EDIT, ['event']]],
+      ['dispatch', [evt.RESET]],
+      ['evalClosure', () => {
+        env.fx.dispatch(env, eventVector)
+      }]]
+  })
+  regEventFx(evt.START_EDIT, ({ db }, [key, value]) => {
+    return [['db', R.assocPath(['editing', key], { initialValue: value, value })]]
+  })
+  regEventFx(evt.UPDATE_EDIT, ({ db }, [key, value]) => {
+    return [['db', R.assocPath(['editing', key], { value })]]
+  })
+  regEventFx(evt.CANCEL_EDIT, ({ db }, [key]) => {
+    return [['db', R.dissocPath(['editing', key])]]
+  })
+}
 
 export const createDevtools = (env) => {
-  let subs = []
-  const subscribeToError = (f) => {subs.push(f)}
+  const { dispatch, setState, getState, subscribeToState, regFx: regFxLocal, regEventFx } = createStore()
+  regErrorScreenFx({ regEventFx, regFx: regFxLocal })
   regFx(env, 'handleError', (env, acc, e) => {
-    // need to know if someone handled this error
-    // may want "only errors an app originated" to be handled  in which case
-    // reg an errorFx for the  error type
-    // but, also want something like devtools to handle any error not handled by app errorFx
     if (e.isResumable && env.errorFx && env.errorFx[e.name]) {
       env.errorFx[e.name](env, acc, e)
       return
     }
-    subs.forEach(f => f(env, acc, e))
+    setState({ env, acc, error: e })
   })
-  // return { Devtools: FrameworkXDevtools({ subscribeToError }) }
-  return { FrameworkXDevtools: () => <Root subscribeToError={subscribeToError} /> }
+
+  return {
+    FrameworkXDevtools: () =>
+      <Provider {...{ dispatch, getState, subscribeToState }}>
+        <Root />
+      </Provider>
+  }
 }
 
 

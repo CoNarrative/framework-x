@@ -2,7 +2,7 @@ import React from 'react'
 import { createDevtools } from './lib'
 import logo from './logo.svg'
 import './App.css'
-import { Provider, createStore } from 'framework-x'
+import { Provider, createStore, createSub, derive, component } from 'framework-x'
 
 
 export const { setState, env, getState, subscribeToState, dispatch, regEventFx } = createStore()
@@ -11,9 +11,19 @@ window._env = env
 
 const { FrameworkXDevtools } = createDevtools(env)
 
+const foo = derive([x => x ? x.cool : null], (x) => {
+  // throw new Error("oops")
+})
+const TestSel = component('TestSel', createSub({ foo }), ({ foo }) => {
+  return (
+    <div>{foo}</div>
+  )
+})
+
 function App() {
   return (
     <Provider  {...{ getState, dispatch, subscribeToState }}>
+      <TestSel />
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
