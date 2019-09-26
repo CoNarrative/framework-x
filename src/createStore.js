@@ -74,6 +74,8 @@ export const createStore = (baseReg, initialState = {}) => {
     const effectsList = Array.isArray(effectsListA[0]) ? effectsListA : [effectsListA]
     return effectsList.reduce(
       (acc, oneFx) => {
+        // it's ok to pass null fx
+        if (!oneFx) return acc
         // console.log(acc)
         if (acc.fault) {
           // todo: actual shortcutting reduce! Ramda has one. Would have to be loop
