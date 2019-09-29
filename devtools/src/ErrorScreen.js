@@ -5,10 +5,6 @@ import { EventEditor } from './event/views'
 import { CurrentState, ReducedState, Reductions } from './state/views'
 import { Suggestions } from './suggestions/views'
 import { prettyStr } from './util'
-import * as monaco from 'monaco-editor'
-
-
-const altEnter = e => e.keyCode === monaco.KeyCode.Enter && e.altKey
 
 
 export const ErrorScreen = ({ error, acc, env, dispatch }) => {

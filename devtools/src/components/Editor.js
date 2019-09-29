@@ -1,3 +1,4 @@
+import * as monaco from 'monaco-editor'
 import React from 'react'
 import PropTypes from 'prop-types'
 import MonacoEditor from 'react-monaco-editor'
@@ -239,6 +240,8 @@ const theme = {
   }
 }
 
+const altEnter = e => e.keyCode === monaco.KeyCode.Enter && e.altKey
+
 class EditorBase extends React.Component {
   static propTypes = {
     value: PropTypes.string.isRequired,
@@ -252,15 +255,22 @@ class EditorBase extends React.Component {
 
   editorDidMount(editor, monaco) {
     this.props.refCb(editor, monaco)
-    // editor.onKeyDown((e) => {
-    //   if (altEnter(e)) {
-    //
-    //   }
-    // })
+    if (this.props.onRun) {
+      editor.onKeyDown((e) => {
+        if (altEnter(e)) {
+          console.log('ok')
+          this.props.onRun(this.props.value)
+        }
+      })
+    }
   }
 
   onChange(value) {
     this.props.onChange(value)
+  }
+
+  shouldComponentUpdate(nextProps) {
+    return nextProps.value !== this.props.value
   }
 
   render() {

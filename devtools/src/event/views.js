@@ -10,9 +10,14 @@ import { component } from '../component'
 
 const KEY = 'event'
 
+const CHAR = {
+  alt:'\u2387',
+  enter:'\u21B5'
+}
+
 const actions = ({
   edit: [{
-    label: 'Run',
+      label: `Run (${CHAR.alt} + ${CHAR.enter})`,
     event: props => [evt.RETRY_EVENT_WITH_EDIT, props.editedValue]
   }, {
     label: 'Cancel',
@@ -44,6 +49,7 @@ export const EventEditor = component('EventEditor', createSub({ editedEvent }),
                editor.focus()
                editor.setPosition({ lineNumber: 1, column: 999 })
              }}
+             onRun={v=>dispatch(evt.RETRY_EVENT_WITH_EDIT,v)}
              language={'json'}
              value={editedEvent.value}
              onChange={value => dispatch(evt.UPDATE_EDIT, [KEY, value])}
