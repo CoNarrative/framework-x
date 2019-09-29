@@ -1,6 +1,6 @@
 import React from 'react'
 import Highlight from 'react-highlight.js'
-import './hljs-railscasts.css'
+import './../hljs-railscasts.css'
 
 
 export const copyToClipboard = text => {

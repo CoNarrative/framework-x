@@ -2,7 +2,7 @@ import React from 'react'
 import { regFx, createStore, createSub } from 'framework-x'
 import { ErrorScreen } from './ErrorScreen'
 import { evt } from './eventTypes'
-import { Provider, } from './Root'
+import { Provider } from './Root'
 import { component } from './component'
 import * as R from 'ramda'
 
