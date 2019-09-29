@@ -258,7 +258,6 @@ class EditorBase extends React.Component {
     if (this.props.onRun) {
       editor.onKeyDown((e) => {
         if (altEnter(e)) {
-          console.log('ok')
           this.props.onRun(this.props.value)
         }
       })
