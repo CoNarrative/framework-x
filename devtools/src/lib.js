@@ -10,6 +10,7 @@ import * as R from 'ramda'
 import { getAcc, getEnv, getError } from './selectors'
 import { getRelevantOrdinalSections, sectionMap, sections } from './sections'
 import { prettyStr } from './util'
+import './index.css'
 
 
 const keyCodeAsDigit = keyCode => {

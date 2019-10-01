@@ -18,7 +18,7 @@ regEventFx('foo', ({ db }, args) => {
 regEventFx('bar', ({ db }, args) => {
   if (!args) {
     throw new FxError('bar/args', {
-      message: 'foo event should be dispatched with at least one argument.',
+      message: 'bar event should be dispatched with at least one argument.',
       expected: ['any'],
       received: [args]
     })
