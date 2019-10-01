@@ -1,4 +1,5 @@
 import React from 'react'
+import * as R from 'ramda'
 import { CodeBlock } from './components/CodeBlock'
 import { CaughtEffect, DoneEffects, NextEffects } from './effects/views'
 import { EventEditor } from './event/views'
@@ -7,18 +8,19 @@ import { Suggestions } from './suggestions/views'
 import { prettyStr } from './util'
 
 
-export const ErrorScreen = ({ error, acc, env, dispatch }) => {
+export const ErrorScreen = ({ error, acc, env, dispatch, }) => {
   const { queue, stack, events, reductions } = acc
 
   const caughtEffect = queue[0]
   const nextEffects = queue.slice(1)
   const doneEffects = stack
-  const accumState = acc.state.db
+  const accumState = acc.state
   const originatingEvent = events[0]
   const caughtEvent = events[events.length - 1]
   const { message, suggestions, expected, received } = error.data
   const hasExpectedReceived = error.data.hasOwnProperty('expected')
                               || error.data.hasOwnProperty('received')
+
 
 
   return <div style={{
@@ -45,7 +47,7 @@ export const ErrorScreen = ({ error, acc, env, dispatch }) => {
 
       <div style={{ paddingTop: 15 }} />
 
-      {caughtEvent && <EventEditor caughtEvent={caughtEvent} />}
+      {caughtEvent && <EventEditor  />}
 
       {suggestions && <Suggestions {...{ suggestions }} />}
 

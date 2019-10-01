@@ -242,10 +242,22 @@ const theme = {
 
 const altEnter = e => e.keyCode === monaco.KeyCode.Enter && e.altKey
 
+const loadEnv = (env, monaco) =>
+  monaco.languages.typescript.javascriptDefaults.addExtraLib(`
+    const env = {state: ${JSON.stringify(env.state)} }
+    `, 'framework-x/env.d.ts')
+
+const loadAcc = (acc, monaco) =>
+  monaco.languages.typescript.javascriptDefaults.addExtraLib(`
+    const acc = ${JSON.stringify(acc)} 
+    `, 'framework-x/acc.d.ts')
+
 class EditorBase extends React.Component {
   static propTypes = {
     value: PropTypes.string.isRequired,
-    onChange: PropTypes.func.isRequired
+    onChange: PropTypes.func.isRequired,
+    width: PropTypes.any,
+    height: PropTypes.any
   }
 
   editorWillMount(monaco) {
@@ -254,14 +266,16 @@ class EditorBase extends React.Component {
   }
 
   editorDidMount(editor, monaco) {
-    this.props.refCb(editor, monaco)
-    if (this.props.onRun) {
-      editor.onKeyDown((e) => {
-        if (altEnter(e)) {
-          this.props.onRun(this.props.value)
-        }
-      })
-    }
+    const { refCb, env, acc, onRun } = this.props
+
+    refCb && refCb(editor, monaco)
+    env && loadEnv(env, monaco)
+    acc && loadAcc(acc, monaco)
+    onRun && editor.onKeyDown((e) => {
+      if (altEnter(e)) {
+        onRun(this.props.value)
+      }
+    })
   }
 
   onChange(value) {
@@ -283,7 +297,8 @@ class EditorBase extends React.Component {
           minimap: { enabled: false }
         }}
         theme={'tomorrow-night-eighties'}
-        language={this.props.language || 'javascript'}
+        // language={this.props.language || 'javascript'}
+        language={'javascript'}
         width={this.props.width || '100%'}
         height={this.props.height || 350}
         editorWillMount={this.editorWillMount.bind(this)}
@@ -294,6 +309,15 @@ class EditorBase extends React.Component {
   }
 }
 
+/**
+ * General purpose interactive editor
+ * Reacts to `value` change only.
+ * Returns editor instance via `refCb`
+ * If provided:
+ * - `onRun` function is executed when `alt + enter` keypress and editor focused
+ * - `env` and `acc` are loaded into the editor if provided
+ * @type {React.ForwardRefExoticComponent<React.PropsWithoutRef<{}> & React.RefAttributes<unknown>>}
+ */
 export const Editor = React.forwardRef((props, ref) => <EditorBase
   innerRef={ref}  {...props} />)
 
