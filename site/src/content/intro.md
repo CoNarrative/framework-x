@@ -4,168 +4,162 @@ path: /intro
 
 # Framework-X: Reasonable global state for React
 
-Framework-X is a Javascript framework that processes events and descriptions of their effects, allowing immutable state
-transformations and side effects to be written together as pure functions.
+Framework-X is a Javascript framework that uses algebraic effects to express state transformations and side effects as
+pure functions.
 
-Framework-X and shares key features with Redux in its emphasis on global immutable state and event dispatch, but has the
-most in common with `re-frame`, a Clojurescript framework upon which it was originally based.
+Its similar to
+[Redux](https://redux.js.org/), though it requires about 40% less code to accomplish the same tasks. It was originally
+based on
+[`re-frame`](https://github.com/Day8/re-frame), a React framework for Clojurescript.
 
-Framework-X has been used in mid-size production applications for about 1.5 years and is being open sourced today under
-the MIT license. 
+Framework-X has been used in mid-size production applications for nearly 2 years. It's being open sourced today under
+the MIT license.
 
 
 # How it works
- 
-React components dispatch custom events with optional arguments. When an event is dispatched, the framework calls
-registered handlers for the event with the event's arguments and the current global state.
-
-Instead of invoking side effects or performing state updates directly, event handlers describe the effects an event
-should have. Handlers may describe a state update or a side effect like an API call or a dispatch to another event as a
-pure function.
-
-Effects like `db` participate in the reduction and are registered with the framework as `reduceFx`. During the dispatch
-evaluation phase, the framework applies them to a copy of the current global state. This accumulator is passed to all
-event handlers invoked as a result of the initializing event, allowing event handlers to be composed into a single
-reduce function without affecting the global state and produce a single state change per event dispatched from the view. 
-
-In addition to the pending state value, the accumulator stores a list of reductions for each `reduceFx` invocation, a
-stack of effects that have been evaluated, and a queue of side effects accumulated from event effects handlers in
-evaluation order that will be applied the end of the dispatch reduction phase. 
-
-Once the reduction is realized, dispatch adds two side effect descriptions to the front of the accumulator's effect
-queue, one that sets the global state to the reduced state value and another to notify React of the state change.
-
-At this point, the framework has executed no side effects. It only has a plan of what to do. Custom
-implementations may choose operate over the set of effects before they are run and alter the execution plan, supporting
-use cases like combining API effects to run in parallel.
-
-Finally, the effects queue is evaluated in order with the current environment and the accumulator. Each effect is
-presumed to have a side effect and may invoke other effect handlers directly. Asynchronous operations may invoke
-dispatch to delegate to event handlers when their work is complete. 
-
-In the event of an error, optional `errorFx` handlers are called with the accumulator containing the stack, queue and
-accumulated state for the event that was originally dispatched.
-
-
-# Code
 
 ## Events
-
-Events are modeled as a tuple of an event name and optional payload argument:
+ 
+Events are typically dispatched from components. 
 
 ```js
-const evt = {
-  INITIALIZE_DB: 'initialize-db',
-}
-
-const {
-  dispatch,
-  getState,
-  setState,
-  subscribeToState,
-  regFx,
-  regEventFx
-} = createStore()
-
-dispatch(evt.INITIALIZE_DB, {
-  todos: [],
-  visibilityFilter: visibilityFilter.ALL,
-  newTodoText: '',
-  notifications: []
-})
-
+<button onClick={() => dispatch('add-todo', { text: 'Use Framework-X.' })}>
+  Add todo
+</button>
 ```
 
+## Event handlers
 
-## Event effect handlers
+Event handlers (`eventFx`) are registered with the name of the event they handle using `regEventFx`. They receive the
+current global state (`db`) and the event's arguments and return a list of effect descriptions or `undefined` for no
+effects.
+```js
+regEventFx('add-todo', ({ db }, { text }) => {
 
-`regEventFx` describes the effects events should have. 
+})
+```
 
-The `db` effect can be invoked with the next state value or a reducer function that returns the next state as a function
-of the current one.
+## Effect descriptions
+
+Effect descriptions are arrays that match the name and signature of registered effect handlers. Framework-x provides a
+state update effect (`db`) and an effect that dispatches events (`dispatch`) by default.
+
+`db` expects a function that describes a state transformation. It belongs to a specific category of effects that
+participate in a reduction (`reduceFx`).
 
 ```js
-regEventFx(evt.ADD_TODO, ({ db }, text) => {
+regEventFx('add-todo', ({ db }, { text }) => {
   return [
     ['db', updateIn(['todos'], R.append({ text, done: false }))]
   ]
 })
 ```
 
-The `db` effect describes the transformation that should be applied to the `db` as the result of the "ADD_TODO" event.
-This allows the handler to remain a pure function, producing the same result for the same arguments.
+Event handlers may use the `dispatch` effect to incorporate the effects of other events. 
 
-With this pattern, event effect handlers can describe arbitrary side effects that should result from an event and still
-remain pure functions.
+A `dispatch` within an event handler invokes the next handler with the result of any previous `db` effects. This allows
+event handlers to be composed into a single reduce function. Framework-X produces one React `setState` operation per
+event dispatched from the view layer, even when events are dispatched from event handlers.
 
 
 ```js
-regEventFx(evt.ADD_TODO, ({ db }, _, text) => [
-    ['db', updateIn(['todos'], R.append({ text, done: false }))],
-    ['dispatch', evt.SET_TODO_TEXT, '']
-  ]
-)
-
-regEventFx(evt.SET_TODO_TEXT, (_,  text) => [
-    ['db', R.assoc('newTodoText', text)]
-  ]
-)
-```
-
-Dispatching `SET_TODO_TEXT` from the `ADD_TODO` event effect handler achieves the same result as if we had combined both
-state operations into one, without side effects. 
-
-
-This pattern can be used with custom side effects:
-
-```js
-regFx('notification', ({ fx: { dispatch } }, { type, message, duration = 900 }) => {
-  const id = type + '/' + Date.now().toString()
-
-  const timeout = setTimeout(() => dispatch(evt.HIDE_NOTIFICATION, { id }), duration)
-  
-  dispatch(evt.SHOW_NOTIFICATION, { id, type, message, timeout })
-})
-
-regFx('clearTimeout', (_, n) => {
-  clearTimeout(n)
-})
-
-regEventFx(evt.ADD_TODO, ({ db }, _, text) => [
-    ['db', updateIn(['todos'], R.append({ text, done: false }))],
-    ['dispatch', evt.SET_TODO_TEXT, ''],
-    ['notification',  {
-      type: 'success',
-      message: 'Todo added.',
-      duration: 5000
-    }]
-])
-
-regEventFx(evt.SHOW_NOTIFICATION, ({ db }, _, { id, type, message, timeout }) => [
-  ['db', updateIn(['notifications'], R.append({ id, type, message, timeout })) ]
-])
-
-regEventFx(evt.HIDE_NOTIFICATION, ({ db }, _, { id }) => {
-  const notification = R.find(x => x.id === id, R.path(['notifications'], db))
-  
+regEventFx('add-todo', ({ db }, { text }) => {
   return [
-    ['db', updateIn(['notifications'], R.reject(R.propEq('id', id)))],
-    ['clearTimeout', notification.timeout]
+    ['db', updateIn(['todos'], R.append({ text, done: false }))],
+    ['dispatch', ['set-todo-text', '']]
   ]
 })
+
+regEventFx('set-todo-text', (_, str) => {
+  return [
+    ['db', R.assoc('newTodoText', str)]
+  ]
+})
+
 ```
 
-# Derived values
+## Side effects
 
-Framework-X uses memoized functions called selectors to return derived values from the state.
+Side effect handlers (`fx`) are functions that perform side effects. They can be registered with `regFx` and used the
+same as `db` and `dispatch`.
 
-The most basic selectors provide a raw value from the global state: 
+```js
+const createFetchFx = ({ fetch }) =>
+(env, [{ method = 'GET', body, url }, successEvent, failureEvent]) => {
+  const { fx: { dispatch }} = env
+  fetch(url, { method, body })
+  .then(res => res.json())
+  .then(json => dispatch(env, [successEvent, json]))
+  .catch(e => dispatch(env, [failureEvent, e]))
+})
+
+regFx('fetch', createFetchFx({ fetch: window.fetch }))
+
+regEventFx('get-user', ({ db }, { id }) => {
+  return [
+    ['db', R.assoc('loading', true)],
+    ['fetch', [{ url:`/user/${id}` }, 'get-user/success', 'get-user/fail']]
+  ]
+})
+regEventFx('get-user/success', ({ db }, user) => { ... })
+regEventFx('get-user/fail', ({db }, e) => { ... })
+```
+
+
+Framework-X evaluates all side effects lazily. Its evaluation of event handlers in response to an outside event does
+nothing to affect the outside world. Instead, the event handlers have given it a data description of what should happen.
+At the same time, it's a description that can be evaluated.
+
+```js
+{queue: [['fetch', [{ url:'/user/42' }, 'get-user/success', 'get-user/fail']]],
+ stack: [['db', <Function> ]],
+ reductions: [{ db: { loading: true }}],
+ state: {db: {loading: true}},
+ event:  'get-user',
+}
+```
+
+
+This affords many undersold benefits. We can print the effects list and read it to see if it's what we expect it to be.
+Tests assertions can be written against it without invoking any side effectful code. Tests can execute it with custom
+behavior for each effect. Code can analyze the effects queue, allowing runtime optimizations like combining a series of
+API calls into a Promise.all, or arbitrary custom behavior -- skipping certain effects, adding others, changing
+arguments.
+
+By default, Framework-X evaluates the side effects queue in order against all registered side effect (`fx`) handlers 
+with the current environment and whatever arguments they were provided from the event handler that returned them. Each
+is presumed to have some side effect, and may invoke other effect handlers directly.
+
+
+## Errors
+
+Framework-X catches all errors thrown by event handlers or effect handlers resulting from an event dispatch. The default
+root error handler invokes any error effect handlers (`errorFx`) registered to handle the error with the current
+environment, the accumulator, and the error. 
+
+Error effects may optionally specify how the framework should continue execution. The resume side effect (`fx.resumeFx`)
+takes the existing execution plan, cancels it, and applies the new one. In the event of an error, the process repeats.
+
+Framework-X's error tools use this API to render information about the error, including the originally dispatched
+event, the effect that caused the error, and the effects that are still in the queue. Users may edit these in the
+browser and resume program execution with their changes.
+
+Nearly all Framework-X's core functionality is implemented in terms of its own API, allowing users to override the
+default implementations down to the function that effects are evaluated with.
+
+
+## Derived values
+
+Like Redux, Framework-X uses memoized functions called selectors to return derived values from the state.
+
+Basic selectors are plain functions that provide access to an untransformed value from the global state and are later
+memoized by components or other selectors:
 
 ```js
 export const getAllTodos = R.path(['todos'])
 ```
 
-Other selectors that depend on `getAllTodos` receive `db.todos` and avoid recomputing if it hasn't changed:
+Selectors that depend on others use `derive`:
 
 ```js
 export const getAllTodos = R.path(['todos'])
@@ -194,7 +188,9 @@ export const getVisibleTodos = derive(
 )
 ```
 
-Components use selector functions to subscribe to state changes: 
+## Components
+ 
+Components use selector functions to subscribe to state changes:
 
 ```js
 export const EnterTodo = component('EnterTodo',
@@ -216,12 +212,9 @@ export const EnterTodo = component('EnterTodo',
  
 # Comparison to Redux
 
-
-
 [From Redux's documentation](https://redux.js.org/basics/reducers#handling-actions)
  
-> Reducers specify how the application's state changes in response to
-> actions sent to the store. ... 
+> Reducers specify how the application's state changes in response to actions sent to the store. [...]
 
 > It's very important that the reducer stays pure. Things you should
 > **never** do inside a reducer:
@@ -234,156 +227,123 @@ export const EnterTodo = component('EnterTodo',
 > Just a calculation.** ... We'll explore how to perform side effects in
 > the advanced walkthrough. 
 >
-> ***Note**: Emphasis is Redux's.*
+> *emphasis Redux's*
 
-Framework-X satisfies these requirements while stiWe agree reducing functions should be pure in this way. But we find
-fewer reasons in theory and practice that an event's effects should be separated in this way.
+A Framework-X event handler is similar to a Redux reducer. Both are pure functions: They return the same thing for the
+same arguments, and don't interact with the outside world at all.
 
-The consequences of calling reducer code directly entail that events can't be handled in one place with a pure function.
-This requires the existence of something like Redux's middleware, so that reducers can be pure functions and middleware
-can execute side effects. This works, but comes with some cost:
-- All events pass through middleware 
-- Individual middleware may operate on some events but not others
-- Some middleware look for a particular key on the event and do
-  something if it's present based on arbitrary logic
-- Events that are handled in middleware may also be handled in a reducer
-- Middleware may mutate the event. Any changes are visible to subsequent
-  middlewares and reducers. Middleware is executed in the order it was
-  registered.
-- Middleware is unable to specify a state update directly
+Event handlers with a `db` effect produce a description of the operation a Redux reducer performs. 
 
-- Middleware may be a third-party library with its own API
+```js
+const todosReducer = (state, action)  => {
+  switch (action.type) {
+    case 'add-todo':
+      const { text } = action.payload
+      return R.append({ text, done: false}, state)
+    default:
+      return state
+  }
+}
 
+const todoInputReducer = (state, action)  => {
+  switch (action.type) {
+    case 'add-todo':
+      return action.payload
+    default:
+      return state
+  }
+}
 
-On the whole, the way reducers and middleware are separated make
-understanding the effects of an event and the way an application works
-contingent upon understanding what the reducer does and what the
-middleware does. We've not yet seen a benefit from organizing things
-this way, but we have seen tremendous benefits from specifying an
-event's effects in one place. 
+regEventFx('add-todo', (_, { text }) => {
+  return [
+    ['db', R.pipe(
+      updateIn(['todos'], R.append({ text, done: false })),
+      R.assoc('newTodoText', ''))
+    ]
+  ]
+})
+```
 
-Further, we can still offer pure functions that update state in response
-to an event. A `dispatch` returned from `regEventFx` doesn't actually
-dispatch anything. It's only a description of what should happen. This
-is the same for the `db` effect, which is a pure functional description
-of the transformation that should be applied to the current state. Other
-effects like `route` effects, API requests, and anything custom effects
-you register are the same as well.
+Both versions accomplish the same thing. Using the `combineReducers` convention, a Redux application specifies the state
+effect on each top-level key of the app's state. The Framework-X version specifies its transformation is specified
+against the entire application state, and all event handlers can read from the whole application state by default
+instead of being limited to the value of a single key.
 
+Event handlers strictly "specify how the application's state changes." Their return value is a specification that can be
+applied to the application state later. Reducers specify a state transition in their function body, but they must invoke
+it to produce the next state value.
 
-# Motivation
-
-
-#### Less code.
- 
-The same app written using `re-frame` (968 loc) requires about 47% as
-much code as Redux (2050 loc). The same app written in Framework-X is
-about 59% (1213 loc).
-
-For large, complex front-end applications, that adds up quickly, making it slower
-to write the applications and harder to understand how they work.
-
-
-#### Easier.
-
-When a framework makes something difficult, it's natural to look for an
-easier way to accomplish the same thing.
-
-The harder a framework makes it to use global state, the more tempted we
-are to use local state, even when that wasn't what we wanted at first.
-
-The more code required to create subscriptions to the state, the easier
-and more tempting it makes passing too many props through too many
-components instead of each component only getting what concerns it.
-
-The more opinionated a framework is about how state is organized -- and
-the more work it requires from us to specify that structure -- the less
-it tends to reflect the way we think it should be.
-
-Achieving good application design is largely influenced by how difficult
-it is for us to reach. Putting it more within reach seemed one good way
-to end up with better applications.
+By itself this may not seem useful. However, Framework-X leverages the difference between "description" and "the thing
+itself" to allow functions specify side effects without performing them. 
 
 
-#### Simpler.
+<!--How an effect is performed is-->
+<!--defined elsewhere, and its execution occurs when it needs to.-->
 
-We wanted a simpler framework that included no more and no less than
-what we find essential:
-- Global state
-- Events
-- Event effects
-- Derived state
-- Subscriptions
+In order for reducers to remain pure functions, side effects must be specified and invoked outside them. Redux uses
+middleware for this purpose. The example below uses `redux-thunk` in an effort to show the basic differences in
+approach.
 
-By not compromising on basic building blocks, Framework-X avoids
-entailing future complexity. It's our experience that a minimal set of
-building blocks can be combined to achieve complex things, all of which
-are simple. Out of them, we can still construct complicated interactions
-outnecessary for building complex
+```js
+const getUser = ({ id }) => dispatch => {
+  dispatch({ type: 'api/loading', payload: true })
+  return fetch(`/user/${id}`)
+    .then(res => res.json())
+    .then(res => {
+      dispatch({ type: 'api/loading', payload: false })
+      dispatch({ type: 'get-user/success', payload: res })
+    })
+    .catch(e => {
+      dispatch({ type: 'api/loading', payload: false })
+      dispatch({ type: 'get-user/fail', payload: e })
+    })
+}
 
+const userReducer = (state, action) => {
+  switch(action.type) {
+    case 'get-user/success':
+      return action.payload
+    case 'get-user/fail':
+      console.error(action.payload)
+      return state
+    default:
+      return state
+  }
+}
 
+const loadingReducer = (state, action) => {
+  switch(action.type) {
+    case 'api/loading':
+      return action.payload
+    default:  
+      return state
+  }
+}
 
-This lets us think about fewer things and think less about others,
-leaving more mental bandwidth available for other tasks. As a result,
-Framework-X has no concepts for:
-- action creators 
-- `mapDispatchToProps` 
-- reducers 
-- enhancers 
-- middleware
-- multiple stores 
-- third-party libraries 
-- middleware
-- sagas
-- special syntax
-- classes
-- decorators
-- epics
-- observables
-- hooks
+regEventFx('get-user', (_, { id }) => [
+  ['db', R.assoc('loading', true)],
+  ['fetch', [{ url:`/user/${id}` }, 'get-user/success', 'get-user/fail']]
+])
 
+regEventFx('get-user/success', (_, user) => ({ db: R.mergeRight({ loading: false, user }) }))
 
-It can be hard The more pieces an application has, the harder it becomes
-to follow it all the way through. Setting keys and values on a
-Javascript object with messages
+regEventFx('get-user/fail', (_, e) => { 
+  console.error(e)
+  return { db: R.assoc('loading', false) }
+})
+``` 
 
+With the Redux example, the `get-user` event is absent. `redux-thunk`
+middleware allows users to `dispatch` functions that return a function accepting `dispatch` and `getState` arguments and
+return a Promise. In Framework-X, `get-user` is an event dispatched from the view like any other.  
 
+Because we're using `combineReducers`, we've chosen to dispatch an `api/loading` event in order to affect two different
+keys in the state, `user` and `loading`. We could have written reducer code to look for events like 'get-user/request'
+and update the state in response, though we'd need to write this in the `apiReducer` for each API call.
 
-toward implementing
-poor designs Easier ways were efficient in the moment, but costly long
-term. "I'm not going to put this in global state -- nothing else needs
-to know about it" was more often influenced by "I don't want to write
-`mapDispatchToProps`, an action creator, handle the event in a reducer,
-make this a connected component change the way we did things in order to
-accommodate them at the expense of good design. If it's harder to get
-props from the global state to a component, we're less likely to do that
-as often as if it were more convenient.
-
-Framework-X has a `dispatch` and `store` like Redux, but doesn't need
-middleware, action creators, or `mapDispatchToProps`. Though some
-differences between Framework-X and Redux might seem slight, they end up
-removing the need for entire concepts.
-
-Typically, Redux requires using `connect(mapStateToProps,
-mapDispatchToProps)(MyComponent)` from `react-redux` to be able to
-`dispatch` an event from a component. This injects `store.dispatch` into
-the component where it can be accessed via `this.props.dispatch`, or --
-if a `mapDispatchToProps` function was provided that takes `dispatch` as
-an argument and returns an object of `{myAction: (args) => dispatch({
-type:'eventName', payload: args })` -- a function that dispatches the
-action can be accessed via `this.props.myAction`. This was too much
-overhead for us, especially for something as common and essential as
-dispatching events. So components just import dispatch from the created
-store. If they 
-
-This also led us to get rid of action creators as a reified concept. 
-
-The overall result was a tremendous reduction in developer overhead. 
-
-
-
-#### More intuitive, straightforward
-
-
-
-
+Framework-X doesn't require middleware for side effects. Instead, the `get-user` handler returns an effect description
+that maps to a registered function by that name. By default the effect is executed, but as we've mentioned previously it
+doesn't need to be, and the implementation of any effect may be defined variously. Were the `fetch` effect executed with
+the sample fetch effect we showed earlier, we'd expect the API call's result to communicated with other events just like
+in the `getUser` code. Minimal consideration can be given to whether other events should be dispatched beyond success or
+failure since event handlers can operate over the state as a whole.

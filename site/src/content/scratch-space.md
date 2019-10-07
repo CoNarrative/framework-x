@@ -207,3 +207,96 @@ Some of these things can be mitigated. Action creators are idiomatic but
 optional. `mapDispatchToProps` is optional -- we can use
 `this.props.dispatch({ type:'some-action' })`.
 
+
+---
+
+In Framework-X, both can be
+specified in response to a particular event and an `fx` description will be returned. Like middleware, developer tooling
+may listen to all dispatched events, but applications can respond to particular events with side effects .
+- Given the name of an event, it's not obvious what side effects are associated with it
+- Because middleware is ordered, subsequent middleware in the chain can receive different actions depending on what's
+  in front of them
+- Events that produce an effect via middleware may or may not have separate effects on state
+- Middleware is called with every dispatched event whether or not any registered middleware does anything with it
+- Middleware may run a side effect based on the presence of a key of the event's arguments instead of the name of an
+  event
+- Writing custom Redux middleware may be intimidating, encouraging reliance upon third party libraries and APIs which
+  can be complicated
+- It's difficult to test
+
+
+On the whole, the way reducers and middleware are separated make understanding the effects of an event and the way an application works
+contingent upon understanding what the reducer does and what the middleware does. We've not yet seen a benefit from organizing things
+this way, but we have seen tremendous benefits from specifying an event's effects in one place. 
+
+Further, we can still offer pure functions that update state in response to an event. A `dispatch` returned from `regEventFx` doesn't actually
+dispatch anything. It's only a description of what should happen. This is the same for the `db` effect, which is a pure functional description
+of the transformation that should be applied to the current state. Other effects like `route` effects, API requests, and anything custom effects
+you register are the same as well.
+
+
+# Motivations & Rationale
+
+#### Less code.
+We generally believe writing less code is better than writing more. Redux apps felt like too much, and when we used
+`re-frame` we felt like there was no going back. We wanted to do more with less.
+
+The RealWorld example app implemented with Framework-X is about 1213 loc, which is about 40% less than Redux (2050 loc).
+Users of other Javascript frameworks can expect similar reductions. Clojurescript developers working in Javascript
+shouldn't feel too much of a difference -- `reframe` (968 loc) is 25% terser, and most of the difference is attributable
+to JSX closing tags.
+
+
+
+#### Easier to write good code.
+
+When a framework makes something difficult, it's natural to look for an easier way to accomplish it. As much as posible
+we wanted to make good application design easier than the alternative.
+
+The harder a framework makes using global state, the more tempted we become to use local state, even when that wasn't
+what we wanted at first.
+
+The more code it takes to get parts of the app's state state to a view component, the more tempting it becomes to not
+write that code and pass props instead.
+
+The more a framework enforces on state organization, the less we tend to be able to arrange it and update it
+easily, or how we naturally think about it. write applications that model the way we think things should be. and the
+more work it requires from us to specify that structure
+
+
+#### Simpler.
+
+We wanted a framework that provided us with tools  we could build abstractions on top of and that included no more and no
+less than what we find essential:
+- Global state
+- Events
+- Event effects
+- Derived state
+
+By not compromising on basic building blocks, Framework-X avoids
+entailing future complexity. It's our experience that a minimal set of
+building blocks can be combined to achieve complex things, all of which
+are simple. Out of them, we can still construct complicated interactions
+outnecessary for building complex
+
+This lets us think about fewer things and think less about others, leaving more mental bandwidth available for solving
+problems. As a result, Framework-X leaves out a lot of things:
+- action creators 
+- `mapDispatchToProps` 
+- reducers 
+- enhancers 
+- middleware
+- multiple stores 
+- hooks
+- middleware
+- sagas
+- special syntax
+- classes
+- decorators
+- epics
+- observables
+
+#### More intuitive, straightforward
+
+
+
