@@ -10,9 +10,7 @@ import './events'
 import { App } from './App'
 
 
-const ff = createFx({ dispatch, fetch: window.fetch })
-  console.log('ff',ff)
-regFx('fetch', ff)
+regFx('fetch', createFx({ dispatch, fetch: window.fetch }))
 regFx('localStorage', localStorageFx({ localStorage: window.localStorage, setState }))
 dispatch(evt.INITIALIZE_DB, { articles: [] })
 

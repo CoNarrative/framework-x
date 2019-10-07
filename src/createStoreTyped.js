@@ -245,7 +245,7 @@ export const defaultEnv = () => ({
         notifyStateListeners: (env) => {
             env.dbListeners.forEach(f => f(env.state.db));
         },
-        notifyEventListeners: (env, event) => env.eventListeners.forEach((f) => f(event)),
+        notifyEventListeners: (env, event) => env.eventListeners.forEach((f) => f(env, event)),
     },
     errorFx: {},
     events: {},
@@ -276,18 +276,6 @@ const mergeEnv = (args) => {
 };
 export const createStore = (args) => {
     const env = mergeEnv(args);
-    /* Hacked a bit to support redux devtools  */
-    env.eventListeners.forEach(m => m({}, {
-        setState(state) {
-            env.fx.eval(env, ['setDb', state]);
-        },
-        get subs() {
-            return [];
-        },
-        get state() {
-            return env.state.db;
-        }
-    }, {}));
     return {
         env,
         dispatch: (eventName, args) => {

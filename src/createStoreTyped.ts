@@ -314,7 +314,7 @@ export const defaultEnv = (): DefaultEnv => ({
       env.dbListeners.forEach(f => f(env.state.db))
     },
     notifyEventListeners: (env: DefaultEnv, event: [string, any]) =>
-      env.eventListeners!.forEach((f: any) => f(event)),
+      env.eventListeners!.forEach((f: any) => f(env, event)),
   },
   errorFx: {},
   events: {},
@@ -357,18 +357,6 @@ export const createStore = <E>(args?: E extends IEnv ? E : never) => {
 
   type Env = typeof env
   type EventName = E extends { events: infer U } ? MapValue<U, keyof U> : string
-  /* Hacked a bit to support redux devtools  */
-  env.eventListeners!.forEach(m => m({}, {
-    setState(state: Env['state']) {
-      env.fx.eval(env, ['setDb', state])
-    },
-    get subs() {
-      return []
-    },
-    get state() {
-      return env.state.db
-    }
-  }, {}))
 
   return {
     env,
