@@ -55,11 +55,10 @@ const Features = () => (
     <div css={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flexShrink: 1, maxWidth: 540, [whenTablet]: {marginTop: 40,}}}>
       <h1 css={{marginTop: 0, fontSize: '3rem', marginBottom: '1.2rem', display: 'flex'}}>Key features</h1>
       <ol css={{fontFamily: 'Basier Square Mono', fontSize: '1.04rem', margin: 0, marginBottom: 20, lineHeight: '1.6rem', color: '#CBD2E4', '& > li': {marginBottom: 12,}}}>
-        <li>All state is in one place.</li>
-        <li>Events are first-class.</li>
-        <li>Top-level keys on the state atom are not special.</li>
-        <li>setState is a just another side effect.</li>
-        <li>Components have subscriptions.</li>
+        <li>Less code</li>
+        <li>Spreadsheet programming</li>
+        <li>Single source of truth</li>
+        <li>Algebraic effects</li>
       </ol>
       <Link to={'/learn'}>
         <Button3D light rootCss={{ width: 132 }}>Learn more</Button3D>

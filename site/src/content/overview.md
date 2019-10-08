@@ -15,25 +15,15 @@ productivity.
 
 
 #### Key features:
-1. **State is a just another side effect.** You don't write
-   different code for updating the state than you would an API call.
-2. **Events are first-class.** You can respond to an event with another
-   event, a state change, or both, all in the same place in code.
-3. **All state is in one place**, the `db` state atom. You can put the
-   application into any state it's capable of representing by setting
-   this value. 
-4. **Component subscriptions** let components specify what data they
-   need and receive updates when it changes.
-5. **Data flows from state to components through functions**. Any
-   function that takes the `db` as an argument can be subscribed to by a
-   component. Functions used as subscriptions are memoized, so the
-   subscription only tells the component to rerender when there's a new
-   value .
+1. **Less code** 
+2. **Algebraic effects** Respond to an event with a state change and an API call in 2 lines of code and maintain a
+   purely functional codebase that's easy to follow and write automated tests against.
+3. **Single source of truth** Framework-X promotes this best practice by requiring developers do less to achieve it --
+   less code, and fewer requirements on state organization and update patterns. By not having state in multiple places,
+   you can put your app into any state it's capable of representing by setting one value.
+4. **Spreadsheet programming.** Like a spreadsheet formula that references the cells of other formulas, Framework-X apps
+   use functions that are based on the results of others. React components use these directly to render UI. 
    
-<!--3. **Top-level keys on the state atom are not special.** If you want to-->
-<!--   read from three different top-level keys and dispatch a side effect-->
-<!--   in the same place, you can. If you want add a key to the state that-->
-<!--   doesn't exist yet you can, without having to write a reducer.--> 
 
 ## Base selectors, `derive`d selectors
 
@@ -89,12 +79,9 @@ things:
   
 - **Explicit dataflow** 
 
-  An application that uses selectors, `createSub`
-  and `derive` encodes a dependency graph necessary to carry out all
-  necessary computations. By knowing which computations depend on the
-  results of others and using memoization, framework-x apps are able to
-  avoid recalculating `derive` inputs that have not changed from one
-  state transition to the next.
+  An application that uses selectors, `createSub` and `derive` encodes a dependency graph necessary to carry out all
+  necessary computations. By knowing which computations depend on the results of others and using memoization,
+  framework-x apps are able to only run code that is worth running. 
   
 - **Understanding and readability**
  
