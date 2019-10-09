@@ -1,0 +1,20 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/framework-x
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - restore_cache:
+          key: deps-cache-v1-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install Dependencies
+          command: yarn install --frozen-lockfile
+      - save_cache:
+          key: deps-cache-v1-{{ checksum "yarn.lock" }}
+          paths:
+            - /home/circleci/.yarn
+      - run:
+          name: Run Tests
+          command: yarn test
