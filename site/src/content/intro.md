@@ -7,12 +7,12 @@ path: /intro
 Framework-X is a Javascript framework that uses algebraic effects to express state transformations and side effects as
 pure functions.
 
-Its similar to
+It's similar to
 [Redux](https://redux.js.org/), though it requires about 40% less code to accomplish the same tasks. It was originally
 based on
 [`re-frame`](https://github.com/Day8/re-frame), a React framework for Clojurescript.
 
-Framework-X has been used in mid-size production applications for nearly 2 years. It's being open sourced today under
+Framework-X has been used in mid-size production applications for nearly 2 years and is being open sourced today under
 the MIT license.
 
 
@@ -41,7 +41,7 @@ regEventFx('add-todo', ({ db }, { text }) => {
 
 ## Effect descriptions
 
-Effect descriptions are arrays that match the name and signature of registered effect handlers. Framework-x provides a
+Effect descriptions are arrays that match the name and signature of registered effect handlers. Framework-X provides a
 state update effect (`db`) and an effect that dispatches events (`dispatch`) by default.
 
 `db` expects a function that describes a state transformation. It belongs to a specific category of effects that
@@ -55,11 +55,9 @@ regEventFx('add-todo', ({ db }, { text }) => {
 })
 ```
 
-Event handlers may use the `dispatch` effect to incorporate the effects of other events. 
-
-A `dispatch` within an event handler invokes the next handler with the result of any previous `db` effects. This allows
-event handlers to be composed into a single reduce function. Framework-X produces one React `setState` operation per
-event dispatched from the view layer, even when events are dispatched from event handlers.
+Event handlers may use the `dispatch` effect to incorporate the effects of other events. This allows event
+handlers to be composed into a single reduce function. Framework-X produces one React `setState` operation per event
+dispatched from the view layer, even when events are dispatched from event handlers.
 
 
 ```js
@@ -106,25 +104,14 @@ regEventFx('get-user/fail', ({db }, e) => { ... })
 ```
 
 
-Framework-X evaluates all side effects lazily. Its evaluation of event handlers in response to an outside event does
-nothing to affect the outside world. Instead, the event handlers have given it a data description of what should happen.
-At the same time, it's a description that can be evaluated.
+Framework-X evaluates all side effects lazily. Each one is put in a queue until the end of the dispatch cycle. Event
+handlers do nothing to affect the outside world. Instead, they produce a description of what should happen. Later, the
+description can be evaluated.
 
-```js
-{queue: [['fetch', [{ url:'/user/42' }, 'get-user/success', 'get-user/fail']]],
- stack: [['db', <Function> ]],
- reductions: [{ db: { loading: true }}],
- state: {db: {loading: true}},
- event:  'get-user',
-}
-```
-
-
-This affords many undersold benefits. We can print the effects list and read it to see if it's what we expect it to be.
-Tests assertions can be written against it without invoking any side effectful code. Tests can execute it with custom
-behavior for each effect. Code can analyze the effects queue, allowing runtime optimizations like combining a series of
-API calls into a Promise.all, or arbitrary custom behavior -- skipping certain effects, adding others, changing
-arguments.
+Optionally, we could print the effects list to see if it's what we expect. Tests assertions can be written against it
+without invoking any side effectful code, or with custom behavior for each effect. Code can analyze the effects
+queue, allowing runtime optimizations like combining a series of API calls into a Promise.all, or arbitrary custom
+behavior -- skipping certain effects, adding others, changing arguments.
 
 By default, Framework-X evaluates the side effects queue in order against all registered side effect (`fx`) handlers 
 with the current environment and whatever arguments they were provided from the event handler that returned them. Each
