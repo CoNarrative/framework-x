@@ -12,9 +12,21 @@
 npm i framework-x
 ```
 
+## Getting started
+
+Examples are in the `examples` folder. To install and run an example:
+
+```bash
+git clone https://github.com/CoNarrative/framework-x
+cd framework-x/examples/todomvc
+npm i
+npm start
+```
+
+
 ## Usage
 
 
 ## License
 
-MIT © [mikegai](https://github.com/mikegai)
+MIT © [CoNarrative](https://github.com/CoNarrative)
