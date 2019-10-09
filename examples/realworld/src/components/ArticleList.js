@@ -18,7 +18,7 @@ export const ListPagination = component('ListPagination',
         {pageNumbers.map(n =>
           <li key={n} className={n === page ? 'page-item active' : 'page-item'}>
             <div className="page-link"
-                 onClick={() => dispatch([evt.UPDATE_ARTICLE_FILTERS, R.assoc('page', n, articleFilters)])}
+                 onClick={() => dispatch(evt.UPDATE_ARTICLE_FILTERS, R.assoc('page', n, articleFilters))}
             >{n}</div>
           </li>)}
       </ul>

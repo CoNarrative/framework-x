@@ -17,7 +17,7 @@ regEventFx(evt.USER_REQUESTS_SAVE_STORY, ({ db }) => {
   return [fx.dispatch(evt.API_REQUEST, req)]
 })
 
-regResultFx(evt.SAVE_STORY, (_, __, { json: { article } }) => {
+regResultFx(evt.SAVE_STORY, (_, { json: { article } }) => {
   const { slug: id } = article
   return [
     fx.db(R.pipe(
@@ -26,6 +26,6 @@ regResultFx(evt.SAVE_STORY, (_, __, { json: { article } }) => {
     fx.dispatch(evt.NAV_TO, [routeIds.ARTICLE, { id }]),
     fx.dispatch(evt.API_REQUEST, [evt.GET_COMMENTS, api.comments.forArticle(id)])
   ]
-  }, (_, __, { json: { errors } }) => ({
+  }, (_, { json: { errors } }) => ({
     db: R.pipe(R.dissocPath(['editor', 'isLoading']), R.assocPath(['editor', 'errors'], errors))
 }))

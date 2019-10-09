@@ -9,9 +9,9 @@ import { getProfileForm } from './selectors'
 import * as api from '../api'
 
 
-regResultFx(evt.GET_PROFILE, (_, __, { json: { profile } }) => {
+regResultFx(evt.GET_PROFILE, (_, { json: { profile } }) => {
   return [fx.db(R.assoc('profile', updateIn(['bio'], x => x ? x : '', profile)))]
-}, (_, __, err) => { console.error('error getting profile', err) })
+}, (_, err) => { console.error('error getting profile', err) })
 
 
 regEventFx(evt.USER_REQUESTS_SAVE_PROFILE, ({ db }) => {
@@ -21,13 +21,13 @@ regEventFx(evt.USER_REQUESTS_SAVE_PROFILE, ({ db }) => {
 
 regResultFx(evt.UPDATE_PROFILE,
   () => [fx.db(R.dissoc('profile')), fx.dispatch(evt.NAV_TO, [routeIds.HOME])],
-  (_, __, err) => { console.error('error updating profile', err) })
+  (_, err) => { console.error('error updating profile', err) })
 
-regEventFx(evt.USER_REQUESTS_TOGGLE_FOLLOWING, (_, __, [username, follow]) => {
+regEventFx(evt.USER_REQUESTS_TOGGLE_FOLLOWING, (_, [username, follow]) => {
   return [fx.dispatch(evt.API_REQUEST,
     [evt.TOGGLE_FOLLOW_USER, api.profile[follow ? 'follow' : 'unfollow'](username)])]
 })
 
 regResultFx(evt.TOGGLE_FOLLOW_USER,
-  (_, __, { json: { profile } }) => ({ db: R.assoc('profile', profile) }),
-  (_, __, err) => { console.log('follow toggle failure', err) })
+  (_, { json: { profile } }) => ({ db: R.assoc('profile', profile) }),
+  (_, err) => { console.log('follow toggle failure', err) })

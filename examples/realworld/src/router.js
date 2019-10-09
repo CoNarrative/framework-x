@@ -1,13 +1,12 @@
-import * as queryString from 'query-string'
 import * as R from 'ramda'
 import { createHashHistory } from 'history'
 import { createRouter } from 'framework-x'
 import * as api from './api'
-import { isLoggedIn } from './auth/selectors'
 import { evt } from './eventTypes'
 import { fx } from './fx'
 import { routes } from './routes'
 import { dispatch, regEventFx, regFx } from './store'
+import { getUser } from './user/selectors'
 import { updateIn } from './util'
 
 
@@ -17,13 +16,12 @@ const history = createHashHistory()
 
 const { pushNamedRoute, replaceNamedRoute, listen } = createRouter({ history, routes })
 
-regFx('route', args => pushNamedRoute.apply(null, args))
+regFx('route', (_, args) => pushNamedRoute.apply(null, args))
 
-regFx('redirect', args => replaceNamedRoute.apply(null, args))
+regFx('redirect', (_, args) => replaceNamedRoute.apply(null, args))
 
 const getRouteEffects = ({ db, match, type, route, query, prevRoute }) => {
-  const initialLoad = type === 'INITIAL'
-  if (initialLoad && isLoggedIn()) {
+  if (type === 'INITIAL' && getUser(db)) {
     dispatch(evt.API_REQUEST, [evt.GET_USER, api.auth.current()])
   }
 
@@ -41,7 +39,7 @@ const getRouteEffects = ({ db, match, type, route, query, prevRoute }) => {
   return {}
 }
 
-regEventFx(evt.NAV_TO, ({ db }, _, [id, params, query]) => [
+regEventFx(evt.NAV_TO, ({ db }, [id, params, query]) => [
   fx.db(R.assocPath(['router', 'match'], {
     params,
     route: R.find(R.propEq('id', id), routes)
@@ -49,7 +47,7 @@ regEventFx(evt.NAV_TO, ({ db }, _, [id, params, query]) => [
   ['route', [id, params, query]]
 ])
 
-regEventFx(evt.ROUTE_CHANGED, ({ db }, _, locationAndMatch) => {
+regEventFx(evt.ROUTE_CHANGED, ({ db }, locationAndMatch) => {
   const { match, type, search: query } = locationAndMatch
   const route = R.path(['match', 'route'], locationAndMatch)
   const prevRoute = R.path(['match', 'route'], R.head(R.pathOr([], ['router', 'history'], db)))

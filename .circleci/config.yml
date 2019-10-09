@@ -16,5 +16,11 @@ jobs:
           paths:
             - /home/circleci/.yarn
       - run:
-          name: Run Tests
+          name: Build
+          command: yarn build
+      - run:
+          name: Main Tests
           command: yarn test
+      - run:
+         name: Node Smoke Test
+         command: yarn run test:node:smoke

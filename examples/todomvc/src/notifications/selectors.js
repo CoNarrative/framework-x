@@ -1,8 +1,8 @@
-import { derive, makeGetSet } from 'framework-x'
+import { derive } from 'framework-x'
 import * as R from 'ramda'
 
 
-export const [getNotificationsList, setNotificationsList] = makeGetSet(['notifications'])
+export const getNotificationsList = R.path(['notifications'])
 
 export const getNotificationsMap = derive(
   [getNotificationsList],

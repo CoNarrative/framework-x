@@ -1,19 +1,18 @@
 import ReactDOM from 'react-dom'
 import React from 'react'
-import * as R from 'ramda'
-import { getToken, isLoggedIn } from './auth/selectors'
 import { evt } from './eventTypes'
 import { Provider } from 'framework-x'
+import { localStorageFx } from './fx'
+import { createFx } from '@framework-x/fetch-fx'
 import { startRouter } from './router'
-import { store, dispatch, regEventFx, subscribeToState, getState } from './store'
+import { store, dispatch, subscribeToState, getState, regFx, setState } from './store'
 import './events'
 import { App } from './App'
-import { parseJwt } from './util'
 
-regEventFx(evt.INITIALIZE_DB, (_, __, state) => ({ db: state }))
 
-dispatch(evt.INITIALIZE_DB,
-  R.mergeAll([{ articles: [] }, isLoggedIn() ? { user: parseJwt(getToken()) } : {}]))
+regFx('fetch', createFx({ dispatch, fetch: window.fetch }))
+regFx('localStorage', localStorageFx({ localStorage: window.localStorage, setState }))
+dispatch(evt.INITIALIZE_DB, { articles: [] })
 
 startRouter()
 ReactDOM.render(

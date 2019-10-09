@@ -32,11 +32,12 @@ export const Controls = component('Controls',
   }), ({ canMarkAllDone, canClearAllDone,canClearAll }) => {
     return (
       <div>
-        {buttons({ canMarkAllDone, canClearAll,canClearAllDone }).map(({ label, enabled, event }, i) => {
+        {buttons({ canMarkAllDone, canClearAll, canClearAllDone })
+          .map(({ label, enabled, event }, i) => {
           return <button
             key={i}
             disabled={!enabled}
-            onClick={() => dispatch(event)}
+            onClick={() => dispatch(...event)}
           >
             {label}
           </button>

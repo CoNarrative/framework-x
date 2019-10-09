@@ -10,8 +10,8 @@ import { updateIn } from '../util'
 import { getCommentForm } from './selectors'
 
 regResultFx(evt.GET_COMMENTS,
-  (_, __, { json: { comments } }) => ({ db: R.assoc('comments', comments) }),
-  (_, __, err) => { console.error('error getting comments', err) })
+  (_, { json: { comments } }) => ({ db: R.assoc('comments', comments) }),
+  (_, err) => { console.error('error getting comments', err) })
 
 regEventFx(evt.USER_REQUESTS_POST_COMMENT, ({ db }) => {
   const comment = getCommentForm(db)
@@ -20,22 +20,22 @@ regEventFx(evt.USER_REQUESTS_POST_COMMENT, ({ db }) => {
 })
 
 regResultFx(evt.POST_COMMENT,
-  (_, __, { json: { comment } }) => ({
+  (_, { json: { comment } }) => ({
     db: R.pipe(R.dissoc('comment'), updateIn(['comments'], (comments = []) => R.append(comment, comments)))
-  }), (_, __, err) => { console.error('comment error', err) })
+  }), (_, err) => { console.error('comment error', err) })
 
-regEventFx(evt.USER_REQUESTS_DELETE_COMMENT, (_, __, { id, slug }) => {
+regEventFx(evt.USER_REQUESTS_DELETE_COMMENT, (_, { id, slug }) => {
   return [fx.dispatch(evt.API_REQUEST,
     [evt.DELETE_COMMENT, api.comments.delete(slug, id), { id, slug }])]
 })
 
 regResultFx(evt.DELETE_COMMENT,
-  (_, __, { args: { id } }) => ({
+  (_, { args: { id } }) => ({
     db: updateIn(['comments'], (comments = []) => R.reject(R.propEq('id', id), comments)),
-  }), (_, __, err) => { console.error('comment error', err) })
+  }), (_, err) => { console.error('comment error', err) })
 
 
 regResultFx(evt.DELETE_ARTICLE, () => [
   fx.db(R.pipe(R.dissoc('article'), R.dissoc('comments'))),
   fx.dispatch(evt.NAV_TO, [routeIds.HOME])
-], (_, __, err) => { console.error('comment error', err) })
+], (_, err) => { console.error('comment error', err) })
