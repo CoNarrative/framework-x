@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const createStoreTyped_1 = require("../src/createStoreTyped");
+const createStoreTyped_1 = require("../src/createStore");
 const myevt = { 'evt1': 'evt-1111' };
 const myargs = {
     state: { db: { foo: 42 } },

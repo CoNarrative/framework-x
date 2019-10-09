@@ -1,5 +1,5 @@
 import * as R from 'ramda'
-import { createStore, defaultEnv } from './createStoreTyped'
+import { createStore, defaultEnv } from './createStore'
 import { derive } from './util'
 
 const evt = {
@@ -283,7 +283,7 @@ describe('core/dispatch', () => {
     dispatch('first')
 
     jest.runTimersToTime(1000)
-    expect(order).toEqual(['from1','fromDispatched1','from2','fromAsync'])
+    expect(order).toEqual(['from1', 'fromDispatched1', 'from2', 'fromAsync'])
     jest.resetAllMocks()
   })
 })
@@ -293,9 +293,8 @@ describe('event stream', () => {
     let evts = []
     const { dispatch } = createStore({
       state: { db: {} },
-      eventListeners: [(...x) => {
-        // disambiguate redux devtools init
-        evts.push(Array.isArray(x[0]) ? x[0] : x)
+      eventListeners: [(env, event) => {
+        evts.push(event)
       }],
       eventFx: {
         'my-evt': [() => [['dispatch', ['my-evt2', 'a', 'b']]]],
@@ -304,15 +303,9 @@ describe('event stream', () => {
     })
     dispatch('my-evt')
 
-    expect(evts.length).toEqual(3)
-
-    const devtoolsEvent = evts[0]
-    expect(devtoolsEvent[0]).toEqual({})
-    expect(Object.keys(devtoolsEvent[1])).toEqual(['setState', 'subs', 'state'])
-    expect(devtoolsEvent[2]).toEqual({})
-
-    expect(evts[1]).toEqual(['my-evt'])
-    expect(evts[2]).toEqual(['my-evt2', 'a', 'b'])
+    expect(evts.length).toEqual(2)
+    expect(evts[0]).toEqual(['my-evt'])
+    expect(evts[1]).toEqual(['my-evt2', 'a', 'b'])
   })
 })
 

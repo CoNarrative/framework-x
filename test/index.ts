@@ -1,5 +1,5 @@
 import { EffectDescription, MapValue } from "../src"
-import { createFxDescriptors, createStore } from "../src/createStoreTyped"
+import { createFxDescriptors, createStore } from "../src/createStore"
 
 const myevt = { 'evt1': 'evt-1111' } as const
 const myargs = {
