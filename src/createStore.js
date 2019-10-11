@@ -1,14 +1,4 @@
-export const fxErrorTypes = ['event-fx/unhandled', 'fx/unhandled', 'fx.dispatch/arguments', 'fx.db/arguments'];
-export class FxError extends Error {
-    constructor(type, data) {
-        super();
-        this.namespace = 'framework-x';
-        this.name = 'error';
-        this.isRecoverable = true;
-        this.type = type;
-        this.data = data;
-    }
-}
+import { FxError } from "./FxError";
 const checkType = (op, type) => {
     if (typeof (type) !== 'string')
         throw new Error(`${op} requires a string as the fx key`);
@@ -188,10 +178,6 @@ export const dispatchFx = (env, event) => {
  * @param e
  */
 export const rootErrorFx = (env, acc, e) => {
-    // need to know if someone handled this error
-    // may want "only errors an app originated" to be handled  in which case
-    // reg an errorFx for the  error type
-    // but, also want something like devtools to handle any error not handled by app errorFx
     if (e.isResumable && env.errorFx && env.errorFx[e.name]) {
         env.errorFx[e.name](env, acc, e);
         return;
@@ -206,7 +192,7 @@ export const rootErrorFx = (env, acc, e) => {
  */
 export const resumeFx = (env, prevAcc, acc) => {
     if (!prevAcc)
-        throw new Error('resume requires the accumulator passed to errorFx');
+        throw new Error('resumeFx requires the accumulator passed to errorFx');
     // @ts-ignore
     prevAcc = null;
     try {
@@ -253,7 +239,12 @@ export const defaultEnv = () => ({
     dbListeners: [],
     eventListeners: [],
 });
-const mergeEnv = (args) => {
+/**
+ * Accepts an environment and returns it merged with defaults.
+ * Attempts to preserve as much structural type information as possible.
+ * @param args
+ */
+export const mergeEnv = (args) => {
     const defaultEnvValue = defaultEnv();
     if (typeof args !== 'undefined') {
         const merged = Object.entries(defaultEnvValue).reduce((a, [k, v]) => {

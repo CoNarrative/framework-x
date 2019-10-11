@@ -13,32 +13,8 @@ import {
   EventVector,
   ErrorEffect,
 } from "./index"
+import { FxError } from "./FxError"
 
-
-export const fxErrorTypes = ['event-fx/unhandled', 'fx/unhandled', 'fx.dispatch/arguments', 'fx.db/arguments']
-
-export type FxErrorType = typeof fxErrorTypes | string
-
-export  type FxErrorData = any & {
-  message: string
-  expected: any
-  received: any
-  suggestions: (any & { code: string })[]
-}
-
-export class FxError extends Error {
-  public namespace = 'framework-x'
-  public name = 'error'
-  public type: FxErrorType
-  public data: FxErrorData
-  public isRecoverable = true
-
-  constructor(type: string, data?: any) {
-    super()
-    this.type = type
-    this.data = data
-  }
-}
 
 const checkType = (op, type) => {
   if (typeof (type) !== 'string') throw new Error(`${op} requires a string as the fx key`)
@@ -253,10 +229,6 @@ export const dispatchFx = <E extends DispatchEnv<E>>(
  * @param e
  */
 export const rootErrorFx = <E>(env: E & { errorFx?: ErrorEffect<E> }, acc: Accum<E>, e: Error) => {
-  // need to know if someone handled this error
-  // may want "only errors an app originated" to be handled  in which case
-  // reg an errorFx for the  error type
-  // but, also want something like devtools to handle any error not handled by app errorFx
   if ((e as any).isResumable && env.errorFx && env.errorFx[e.name]) {
     env.errorFx[e.name](env, acc, e)
     return
@@ -271,7 +243,7 @@ export const rootErrorFx = <E>(env: E & { errorFx?: ErrorEffect<E> }, acc: Accum
  * @param acc
  */
 export const resumeFx = <E>(env: E & EnvWith<'fx'>, prevAcc: Accum<any>, acc: Accum<any>) => {
-  if (!prevAcc) throw new Error('resume requires the accumulator passed to errorFx')
+  if (!prevAcc) throw new Error('resumeFx requires the accumulator passed to errorFx')
 
   // @ts-ignore
   prevAcc = null
@@ -323,7 +295,12 @@ export const defaultEnv = (): DefaultEnv => ({
   eventListeners: [],
 })
 
-const mergeEnv = <E>(args?: E extends IEnv ? E : never) => {
+/**
+ * Accepts an environment and returns it merged with defaults.
+ * Attempts to preserve as much structural type information as possible.
+ * @param args
+ */
+export const mergeEnv = <E>(args?: E extends IEnv ? E : never) => {
   const defaultEnvValue = defaultEnv()
   if (typeof args !== 'undefined') {
     const merged = Object.entries(defaultEnvValue).reduce((a, [k, v]) => {
