@@ -1,5 +1,6 @@
 export * from './createStore'
 export * from './react'
 export * from './router'
+export * from './FxError'
 export { default as devtools } from './devTools'
 export { derive, createSub } from './util'
