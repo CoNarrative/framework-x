@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "types": "src/index.d.ts",
-  "homepage": "https://github.com/CoNarrative/framework-x/packages/fetch-fx",
+  "homepage": "https://github.com/CoNarrative/framework-x/tree/master/packages/fetch-fx",
   "repository": {
     "type": "git",
     "url": "https://github.com/CoNarrative/framework-x.git"
