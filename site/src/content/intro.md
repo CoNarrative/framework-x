@@ -309,7 +309,7 @@ const loadingReducer = (state, action) => {
 
 regEventFx('get-user', (_, { id }) => [
   ['db', R.assoc('loading', true)],
-  ['fetch', [{ url:`/user/${id}` }, 'get-user/success', 'get-user/fail']]
+  ['fetch', [{ url:`/user/${id}`, parseBody: ['json'] }, ['get-user/success'], ['get-user/fail']]]
 ])
 
 regEventFx('get-user/success', (_, user) => ({ db: R.mergeRight({ loading: false, user }) }))
@@ -320,17 +320,41 @@ regEventFx('get-user/fail', (_, e) => {
 })
 ``` 
 
-With the Redux example, the `get-user` event is absent. `redux-thunk`
-middleware allows users to `dispatch` functions that return a function accepting `dispatch` and `getState` arguments and
-return a Promise. In Framework-X, `get-user` is an event dispatched from the view like any other.  
+`redux-thunk` middleware allows users to `dispatch` a function as an action that receives `dispatch` and `getState`
+arguments via a callback. From there, the callback can return a Promise for the thunk middleware to execute. 
 
-Because we're using `combineReducers`, we've chosen to dispatch an `api/loading` event in order to affect two different
-keys in the state, `user` and `loading`. We could have written reducer code to look for events like 'get-user/request'
-and update the state in response, though we'd need to write this in the `apiReducer` for each API call.
+In Framework-X, `get-user` is an event dispatched from the view like any other. Its event handler returns effects to set
+the `loading` flag and fetch the user. We can provide configuration for the request, response parsing, and what events
+should handle success and failure cases. 
 
-Framework-X doesn't require middleware for side effects. Instead, the `get-user` handler returns an effect description
-that maps to a registered function by that name. By default the effect is executed, but as we've mentioned previously it
-doesn't need to be, and the implementation of any effect may be defined variously. Were the `fetch` effect executed with
-the sample fetch effect we showed earlier, we'd expect the API call's result to communicated with other events just like
-in the `getUser` code. Minimal consideration can be given to whether other events should be dispatched beyond success or
-failure since event handlers can operate over the state as a whole.
+The Redux example uses `combineReducers` so we handle each update to the global state individually. We've chosen to
+dispatch an `api/loading` event in order to affect two different keys in the state, `user` and `loading`. We could have
+written reducer code to look for events like 'get-user/request' and update the state in response, though this would
+require we add cases to the switch statement for the `apiReducer` for each API call action our app makes.
+
+Framework-X doesn't require middleware for side effects. Instead, the `get-user` handler returns a `fetch` effect
+description that corresponds to a function by that name. By default, a `dispatch` from the view layer entails the
+invocation of all effects its handlers define. Tests, tooling, and custom implementations may choose to return a list of
+effects before they're executed. Further, the implementation of any effect may be defined or redefined easily, so we can
+define `fetch` with a mock implementation. Were the `fetch` effect executed with the sample fetch effect we showed
+earlier, we'd expect the API call's result to communicated with other events just like in the `getUser` code. We can
+limit our success or failure since event handlers can update more than one key of the state at a time.
+
+# Next steps
+
+The source code for the project is available at
+[https://github.com/CoNarrative/framework-x](https://github.com/CoNarrative/framework-x).
+
+For the quickest way to dive in, check out the
+[RealWorld example]() or the
+[todomvc example]() on codesandbox.io.
+
+If you're interested in how to use Framework-X with an existing Redux application, check out
+[`framework-x-redux`](https://github.com/CoNarrative/framework-x/tree/master/packages/frameework-x-redux) on Github.
+
+API documentation is available at
+[framework-x.io](https://framework-x.io/).
+
+You can follow us on Twitter
+[@framework-x](https://twitter.com/framework_x). 
+
