@@ -1,3 +1,4 @@
+import * as R from 'ramda'
 import {
   EDITOR_PAGE_LOADED,
   EDITOR_PAGE_UNLOADED,
@@ -7,12 +8,11 @@ import {
   REMOVE_TAG,
   UPDATE_FIELD_EDITOR
 } from '../../constants/actionTypes'
-import * as R from 'ramda'
 import { regEventFx } from '../store'
+import { updateIn } from '../util'
 
-export const updateIn = R.curry((ks, f, m) => R.assocPath(ks, f(R.path(ks, m)), m))
 
-const defaultLoaded = {
+const defaults = {
   articleSlug: '',
   title: '',
   description: '',
@@ -21,20 +21,20 @@ const defaultLoaded = {
   tagList: []
 }
 
-regEventFx(EDITOR_PAGE_LOADED, (_, { payload: { article } }) =>
-  [['db', R.assoc('editor', R.merge(defaultLoaded, article))]])
+regEventFx(EDITOR_PAGE_LOADED, (_, { payload }) => ({
+  db: R.assoc('editor', R.merge(defaults, R.path(['article'], payload)))
+}))
 
 regEventFx(EDITOR_PAGE_UNLOADED, () => [['db', R.assoc('editor', {})]])
 
-regEventFx(ARTICLE_SUBMITTED, (_, { error, payload }) => [
-  ['db', updateIn(['editor'],
+regEventFx(ARTICLE_SUBMITTED, (_, { error, payload }) => ({
+  db: updateIn(['editor'],
     R.mergeLeft({ inProgress: null, errors: error ? payload.errors : null }))
-  ]
-])
+}))
 
 regEventFx(ASYNC_START, (_, { subtype }) => {
   if (subtype === ARTICLE_SUBMITTED) {
-    return [['db', R.assocPath(['editor', 'inProgress'], true)]]
+    return { db: R.assocPath(['editor', 'inProgress'], true) }
   }
 })
 
@@ -43,9 +43,11 @@ regEventFx(ADD_TAG, ({ db }) => [
   ['db', R.assocPath(['editor', 'tagInput'], '')]
 ])
 
-regEventFx(REMOVE_TAG, ({ db }, { tag }) =>
-  [['db', updateIn(['editor', 'tagList'], R.reject(R.equals(tag)))]])
+regEventFx(REMOVE_TAG, ({ db }, { tag }) => ({
+  db: updateIn(['editor', 'tagList'], R.reject(R.equals(tag)))
+}))
 
 regEventFx(UPDATE_FIELD_EDITOR, ({ db }, { key, value }) =>
-  [['db', R.assocPath(['editor', key], value)]])
+  ({ db: R.assocPath(['editor', key], value) })
+)
 
