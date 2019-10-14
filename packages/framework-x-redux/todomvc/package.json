@@ -6,6 +6,7 @@
     "parcel": "^1.12.3",
     "react-scripts": "^3.0.0",
     "react-test-renderer": "^16.8.6",
+    "redux-devtools-extension": "^2.13.8",
     "redux-saga": "^1.0.3"
   },
   "dependencies": {

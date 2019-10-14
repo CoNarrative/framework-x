@@ -2,30 +2,36 @@ import React from 'react'
 import { render } from 'react-dom'
 import { Provider } from 'react-redux'
 import { applyMiddleware, createStore } from 'redux'
+import { composeWithDevTools } from 'redux-devtools-extension'
 import createSagaMiddleware from 'redux-saga'
 import 'todomvc-app-css/index.css'
 import { frameworkXRedux, makeFrameworkXMiddleware } from 'framework-x-redux'
 import App from './components/App'
-import { COMPLETE_TODO, DELETE_TODO } from './constants/ActionTypes'
+import { ADD_TODO, COMPLETE_TODO, DELETE_TODO } from './constants/ActionTypes'
 import reducer from './reducers'
 import rootSaga from './sagas'
 import { assoc } from './util'
 import { createStore as frameworkXCreateStore } from 'framework-x'
 
-const { env, regEventFx } = frameworkXCreateStore()
+const { env,regEventFx,regFx } = frameworkXCreateStore()
 
 const sagaMiddleware = createSagaMiddleware()
 const store = createStore(
   reducer,
-  applyMiddleware(
-    sagaMiddleware,
-    makeFrameworkXMiddleware(env),
+  composeWithDevTools(
+    applyMiddleware(
+      makeFrameworkXMiddleware(env),
+      sagaMiddleware,
+    )
   )
 )
 const { dispatch } = frameworkXRedux(env, store, reducer)
 window._env = env
 sagaMiddleware.run(rootSaga)
 
+regFx('logState',(env)=>{
+  console.log('LOG state',  Object.assign({},env.state.db))
+})
 
 const fy = {
   db: newStateOrReducer => ['db', newStateOrReducer]
@@ -33,7 +39,8 @@ const fy = {
 regEventFx('A', ({ db }, n) => {
   console.log('[fwx] A -> B', db)
   return [
-    fy.db(assoc('last', n))
+    fy.db(assoc('last', n)),
+      ['dispatch', [ADD_TODO, { text: "use framework-x", completed: false }]],
   ]
 })
 regEventFx('B', ({ db }, n) => {
@@ -53,9 +60,12 @@ regEventFx(COMPLETE_TODO, ({ db }, x) => {
           ? Object.assign({}, todo, { completed: true })
           : todo)
       })],
-    ['dispatch', [DELETE_TODO, { id: x.id }]],
+    ['logState'],
+    ['dispatch', [DELETE_TODO, { id: x.id}]],
     ['dispatch', ['A', 1]],
-    ['dispatch', ['A', 2]]
+
+    ['logState'],
+    ['dispatch', ['B', 2]]
   ]
 })
 window._store = store

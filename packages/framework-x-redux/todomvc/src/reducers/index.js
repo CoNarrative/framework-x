@@ -7,8 +7,8 @@ const rootReducer = combineReducers({
   todos,
   counter,
   visibilityFilter,
-  cool:(state = null,action)=> {
-    console.log('cool reducer', state,action)
+  cool: (state = null, action) => {
+    console.log('cool reducer', state, action)
     return state
   }
 })
