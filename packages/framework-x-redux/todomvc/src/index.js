@@ -13,7 +13,7 @@ import rootSaga from './sagas'
 import { assoc } from './util'
 import { createStore as frameworkXCreateStore } from 'framework-x'
 
-const { env,regEventFx,regFx } = frameworkXCreateStore()
+const { env, regEventFx, regFx } = frameworkXCreateStore()
 
 const sagaMiddleware = createSagaMiddleware()
 const store = createStore(
@@ -29,8 +29,8 @@ const { dispatch } = frameworkXRedux(env, store, reducer)
 window._env = env
 sagaMiddleware.run(rootSaga)
 
-regFx('logState',(env)=>{
-  console.log('LOG state',  Object.assign({},env.state.db))
+regFx('logState', (env) => {
+  console.log('LOG state', Object.assign({}, env.state.db))
 })
 
 const fy = {
@@ -40,7 +40,7 @@ regEventFx('A', ({ db }, n) => {
   console.log('[fwx] A -> B', db)
   return [
     fy.db(assoc('last', n)),
-      ['dispatch', [ADD_TODO, { text: "use framework-x", completed: false }]],
+    ['dispatch', [ADD_TODO, { text: 'use framework-x', completed: false }]],
   ]
 })
 regEventFx('B', ({ db }, n) => {
@@ -61,7 +61,7 @@ regEventFx(COMPLETE_TODO, ({ db }, x) => {
           : todo)
       })],
     ['logState'],
-    ['dispatch', [DELETE_TODO, { id: x.id}]],
+    ['dispatch', [DELETE_TODO, { id: x.id }]],
     ['dispatch', ['A', 1]],
 
     ['logState'],
@@ -69,6 +69,7 @@ regEventFx(COMPLETE_TODO, ({ db }, x) => {
   ]
 })
 window._store = store
+
 
 
 render(

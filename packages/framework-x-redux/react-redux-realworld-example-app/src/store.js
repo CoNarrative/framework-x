@@ -26,4 +26,5 @@ const getMiddleware = () => {
 
 export const store = createStore(
   reducer, composeWithDevTools(getMiddleware()))
-frameworkXRedux(env, store, reducer)
+
+export const { dispatch } = frameworkXRedux(env, store, reducer)

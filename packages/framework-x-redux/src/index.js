@@ -2,6 +2,8 @@ import { regFx, createAccum } from 'framework-x'
 import assoc from 'ramda/es/assoc'
 import dissoc from 'ramda/es/dissoc'
 
+export { component } from './component'
+
 
 // framework-x -> redux
 export const dispatchSignatureAdaptor = (event) => {
@@ -37,7 +39,7 @@ const makeFrameworkXReducer = (env, reducer) =>
  * Wraps Redux's root reducer with one that adds updates from Framework-X event handlers
  *
  * Returns a dispatch function using Framework-X's event signature that may be used to
- * dispatch actions to Redux or Framework-X
+ * dispatch actions to Redux and Framework-X
  * @param env - Framework-X env
  * @param store - Redux store
  * @param reducer - Your root Redux reducer
@@ -75,7 +77,7 @@ export const reduceEventEffectsRedux = (env, acc, event) => {
     // dispatch to obtain all consequent state updates before our execution continues
     // acc.queue.push(['next'])
     acc.queue.push(['dispatch', event])
-    return //env.fx.dispatch(env, event)
+    return
   }
 
   console.log('[reduce-event-fx] found handler, loading results into accum', type)
@@ -128,13 +130,13 @@ export const reduceEventEffectsRedux = (env, acc, event) => {
  * @returns function to be passed to Redux's applyMiddleware as the last argument to createStore
  */
 export const makeFrameworkXMiddleware = env => store => next => action => {
-
   if (!env.eventFx.hasOwnProperty(action.type)) {
+    // could check for a symbol/metadata on the  action to see if we dispatched it.
+    // if we did, ignore it here (already processed)
     console.log('[middleware] no fwx handler for', action.type)
     env.fx.eval(env, ['setDbWithReduxReducer', [env.state.db, action]])
     next(action)
     console.log('still hanging around from ', action)
-    // env.state.db = store.getState()
     return
   }
   regFx(env, 'next', (env) => {
