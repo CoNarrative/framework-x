@@ -1,20 +1,11 @@
 import { regFx, createAccum } from 'framework-x'
-import assoc from 'ramda/es/assoc'
 import dissoc from 'ramda/es/dissoc'
+import { makeInteropDispatch } from './dispatch'
 
 export { component } from './component'
 
 
-// framework-x -> redux
-export const dispatchSignatureAdaptor = (event) => {
-  const args = event[1]
-  return args ? assoc('type', event[0], args) : { type: event[0] }
-}
 
-// framework-x -> redux
-export const makeInteropDispatch = store => (env, event) => {
-  store.dispatch(dispatchSignatureAdaptor(event))
-}
 
 /**
  * Returns the state to Redux computed from the result calling the Redux reducer with
