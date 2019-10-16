@@ -5,7 +5,8 @@ import MainSection from '../containers/MainSection'
 import { createSub } from 'framework-x'
 import { component } from 'framework-x-redux'
 
-const Foo = component('Foo', createSub({ x: x => 42 }), ({ x, dispatch }) => {
+const Foo = component('Foo', createSub({ x: x => 42 }), ({ x, cool, dispatch }) => {
+  console.log('rendering', { cool }, x, dispatch)
   return (
     <div onClick={() => dispatch(ADD_TODO, { text: 'hi' })}>
       Hello

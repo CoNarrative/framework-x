@@ -15,14 +15,15 @@
   "peerDependencies": {
     "framework-x": "file:../..",
     "ramda": "^0.26.1",
-    "redux": "^3.0.0",
+    "redux": "^4.0.4",
     "react-redux": "^7.1.1"
   },
   "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.6.4",
     "framework-x": "file:../..",
-    "react-redux": "^6.0.1",
+    "react": "^16.10.2",
+    "redux": "^4.0.4",
     "rollup": "^0.54.0",
     "rollup-plugin-babel": "^3.0.3",
     "rollup-plugin-commonjs": "^8.2.1",
