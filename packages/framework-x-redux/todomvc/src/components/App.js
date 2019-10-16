@@ -5,18 +5,25 @@ import MainSection from '../containers/MainSection'
 import { createSub } from 'framework-x'
 import { component } from 'framework-x-redux'
 
-const Foo = component('Foo', createSub({ x: x => 42 }), ({ x, cool, dispatch }) => {
+const evt = { FLIP_COOL: 'cool/toggle' }
+
+const CoolOMeter = component('CoolOMeter', createSub({
+  cool: x => {
+    console.log('coolsub',x)
+    return x.cool === true
+  }
+}), ({ x, cool, dispatch }) => {
   console.log('rendering', { cool }, x, dispatch)
   return (
-    <div onClick={() => dispatch(ADD_TODO, { text: 'hi' })}>
-      Hello
+    <div onClick={() => dispatch(evt.FLIP_COOL, {value: !cool})}>
+      Hello {String(cool)}
     </div>
   )
 })
 
 const App = () => (
   <div>
-    <Foo cool={true} />
+    <CoolOMeter />
     <Header />
     <MainSection />
   </div>

@@ -16,7 +16,7 @@ export { component } from './component'
  */
 const makeFrameworkXReducer = (env, reducer) =>
   (state, action) => {
-    if (!state) { // @@INIT seems special
+    if (!state) { // assuming this is @@INIT
       const value = reducer(state, action)
       env.fx.eval(env, ['setDb', value])
       return value
@@ -27,9 +27,14 @@ const makeFrameworkXReducer = (env, reducer) =>
   }
 
 /**
- * Wraps Redux's root reducer with one that adds updates from Framework-X event handlers
+ * Wraps Redux's root reducer with one that adds updates from Framework-X event handlers.
  *
- * Returns a dispatch function using Framework-X's event signature that may be used to
+ * Registers an effect `setDbWithReduxReducer` that calls the provided reducer with
+ * a `state` and `action` and assigns the result to Framework-X's `db` state. It preserves
+ * any keys added by Framework-X * code that don't have a corresponding reducer and favors
+ * the next state value returned by the reducer otherwise.
+ *
+ * Returns a dispatch function with Framework-X's event signature that may be used to
  * dispatch actions to Redux and Framework-X
  * @param env - Framework-X env
  * @param store - Redux store
@@ -43,7 +48,7 @@ export const frameworkXRedux = (env, store, reducer) => {
   replaceReducer(frameworkXReducer)
 
   regFx(env, 'setDbWithReduxReducer', (_, [state, action]) => {
-    env.state.db = reducer(state, action)
+    env.state.db = Object.assign({}, state, reducer(state, action))
   })
 
   const dispatch = makeInteropDispatch(store)

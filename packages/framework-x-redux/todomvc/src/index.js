@@ -12,6 +12,7 @@ import reducer from './reducers'
 import rootSaga from './sagas'
 import { assoc } from './util'
 import { createStore as frameworkXCreateStore } from 'framework-x'
+import * as R from 'ramda'
 
 const { env, regEventFx, regFx } = frameworkXCreateStore()
 
@@ -47,7 +48,9 @@ regEventFx('B', ({ db }, n) => {
   console.log('[fwx] B -> null', db)
   return { db: assoc('first', n) }
 })
-
+regEventFx('cool/toggle', ({ db }, { value }) => {
+  return { db: R.assoc('cool', value) }
+})
 
 regEventFx(COMPLETE_TODO, ({ db }, x) => {
   console.log('framework-x handler 1', db, x)
@@ -69,7 +72,6 @@ regEventFx(COMPLETE_TODO, ({ db }, x) => {
   ]
 })
 window._store = store
-
 
 
 render(
