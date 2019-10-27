@@ -117,9 +117,8 @@ const regErrorScreenFx = ({ regFx, regEventFx }) => {
   )
 }
 
-export const createDevtools = (env) => {
+export const createErrorTools = (env) => {
   const { env: exEnv, dispatch, setState, getState, subscribeToState, regFx: regFxLocal, regEventFx } = createStore()
-  window._exEnv = exEnv
   window.addEventListener('keydown', e => dispatch(evt.KEYDOWN, e))
   regErrorScreenFx({ regEventFx, regFx: regFxLocal })
   regFx(env, 'handleError', (env, acc, e) => {
@@ -134,7 +133,7 @@ export const createDevtools = (env) => {
   })
 
   return {
-    FrameworkXDevtools: () =>
+    FrameworkXErrorTools: () =>
       <Provider {...{ dispatch, getState, subscribeToState }}>
         <Root />
       </Provider>

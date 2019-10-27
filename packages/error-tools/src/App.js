@@ -1,5 +1,5 @@
 import React from 'react'
-import { createDevtools } from './lib'
+import { createErrorTools } from './lib'
 import logo from './logo.svg'
 import './App.css'
 import { Provider, createStore, createSub, derive, component } from 'framework-x'
@@ -9,7 +9,7 @@ export const { setState, env, getState, subscribeToState, dispatch, regEventFx }
 
 window._env = env
 
-const { FrameworkXDevtools } = createDevtools(env)
+const { FrameworkXErrorTools } = createErrorTools(env)
 
 const foo = derive([x => x ? x.cool : null], (x) => {
   // throw new Error("oops")
@@ -40,7 +40,7 @@ function App() {
           </a>
         </header>
       </div>
-      <FrameworkXDevtools />
+      <FrameworkXErrorTools />
     </Provider>
   )
 }
