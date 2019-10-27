@@ -1,11 +1,11 @@
 import React from 'react'
 import * as R from 'ramda'
-import { CodeBlock } from './components/CodeBlock'
-import { CaughtEffect, DoneEffects, NextEffects } from './effects/views'
-import { EventEditor } from './event/views'
-import { CurrentState, ReducedState, Reductions } from './state/views'
-import { Suggestions } from './suggestions/views'
-import { prettyStr } from './util'
+import { CodeBlock } from './CodeBlock'
+import { CaughtEffect, DoneEffects, NextEffects } from '../effects/views'
+import { EventEditor } from '../event/views'
+import { CurrentState, ReducedState, Reductions } from '../state/views'
+import { Suggestions } from '../suggestions/views'
+import { prettyStr } from '../util'
 
 
 export const ErrorScreen = ({ error, acc, env, dispatch, }) => {

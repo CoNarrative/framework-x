@@ -1,11 +1,11 @@
 import React from 'react'
 import { regFx, createStore, createSub } from 'framework-x'
 import { SECTION_NAME } from './constants'
-import { ErrorScreen } from './ErrorScreen'
+import { ErrorScreen } from './components/ErrorScreen'
 import { openEditors } from './event/selectors'
 import { evt } from './eventTypes'
-import { Provider } from './Root'
-import { component } from './component'
+import { Provider } from './context/Provider'
+import { component } from './context/component'
 import * as R from 'ramda'
 import { getAcc, getEnv, getError } from './selectors'
 import { getRelevantOrdinalSections, sectionMap, sections } from './sections'
@@ -26,7 +26,11 @@ const Root = component('Root', createSub({
   getError
 }), ({ env, acc, error, dispatch }) => {
   if (!error || !error.data) return null
-  return <ErrorScreen {...{ env, acc, error, dispatch }} />
+  return (
+    <div className={'framework-x-error-tools'}>
+      <ErrorScreen {...{ env, acc, error, dispatch }} />
+    </div>
+  )
 })
 
 

@@ -12,7 +12,7 @@ import {
   initialEditedEventValueStr,
   isEditingEvent
 } from './selectors'
-import { component } from '../component'
+import { component } from '../context/component'
 
 const KEY = SECTION_NAME.CURRENT_EVENT
 

@@ -24,3 +24,4 @@ yarn-error.log*
 !/examples/todomvc/.env
 !/examples/realworld/.env
 !/packages/framework-x-redux/todomvc/.env
+!/packages/error-tools/.env
