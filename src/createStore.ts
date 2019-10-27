@@ -233,7 +233,7 @@ export const rootErrorFx = <E>(env: E & { errorFx?: ErrorEffect<E> }, acc: Accum
     env.errorFx[e.name](env, acc, e)
     return
   }
-  console.error(e)
+  throw e
 }
 
 /**
