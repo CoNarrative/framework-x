@@ -25,14 +25,18 @@ const frameworkXMiddleware = makeFrameworkXMiddleware(env)
 
 const store = createStore(
   reducer,
-  applyMiddleware(
-    // other middleware
-    frameworkXMiddleware
-  )
+  applyMiddleware(frameworkXMiddleware)
 )
 
 const { dispatch } = frameworkXRedux(env, store, reducer)
 ```
+
+
+## How it works
+The library uses Redux middleware and `replaceReducer` to forward events to framework-x and update the Redux state. The
+middleware checks if the `action.type` has a registered framework-x event handler. If there is, the event handler is
+called with the action's arguments. The resulting state merged into Redux's state as a side effect and executed along
+with any other side effects that were returned.
 
 ## API
 
@@ -136,15 +140,14 @@ a function, you can dispatch it to Redux from an event handler or a `component` 
 
 ### Using event handlers instead of reducers
 The example in `react-redux-realworld-example-app` replaces the `editor` reducer with event handlers. Supposing the
-`editor` reducer not been written beforehand, this example also shows how to add event handlers for a view layer written
-in Redux. Each editor-related event that the application normally handles with a reducer is delegated to an event
-handler. Existing Redux middleware for async API requests and components that use `react-redux` are used alongside this.
-The example uses `combineReducers` and that returns the state for the framework-x-managed key i.e. `editor: state =>
-state`.
+`editor` reducer not been written beforehand, this example shows how to use event handlers instead of reducers for a
+view layer that uses Redux. Existing Redux middleware for async API requests and components that use `react-redux` are
+preserved. 
 
-### Dispatching events to Redux reducers
-If you want to trigger a state transition that is already specified in a reducer from Framework-X, you can do so from a
-component or event handler. When dispatching in this case from an event handler, we don't support handling the same
-event over again in Framework-X. Choosing one or the other in this case isn't necessary but suggested as a best practice
-at this time. TODO use a symbol
+
+### Dispatching Redux actions from Framework-X
+Redux receives actions dispatched from Framework-X event handlers or components. When the dispatch is initiated by a
+Framework-X event handler, we don't support handling the same event over
+again in Framework-X. The implementation forces a choice between one or the other in this case suggested as a best
+practice at this time.
 
