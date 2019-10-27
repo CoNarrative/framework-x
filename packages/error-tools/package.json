@@ -1,7 +1,6 @@
 {
   "name": "@framework-x/error-tools",
-  "version": "0.1.0",
-  "private": true,
+  "version": "1.0.0-alpha.1",
   "dependencies": {
     "@babel/core": "7.6.0",
     "@svgr/webpack": "4.3.2",
