@@ -3,6 +3,7 @@ import { dispatchSignatureAdaptor } from './dispatch'
 
 const overwriteDispatch = props =>
   Object.assign({}, props, {
+    reduxDispatch: props.dispatch,
     dispatch: (event, args) =>
       props.dispatch(dispatchSignatureAdaptor([event, args]))
   })
@@ -28,4 +29,3 @@ export const component = (name, subscriptionFn, renderFn) => {
   comp.displayName = `FxComponent(${name})` || 'FxComponent(unnamed)'
   return comp
 }
-
