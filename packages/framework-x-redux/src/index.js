@@ -54,6 +54,7 @@ export const frameworkXRedux = (env, store, reducer) => {
   const dispatch = makeInteropDispatch(store)
 
   regFx(env, 'dispatch', dispatch)
+  // regFx(env, 'reduxDispatch', (env, action) => store.dispatch(action))
 
   return {
     dispatch: (type, args) => args ? dispatch(env, [type, args]) : dispatch(env, [type]),
