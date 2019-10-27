@@ -25,7 +25,7 @@ const Root = component('Root', createSub({
   getAcc,
   getError
 }), ({ env, acc, error, dispatch }) => {
-  if (!error) return null
+  if (!error || !error.data) return null
   return <ErrorScreen {...{ env, acc, error, dispatch }} />
 })
 
@@ -121,12 +121,14 @@ export const createDevtools = (env) => {
   const { env: exEnv, dispatch, setState, getState, subscribeToState, regFx: regFxLocal, regEventFx } = createStore()
   window._exEnv = exEnv
   window.addEventListener('keydown', e => dispatch(evt.KEYDOWN, e))
-  // derive
   regErrorScreenFx({ regEventFx, regFx: regFxLocal })
   regFx(env, 'handleError', (env, acc, e) => {
     if (e.isResumable && env.errorFx && env.errorFx[e.name]) {
       env.errorFx[e.name](env, acc, e)
       return
+    }
+    if (e.namespace !== 'framework-x') {
+      throw e
     }
     dispatch(evt.INCOMING_ERROR, { env, acc, error: e })
   })

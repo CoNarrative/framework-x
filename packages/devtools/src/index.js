@@ -9,6 +9,7 @@ import { dispatch, regEventFx } from './App'
 ReactDOM.render(<App />, document.getElementById('root'))
 
 regEventFx('foo', ({ db }, args) => {
+  throw new Error()
   if (!args) {
     throw new FxError('foo/args', { message: 'foo event should be dispatched with at least one argument.' })
   }
@@ -17,6 +18,7 @@ regEventFx('foo', ({ db }, args) => {
 
 regEventFx('bar', ({ db }, args) => {
   if (!args) {
+    throw new Error()
     throw new FxError('bar/args', {
       message: 'bar event should be dispatched with at least one argument.',
       expected: ['any'],

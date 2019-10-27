@@ -1,0 +1,36 @@
+{
+  "name": "framework-x-redux",
+  "description": "A bridge from Redux to framework-x.",
+  "version": "1.0.0-alpha.1",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://githuh.com/CoNarrative/framework-x/tree/master/packages/framework-x-redux"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "peerDependencies": {
+    "framework-x": "1.0.0-alpha.1",
+    "ramda": "^0.26.1",
+    "redux": "^4.0.4",
+    "react-redux": "^7.1.1"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/core": "^7.6.4",
+    "react": "^16.10.2",
+    "redux": "^4.0.4",
+    "rollup": "^0.54.0",
+    "rollup-plugin-babel": "^3.0.3",
+    "rollup-plugin-commonjs": "^8.2.1",
+    "rollup-plugin-node-resolve": "^3.0.2",
+    "rollup-plugin-peer-deps-external": "^2.0.0"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -c -w"
+  }
+}

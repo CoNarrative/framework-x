@@ -182,7 +182,7 @@ export const rootErrorFx = (env, acc, e) => {
         env.errorFx[e.name](env, acc, e);
         return;
     }
-    console.error(e);
+    throw e;
 };
 /**
  * Clears the in-progress execution in `prevAcc` and continues with the one provided.
