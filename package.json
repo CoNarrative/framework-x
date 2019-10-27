@@ -1,6 +1,6 @@
 {
   "name": "framework-x",
-  "version": "0.1.46",
+  "version": "1.0.0-alpha.1",
   "description": "Reasonable global state for React.",
   "author": "mikegai",
   "license": "MIT",
