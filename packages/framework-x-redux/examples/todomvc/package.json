@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "classnames": "^2.2.6",
-    "framework-x": "file:./../../..",
-    "framework-x-redux": "file:..",
+    "framework-x": "1.0.0-alpha.1",
+    "framework-x-redux": "1.0.0-alpha.1",
     "prop-types": "^15.7.2",
     "ramda": "^0.26.1",
     "react": "^16.10.2",

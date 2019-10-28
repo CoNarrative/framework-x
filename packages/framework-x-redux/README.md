@@ -6,12 +6,6 @@
 npm i framework-x-redux
 ```
 
-## Requirements
-- `redux@4`
-- `react-redux@7`
-- `react@16`
-- `framework-x@1`
-
 ## Usage
 ```js
 import { frameworkXRedux, makeFrameworkXMiddleware } from 'framework-x-redux'
@@ -20,7 +14,7 @@ import { applyMiddleware, createStore } from 'redux'
 import reducer from './reducers'
 
 
-const { env, regEventFx, regFx } = frameworkXCreateStore()
+const { env } = frameworkXCreateStore()
 const frameworkXMiddleware = makeFrameworkXMiddleware(env)
 
 const store = createStore(
@@ -33,10 +27,9 @@ const { dispatch } = frameworkXRedux(env, store, reducer)
 
 
 ## How it works
-The library uses Redux middleware and `replaceReducer` to forward events to framework-x and update the Redux state. The
-middleware checks if the `action.type` has a registered framework-x event handler. If there is, the event handler is
-called with the action's arguments. The resulting state merged into Redux's state as a side effect and executed along
-with any other side effects that were returned.
+The library uses Redux middleware and `replaceReducer` to forward events to framework-x and synchronize the state of
+both frameworks. Whenever a dispatched `action.type` has a registered framework-x event handler, it's called with the
+action's arguments. The framework-x state is merged with Redux's and side effects are executed.
 
 ## API
 
@@ -52,7 +45,29 @@ returns:
 Computes the next state as the result of calling a Redux `reducer` with the current action and state from Framework-X.
 Allows arbitrary keys on the state to be set by Framework-X without pre-initialization or a corresponding reducer.
 Favors the values of keys returned by the reducer if there is a conflict. The resulting state is accessible from Redux
-and Framework-X through their normal APIs.
+and Framework-X through their normal APIs. 
+
+Example:
+
+```js
+import { applyMiddleware, createStore } from 'redux'
+import { composeWithDevTools } from 'redux-devtools-extension'
+import { frameworkXRedux, makeFrameworkXMiddleware } from 'framework-x-redux'
+import reducer from './reducers'
+import { createStore as frameworkXCreateStore } from 'framework-x'
+
+const { env } = frameworkXCreateStore()
+
+const store = createStore(
+  reducer,
+  composeWithDevTools(
+    applyMiddleware(
+      makeFrameworkXMiddleware(env),
+    )
+  )
+)
+const { dispatch } = frameworkXRedux(env, store, reducer)
+```
 
 
 ### `makeFrameworkXMiddleware`
@@ -78,6 +93,15 @@ If Framework-X is registered to handle it:
 - The event will not be dispatched to Redux: We assume you're communicating with another framework-x event handler. The
   dispatch is handled within Framework-X and not re-dispatched to Redux.
 
+Example:
+```js
+import {  makeFrameworkXMiddleware } from 'framework-x-redux'
+import { createStore as frameworkXCreateStore } from 'framework-x'
+
+const { env } = frameworkXCreateStore()
+
+const frameworkXMiddleware = makeFrameworkXMiddleware(env)
+```
 
 ### `component`
 arguments: 
@@ -103,9 +127,9 @@ import { component } from 'framework-x-redux'
 const MyComponent = component('MyComponent', createSub({
   mySelector1,
   mySelector2
-}), ({ mySelector1, mySelector2, myParentProps })=>{
+}), ({ mySelector1, mySelector2, myParentProps }) => {
   return  (
-    <div></div>
+    <div>{...}</div>
   )
 })
 
@@ -131,12 +155,6 @@ pertain to the new feature and write components for them. If you need to read fr
 the new feature, your Redux state is merged with your Framework-X state, so you can access it from event handlers,
 effects, selectors, etc. as needed.
 
-### Interoperating with Redux middleware
-If you want to avoid rewriting core application functionality expressed via middleware, like REST API calls and
-interactions with local storage, you can continue to use them from Framework-X. Exact usage typically depends on what
-your middleware expects to receive for an action. In general, if your middleware requires an action to be dispatched as
-a function, you can dispatch it to Redux from an event handler or a `component` using the `reduxDispatch` effect.
-
 
 ### Using event handlers instead of reducers
 The example in `react-redux-realworld-example-app` replaces the `editor` reducer with event handlers. Supposing the
@@ -145,9 +163,8 @@ view layer that uses Redux. Existing Redux middleware for async API requests and
 preserved. 
 
 
-### Dispatching Redux actions from Framework-X
-Redux receives actions dispatched from Framework-X event handlers or components. When the dispatch is initiated by a
-Framework-X event handler, we don't support handling the same event over
-again in Framework-X. The implementation forces a choice between one or the other in this case suggested as a best
-practice at this time.
-
+### Dispatching Redux actions from Framework-X event handlers
+Events dispatched from event handlers are handled by either Framework-X or Redux, but not both. This means you can use
+Framework-X the same as you might use other middleware like `redux-saga` to dispatch an action/event to Redux in
+response to another one, like a route change or API success. If the event you dispatch has a handler registered with
+Framework-X, it will be handled there only. 

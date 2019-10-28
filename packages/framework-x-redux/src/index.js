@@ -5,8 +5,6 @@ import { makeInteropDispatch } from './dispatch'
 export { component } from './component'
 
 
-
-
 /**
  * Returns the state to Redux computed from the result calling the Redux reducer with
  * the state and action and calling Framework-X event handlers with the same
@@ -16,7 +14,7 @@ export { component } from './component'
  */
 const makeFrameworkXReducer = (env, reducer) =>
   (state, action) => {
-    if (!state) { // assuming this is @@INIT
+    if (!state) { // assume '@@INIT'
       const value = reducer(state, action)
       env.fx.eval(env, ['setDb', value])
       return value
@@ -69,15 +67,12 @@ export const reduceEventEffectsRedux = (env, acc, event) => {
 
   const eventHandlers = env.eventFx[type]
   if (!eventHandlers) {
-    console.log(`[reduce-event-fx] no handlers for ${type}, queuing dispatch to Redux`)
-    // assume this is an outbound Redux event (it could be unhandled).
+    // assume intended for Redux (may be unhandled)
     // dispatch to obtain all consequent state updates before our execution continues
-    // acc.queue.push(['next'])
     acc.queue.push(['dispatch', event])
     return
   }
 
-  console.log('[reduce-event-fx] found handler, loading results into accum', type)
   eventHandlers.forEach((handler) => {
     const effects = handler({ ...acc.state }, args)
     if (!effects) {
@@ -128,16 +123,11 @@ export const reduceEventEffectsRedux = (env, acc, event) => {
  */
 export const makeFrameworkXMiddleware = env => store => next => action => {
   if (!env.eventFx.hasOwnProperty(action.type)) {
-    // could check for a symbol/metadata on the  action to see if we dispatched it.
-    // if we did, ignore it here (already processed)
-    console.log('[middleware] no fwx handler for', action.type)
     env.fx.eval(env, ['setDbWithReduxReducer', [env.state.db, action]])
     next(action)
-    console.log('still hanging around from ', action)
     return
   }
-  regFx(env, 'next', (env) => {
-    console.log('[middleware]  next', action)
+  regFx(env, 'next', (_env) => {
     next(action)
   })
 
@@ -150,7 +140,5 @@ export const makeFrameworkXMiddleware = env => store => next => action => {
     ['next']
   )
 
-  console.log('[middleware] applying', acc)
   env.fx.applyImpure(env, env.fx.eval, acc)
-
 }
