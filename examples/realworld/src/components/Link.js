@@ -2,8 +2,8 @@ import React from 'react'
 import { evt } from '../eventTypes'
 import { dispatch } from '../store'
 
-export const Link = ({ to, className, onClick,children }) =>
-  <a className={className} onClick={e => {
+export const Link = ({ to, href = null,className, onClick, children }) =>
+  <a {...{className, href}} onClick={e => {
     e.preventDefault()
     if (onClick) return onClick(e)
     const [routeId, params = {}, query] = to

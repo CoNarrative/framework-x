@@ -36,7 +36,7 @@ const getRouteEffects = ({ db, match, type, route, query, prevRoute }) => {
   if (onEnter || onExit) {
     return R.chain(R.identity, R.filter(R.identity, [onExit, onEnter]))
   }
-  return {}
+  return []
 }
 
 regEventFx(evt.NAV_TO, ({ db }, [id, params, query]) => [

@@ -1,6 +1,6 @@
 {
   "name": "@framework-x/fetch-fx",
-  "version": "0.0.0",
+  "version": "1.0.0-alpha.1",
   "description": "`fetch` as effect",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -16,6 +16,7 @@
   "author": "CoNarrative",
   "license": "MIT",
   "peerDependencies": {
+    "framework-x": "1.0.0-alpha.1",
     "ramda": "^0.26.1"
   },
   "devDependencies": {

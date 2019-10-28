@@ -7,8 +7,8 @@ import { getUser } from '../user/selectors'
 
 export const getArticles = R.path(['articles'])
 export const getArticle = R.pathOr({}, ['article'])
-export const canModifyArticle = derive([getArticle, getUser],
-  (article, user) => R.path(['author', 'username'], article) === user.username)
+export const canModifyArticle = derive([getArticle, getUser], (article, user) =>
+  R.path(['author', 'username'], article) === R.path(['username'], user))
 
 export const getArticlesCount = R.path(['articlesCount'])
 

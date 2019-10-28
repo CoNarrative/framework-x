@@ -57,7 +57,7 @@ const Comment = ({ slug, comment: { id, author: { username, image }, body, creat
   </div>
 
 
-const canModify = (comment, user) => comment.author.username === user.username
+const canModify = (comment, user) => comment.author.username === R.path(['username'], user)
 
 const Comments = component('Comments',
   createSub({ getComments, getCommentErrors, getUser, slug: getArticleId }),
@@ -77,8 +77,8 @@ const Comments = component('Comments',
     ) : (
              <div className="col-xs-12 col-md-8 offset-md-2">
                <p>
-                 <Link to={[routeIds.LOGIN]}>Sign in</Link>{" "}or{" "}
-                 <Link to={[routeIds.REGISTER]}>sign up</Link>{" "}to add comments on this article.
+                 <Link href={'#/login'} to={[routeIds.LOGIN]}>Sign in</Link>{" "}or{" "}
+                 <Link href={'#/register'} to={[routeIds.REGISTER]}>sign up</Link>{" "}to add comments on this article.
                </p>
                <div>
                  {comments.map((comment, i) =>
