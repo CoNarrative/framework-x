@@ -3,7 +3,7 @@ import { visibilityFilter } from '../constants'
 import { evt } from '../eventTypes'
 import { fx } from '../fx'
 import { routeIds } from '../routes'
-import { getAllTodos, getNewTodoText, getTodosByText } from './selectors'
+import { getAllTodos, getEditTodo, getTodosById, } from './selectors'
 import { regEventFx } from '../store'
 import { updateIn } from '../util'
 
@@ -44,9 +44,9 @@ regEventFx(evt.CHANGE_FILTER, ({ db }, value) => {
   ]
 })
 
-regEventFx(evt.ADD_TODO, ({ db }) => {
+regEventFx(evt.ADD_TODO, ({ db }, { id, text, done = false }) => {
   return [
-    fx.db(updateIn(['todos'], R.append({ text: getNewTodoText(db), done: false }))),
+    fx.db(updateIn(['todos'], R.append({ id, text, done }))),
     fx.dispatch(evt.SET_TODO_TEXT, ''),
     fx.notification({
       type: 'success',
@@ -55,16 +55,59 @@ regEventFx(evt.ADD_TODO, ({ db }) => {
     })
   ]
 })
+regEventFx(evt.REMOVE_TODO, ({ db }, id) => {
+  return [
+    fx.db(updateIn(['todos'], R.reject(x => x.id === id))),
+    fx.notification({
+      type: 'success',
+      message: 'Todo removed.',
+      duration: 5000
+    })
+  ]
+})
 
-regEventFx(evt.TOGGLE_DONE, ({ db }, doneText) => {
+regEventFx(evt.START_EDIT_TODO, ({ db }, id) => {
+  return [
+    fx.db(R.assoc('editTodo', R.path([id], getTodosById(db)))),
+    fx.notification({
+      type: 'success',
+      message: 'Editing.',
+      duration: 5000
+    })
+  ]
+})
+
+regEventFx(evt.SET_EDIT_TODO_TEXT, ({ db }, text) => {
+  return [
+    fx.db(R.assocPath(['editTodo', 'text'], text)),
+  ]
+})
+
+regEventFx(evt.SAVE_EDIT_TODO, ({ db }, _) => {
+  const edited = getEditTodo(db)
+  const todosById = getTodosById(db)
+
+  return [
+    fx.db(R.assoc('todos', R.values(R.assoc(edited.id, edited, todosById)))),
+    fx.db(R.dissoc('editTodo')),
+    fx.notification({
+      type: 'success',
+      message: 'Edit saved.',
+      duration: 5000
+    })
+  ]
+})
+
+
+regEventFx(evt.TOGGLE_DONE, ({ db }, id) => {
   return [
     fx.db(updateIn(['todos'],
       R.map(todo =>
-        todo.text === doneText
+        todo.id === id
         ? updateIn(['done'], R.not, todo)
         : todo)
     )),
-    fx.dispatch(evt.TODO_STATUS_CHANGED, doneText)
+    fx.dispatch(evt.TODO_STATUS_CHANGED, id)
   ]
 })
 
@@ -72,7 +115,7 @@ regEventFx(evt.MARK_ALL_DONE, ({ db }) => {
   const todos = getAllTodos(db)
   return [
     fx.db(updateIn(['todos'], R.map(R.assoc('done', true)))),
-    ...todos.map(({ text }) => fx.dispatch(evt.TODO_STATUS_CHANGED, text))
+    ...todos.map(({ id }) => fx.dispatch(evt.TODO_STATUS_CHANGED, id))
   ]
 })
 
@@ -117,12 +160,12 @@ regEventFx(evt.TODOS_REMOVED, (_, removed) => {
   ]
 })
 
-regEventFx(evt.TODO_STATUS_CHANGED, ({ db }, todoText) => {
-  const isDone = R.path([todoText, 'done'], getTodosByText(db))
+regEventFx(evt.TODO_STATUS_CHANGED, ({ db }, id) => {
+  const isDone = R.path([id, 'done'], getTodosById(db))
   return [
     fx.notification(
-      R.zipObj(['type','message', 'duration'],
-        isDone ? ['success','Great job!', 3000]
+      R.zipObj(['type', 'message', 'duration'],
+        isDone ? ['success', 'Great job!', 3000]
                : ['success', 'Todo not done', 3000]
       )
     )

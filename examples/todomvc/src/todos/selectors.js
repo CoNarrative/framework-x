@@ -3,13 +3,15 @@ import * as R from 'ramda'
 import { visibilityFilter } from '../constants'
 import { getRouteParams } from '../routes/selectors'
 
-export const getAllTodos = R.path(['todos'])
+export const getAllTodos = R.pipe(R.prop('todos'), R.sortBy(R.prop('id')))
 
 export const getDoneTodos = derive([getAllTodos], R.filter(R.prop('done')))
 
 export const getNotDoneTodos = derive([getAllTodos], R.reject(R.prop('done')))
 
-export const getTodosByText = derive([getAllTodos], R.indexBy(R.prop('text')))
+export const getTodosById = derive([getAllTodos], R.indexBy(R.prop('id')))
+
+export const getEditTodo = R.path(['editTodo'])
 
 export const getNewTodoText = R.pathOr('', ['newTodoText'])
 
