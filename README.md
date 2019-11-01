@@ -14,16 +14,6 @@
 npm i framework-x
 ```
 
-## Getting started
-
-Examples are in the `examples` folder. To install and run an example (e.g. todomvc):
-
-```bash
-git clone https://github.com/CoNarrative/framework-x
-cd framework-x/examples/todomvc
-npm i
-npm start
-```
 
 
 ## Basic example
@@ -80,6 +70,16 @@ https://framework-x.io/api
 
 
 ## Examples
+
+
+Examples are in the `examples` folder. To install and run an example (e.g. todomvc):
+
+```bash
+git clone https://github.com/CoNarrative/framework-x
+cd framework-x/examples/todomvc
+npm i
+npm start
+```
 
 #### todomvc 
 
