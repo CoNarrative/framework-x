@@ -1,14 +1,12 @@
 version: 2
 jobs:
   build:
-    working_directory: ~/framework-x
+    working_directory: ~/repo/packages/framework-x
     docker:
       - image: circleci/node:10
     steps:
-      - checkout
-      - run:
-          name: Change Directory -> packages/framework-x
-          command: cd packages/framework-x
+      - checkout:
+          path: ~/repo
       - restore_cache:
           key: deps-cache-v1-{{ checksum "package-lock.json" }}
       - run:
@@ -25,5 +23,5 @@ jobs:
           name: Main Tests
           command: npm run test
       - run:
-         name: Node Smoke Test
-         command: npm run test:node:smoke
+          name: Node Smoke Test
+          command: npm run test:node:smoke
