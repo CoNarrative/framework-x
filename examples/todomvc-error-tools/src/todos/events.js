@@ -16,7 +16,6 @@ regEventFx(evt.INITIALIZE_DB, (_, state = {}) => {
 })
 
 regEventFx(evt.SET_TODO_TEXT, (_, value) => {
-  throw new FxError("foo",{})
   return {
     db: R.assoc('newTodoText', value)
   }
