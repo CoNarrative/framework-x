@@ -70,7 +70,7 @@ const regErrorScreenFx = ({ regFx, regEventFx }) => {
     return [
       ['dispatch', [evt.RESET]],
       ['evalClosure', () => {
-        acc.queue.unshift()
+        acc.queue.shift()
         env.fx.resume(env, acc, acc)
       }]]
   })
