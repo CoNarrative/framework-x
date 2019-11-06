@@ -1,4 +1,4 @@
-import * as monaco from 'monaco-editor'
+import { KeyCode } from 'monaco-editor'
 import React from 'react'
 import PropTypes from 'prop-types'
 import MonacoEditor from 'react-monaco-editor'
@@ -240,7 +240,7 @@ const theme = {
   }
 }
 
-const altEnter = e => e.keyCode === monaco.KeyCode.Enter && e.altKey
+const altEnter = e => e.keyCode === KeyCode.Enter && e.altKey
 
 const loadEnv = (env, monaco) =>
   monaco.languages.typescript.javascriptDefaults.addExtraLib(`

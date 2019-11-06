@@ -7,14 +7,14 @@
     "react-scripts": "^3.2.0"
   },
   "dependencies": {
-    "@framework-x/fetch-fx": "file:../../packages/fetch-fx",
+    "@framework-x/fetch-fx": "1.0.0-alpha.1",
     "framework-x": "1.0.0-alpha.1",
     "history": "^4.6.3",
     "marked": "^0.3.6",
     "query-string": "^6.8.2",
     "ramda": "^0.26.1",
-    "react": "^16.3.0",
-    "react-dom": "^16.3.0"
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0"
   },
   "scripts": {
     "start": "react-scripts start",

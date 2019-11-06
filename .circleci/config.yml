@@ -1,26 +1,27 @@
 version: 2
 jobs:
   build:
-    working_directory: ~/framework-x
+    working_directory: ~/repo/packages/framework-x
     docker:
       - image: circleci/node:10
     steps:
-      - checkout
+      - checkout:
+          path: ~/repo
       - restore_cache:
-          key: deps-cache-v1-{{ checksum "yarn.lock" }}
+          key: deps-cache-v1-{{ checksum "package-lock.json" }}
       - run:
           name: Install Dependencies
-          command: yarn install --frozen-lockfile
+          command: npm ci
       - save_cache:
-          key: deps-cache-v1-{{ checksum "yarn.lock" }}
+          key: deps-cache-v1-{{ checksum "package-lock.json" }}
           paths:
-            - /home/circleci/.yarn
+            - /home/circleci/.npm
       - run:
           name: Build
-          command: yarn build
+          command: npm run build
       - run:
           name: Main Tests
-          command: yarn test
+          command: npm run test
       - run:
-         name: Node Smoke Test
-         command: yarn run test:node:smoke
+          name: Node Smoke Test
+          command: npm run test:node:smoke

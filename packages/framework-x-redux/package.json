@@ -15,10 +15,12 @@
   "peerDependencies": {
     "framework-x": "1.0.0-alpha.1",
     "ramda": "^0.26.1",
-    "redux": "^4.0.4",
-    "react-redux": "^7.1.1"
+    "react-redux": "^7.1.1",
+    "redux": "^4.0.4"
   },
-  "dependencies": {},
+  "dependencies": {
+    "react": "^16.11.0"
+  },
   "devDependencies": {
     "@babel/core": "^7.6.4",
     "react": "^16.10.2",
