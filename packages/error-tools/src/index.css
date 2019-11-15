@@ -1,0 +1,19 @@
+.framework-x-error-tools {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+  "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+  sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.framework-x-error-tools code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+  monospace;
+}
+
+/* react-inspector */
+.framework-x-error-tools ol[role="tree"] {
+  background: rgb(36, 36, 36);
+  padding: 0.5em !important;
+}

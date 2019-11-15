@@ -20,5 +20,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 /.idea/
-
 site/.idea/
+!/examples/todomvc/.env
+!/examples/realworld/.env
+!/packages/framework-x-redux/todomvc/.env
+!/packages/error-tools/.env

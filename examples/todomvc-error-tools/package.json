@@ -1,0 +1,30 @@
+{
+  "name": "framework-x-error-tools-todomvc",
+  "version": "1.0.0-alpha.1",
+  "private": true,
+  "dependencies": {
+    "framework-x": "1.0.0-alpha.1",
+    "history": "^4.9.0",
+    "ramda": "^0.25.0",
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0",
+    "react-scripts": "^3.2.0",
+    "reselect": "^3.0.1",
+    "ulid": "^2.3.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "devDependencies": {
+    "@framework-x/error-tools": "1.0.0-alpha.1"
+  }
+}
