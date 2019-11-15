@@ -1,0 +1,131 @@
+body {
+  font-family: "Space Grotesk", "Helvetica", "Arial", sans-serif;
+  margin: 0;
+}
+
+div {
+  box-sizing: border-box;
+}
+
+h1,h2,h3,h4,h5,h6 {
+  font-family: "Animosa", "Helvetica", "Arial", sans-serif;
+}
+
+/* All code is Fira Code */
+code {
+  font-family: "Fira Code", "Courier", monospace !important;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+  padding: 1em;
+  margin: .5em 0;
+  overflow: auto;
+}
+
+a {
+  color: #2DCD8C;
+}
+
+strong {
+  font-weight: 600;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+  background: rgba(203,210,228,0.4);
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+  color: #E75D57;
+  padding: .1em;
+  border-radius: .3em;
+  white-space: normal;
+  font-size: 0.9rem;
+}
+
+
+.anchor {
+  margin-left: -32px !important;
+}
+
+/*!***/
+/* * If you already use line highlighting*/
+/* *!*/
+
+/*!* Adjust the position of the line numbers *!*/
+/*.gatsby-highlight pre[class*="language-"].line-numbers {*/
+/*  padding-left: 2.8em;*/
+/*}*/
+
+/*!***/
+/* * If you only want to use line numbering*/
+/* *!*/
+
+/*.gatsby-highlight {*/
+/*  background-color: #fdf6e3;*/
+/*  border-radius: 0.3em;*/
+/*  margin: 0.5em 0;*/
+/*  padding: 1em;*/
+/*  overflow: auto;*/
+/*}*/
+
+/*.gatsby-highlight pre[class*="language-"].line-numbers {*/
+/*  padding: 0;*/
+/*  padding-left: 2.8em;*/
+/*  overflow: initial;*/
+/*}*/
+
+code[class*="language-"], pre[class*="language-"] {
+  color: #707A93;
+  background: none;
+  font-family: 'Fira Code', Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  font-size: 1em;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+  -webkit-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+.token.selector, .token.important, .token.atrule, .token.keyword, .token.builtin {
+  color: #9178C7;
+}
+
+.token.boolean, .token.number, .token.function {
+  color: #DD6533;
+}
+
+.token.string, .token.char, .token.attr-value, .token.regex, .token.variable {
+  color: #29BB7F;
+}
+
+.token.operator, .token.entity, .token.url {
+  color: #6B9DD0;
+}
+
+.token.property, .token.class-name, .token.constant, .token.symbol {
+  color: #C7AD0C;
+}
+
+.token.comment, .token.block-comment, .token.prolog, .token.doctype, .token.cdata {
+  color: #707A93;
+}
+
+@media only screen and (max-width: 600px) {
+  :not(pre) > code[class*="language-"] {
+    font-size: 0.8rem;
+  }
+
+  code[class*="language-"], pre[class*="language-"] {
+    font-size: 0.8rem;
+  }
+}
