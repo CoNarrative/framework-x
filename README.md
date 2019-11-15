@@ -72,7 +72,7 @@ https://framework-x.io/api
 ## Examples
 
 
-Examples are in the `examples` folder. To install and run an example (e.g. todomvc):
+Examples are in the [`examples`](https://github.com/CoNarrative/framework-x/tree/master/examples) folder. To install and run an example (e.g. todomvc):
 
 ```bash
 git clone https://github.com/CoNarrative/framework-x
