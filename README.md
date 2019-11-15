@@ -1,6 +1,5 @@
-# framework-x
+![image](https://user-images.githubusercontent.com/9045165/68983068-2be79780-07be-11ea-9a3b-fc677c567832.png)
 
-> Reasonable global state.
 
 [![NPM](https://img.shields.io/npm/v/framework-x.svg)](https://www.npmjs.com/package/framework-x)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
