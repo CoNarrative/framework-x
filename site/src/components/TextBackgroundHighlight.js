@@ -14,7 +14,7 @@ const HighlightStyle = styled.div( props => ({
   position: 'absolute',
   top: 0,
   bottom: '0.2rem',
-  left: props.h1 ? '-16%' : '-5%',
+  left: props.h1 ? '-20px' : '-5%',
   right: props.h1 ? 'unset' : '-5%',
   backgroundColor: props.code ? theme.lightGrey : theme.lightTeal,
   zIndex: -1
