@@ -11,3 +11,7 @@
 
   # Default build command.
   command = "NODE_ENV=production npm run build"
+
+  ignore = "git diff --quiet HEAD^ HEAD site/"
+#  ignore = "git diff --quiet HEAD^ HEAD ."
+
