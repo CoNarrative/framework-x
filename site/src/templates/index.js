@@ -4,7 +4,6 @@ import {DimensionalBox} from '../components/DimensionalBox'
 import {Highlight} from '../components/TextBackgroundHighlight'
 import CircleBackdrop from '../images/circle-backdrop.svg'
 import HelpDesk from '../images/help-desk.svg'
-import Shapes from '../images/3d-shapes.svg'
 import {Input, MultilineInput} from "../components/Input";
 import {Button, Button3D} from "../components/Button";
 import Enter from '../assets/icons/enter.svg'
@@ -16,6 +15,7 @@ import * as axios from "axios";
 import {whenMobile, whenTablet} from "../theme";
 import MulletMan from '../assets/icons/mascot.svg'
 import * as theme from '../theme'
+import {Shapes} from "../images/Shapes";
 
 
 const MulletManMain = () =>
@@ -46,12 +46,7 @@ const Features = () => (
     [whenTablet]: {flexDirection: 'column',},
     [whenMobile]: {paddingLeft: 24, paddingRight: 24,}
   }}>
-    <img css={{
-      width: '40%',
-      maxHeight: 360,
-      marginLeft: 80,
-      [whenTablet]: {marginLeft: 0, marginBottom: 64, width: '70%', minWidth: 280}
-    }} src={Shapes}/>
+    <Shapes/>
     <div css={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start', flexShrink: 1, maxWidth: 540, [whenTablet]: {marginTop: 40,}}}>
       <h1 css={{marginTop: 0, fontSize: '3rem', marginBottom: '1.2rem', display: 'flex'}}>Key features</h1>
       <ol css={{fontFamily: 'Basier Square Mono', fontSize: '1.04rem', margin: 0, marginBottom: 20, lineHeight: '1.6rem', color: '#CBD2E4', '& > li': {marginBottom: 12,}}}>
