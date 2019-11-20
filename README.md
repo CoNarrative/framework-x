@@ -6,8 +6,15 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/204808f0-9975-4e67-9b42-5b4b0907374f/deploy-status)](https://app.netlify.com/sites/vigorous-curie-c09c4e/deploys)
 [![CircleCI](https://circleci.com/gh/CoNarrative/framework-x.svg?style=svg&circle-token=b3e15b621e83d2e9d6b2d0eca6aac342a09f766d)](https://circleci.com/gh/CoNarrative/framework-x)
 
+Framework-X is a Javascript framework that separates code from its execution, allowing the representation of programmer intent to exist independently of when, where and how it's performed.
 
-## Install
+Developers don't need to write and maintain event handling code in two different places to have repeatable behavior and
+functional purity. You can write everything that happens in the order you want it to as a pure function and Framework-X
+will perform it on your behalf.
+
+[Learn more](https://framework-x.io/intro).
+
+## Installation
 
 ```bash
 npm i framework-x
@@ -15,46 +22,84 @@ npm i framework-x
 
 
 
-## Basic example
+## Example
 
 ```js
+// Create a Framework-X store
 import { createStore } from 'framework-x'
 
 const { dispatch, regEventFx, regFx, getState } = createStore()
 
+// Define our application's events 
+const evt = {
+  INITIALIZE_DB: 'initialize-db',
+  TOGGLE: 'toggle'
+}
 
-regEventFx("initialize-db", (_, state) => ({ db: state }))
 
-regFx('log', (env, args) => console.log("[log-effect]", args))
+// Define effect helpers
+const fx = {
+  db: (newStateOrReducer) => ['db', newStateOrReducer],
+  log: (args) => ['log', args]
+}
 
+
+// Define a side effect handler
+//
+// Registers a side effect called `'log'`
+regFx('log', (env, args) => console.log('[log-effect]', args))
+
+
+// Define event handlers
+//
+// Registers an event handler / `eventFx` for the `'initialize-db'` event 
+// Returns a `'db'` effect that will set the global `db` state to the event's payload
+regEventFx(evt.INITIALIZE_DB, (_, state) => [fx.db(state)])
+
+
+// Define an event handler function and register it to handle the `'toggle'` event.
+// Reads the `toggled` value from the current global state (`db`)
 const toggle = ({ db }) =>  {
   const current = db.toggled
   const next = !db.toggled
   
   return [
-    ['db',  { toggled: next }],
-    ['log', { previous: current, current: next }]
+    fx.db({ toggled: next }),
+    fx.log({ previous: current, current: next })
   ]
 }
 
-regEventFx('toggle', toggle)
+regEventFx(evt.TOGGLE, toggle)
 
-expect(toggle({ toggled: false }))
-.toEqual([
+// Define our initial state
+const initialState = { toggled: false }
+
+// `toggle` handler test
+// 
+// Calls the toggle handler with our initial state
+// Returns the effects for when the global state value is `{toggled: false}`
+expect(toggle(initialState)).toEqual([
+  // By default, Framework-X interprets this as "set the global state to `{toggled: true}`"
   ['db', { toggled: true }], 
-  ['log', { previous: false, current: true }]
+  // Framework-X will call the function we registered for 'log' with these arguments
+  ['log', { previous: false, current: true }] 
 ])
 
 
-dispatch('initialize-db', { toggled: false })
-dispatch('toggle')
+// Dispatching events
+//
+// Send the `'initialize-db`' event to our Framework-X store with our initial state
+dispatch(evt.INITIALIZE_DB, initialState)
+// Send the `'toggle'` event to our Framework-X store
+dispatch(evt.TOGGLE)
 
-// [log-effect] { previous: false, current: true }
+// Effects:
+// 1. Console prints: 
+// `[log-effect] { previous: false, current: true }`
 
+// 2. Current global state is `{toggled: true}`
 expect(getState()).toEqual({ toggled: true})
 ```
-
-Framework-X allows side-effects to be expressed as pure functions.
 
 
 ## API
