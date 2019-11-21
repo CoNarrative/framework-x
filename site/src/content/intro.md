@@ -13,8 +13,7 @@ Its overall design borrows from [re-frame](https://github.com/day8/re-frame), a 
 applications are relatively terse. Apps can be written in Framework-X with about 40% fewer lines
 of code than Redux.
 
-We've used Framework-X in mid-size production applications at CoNarrative for the past 2 years and are releasing it today under
-the MIT license.
+We've been using Framework-X in mid-size production applications at [CoNarrative](https://conarrative.com) for the past 2 years and are releasing it today under the MIT license.
 
 
 # How it works
@@ -30,43 +29,43 @@ Events in Framework-X are identified by their name. They may have data associate
 ```
 
 
-Event handlers specify the effects an event has. They can read from the current global state (`db`), the event's
-data, and use them to determine what effects should result.
+Event handlers, or `eventFx`, specify what effects an event has. They get the whole application state, the payload that
+was sent with the event, and return descriptions of what should happen.
 
-Framework-X ships with two built-in effects, `db` and `dispatch`.
-
-The `db` effect describes a state change as a function of the current state.
-
-```js
-regEventFx('add-todo', ({ db }, { text }) => {
-  return [
-    ['db', updateIn(['todos'], R.append({ text, done: false }))]
-  ]
-})
-```
-
-`dispatch` lets us describe the effects of one event in terms of others. 
+Framework-X has two built-in effects, `db` and `dispatch`. `db` describes a state change as a function of the current
+state. `dispatch` does the same thing as our button example above. We can use it in an `eventFx` to talk about the
+effects of one event in terms of a concept we've already defined in another `eventFx` handler. 
 
 ```js
 regEventFx('add-todo', ({ db }, { text }) => {
   return [
-    ['db', updateIn(['todos'], R.append({ text, done: false }))],
-    ['dispatch', ['set-todo-text', '']]
+    fx.db(updateIn(['todos'], R.append({ text, done: false }))),
+    fx.dispatch('set-todo-text', '')
   ]
 })
-
-regEventFx('set-todo-text', (_, str) => {
+regEventFx('set-todo-text', (_, todoText) => {
   return [
-    ['db', R.assoc('newTodoText', str)]
+    fx.db(R.assoc('newTodoText', todoText))
   ]
 })
 ```
 
-Event handlers may describe effects that are testable and
-predictable, like immutable state transformations. But we can use them to state that unpredictable things like side effects
-should happen, too, without losing any predictive capabilities.
+Framework-X will run these effects in the order we've defined.
 
-Event handlers can depict inherently testable and predictable operations, like immutable state transformations. They can equally depict unpredictable operations (i.e. side effects), without engaging in unpredictable behavior themselves.
+In and of themselves, event handlers don't perform set state or dispatch operations. As a result, they let us talk about
+whatever we want, no matter how dangerous or unpredictable.
+
+```js
+const buttonPressedEventFx = ({ db }) => 
+  [['fire-missiles!', { quantity: db.nMissiles }]]
+    
+buttonPressedEventFx({ nMissles: 42 })
+// => [['fire-missiles!', { quantity: 42 }]]
+```
+
+We can use this to build up a list of things we want Framework-X to do for us. For example, when there's 'add-todo'
+event, we can write an eventFx handler that will add the new todo to our list in the global state, set the new todo
+input text to blank, make an API request to add the todo on the server, and set the loading flag to `true`:
 
 ```js
 const addTodoHandler = ({ db }, { text }) => {
@@ -93,15 +92,14 @@ console.log(addTodoHandler({}, { text: 'Hi' }))
 //       'new-todo/fail'
 //     ]],
 //   ['db', function]]
-
-
 ```
 
-Invoking an event handler returns a plan of what to do. The framework iterates through the list, looking up the
-definition for each effect (`db`, `dispatch`, `fetch`) and evaluating them against its implementation with whatever arguments the handler supplied.
+Invoking an event handler returns a plan of what to do. Framework-X will carry it out for us by going through it,
+looking up the definition for each effect (`db`, `dispatch`, `fetch`) and evaluating them using whatever definition
+we've given.
 
-`fx` handlers like `fetch` are functions that Framework-X assumes have side effects. They can be registered using `regFx`, where they are given access to the Framework-X environment and may define their signature.
-
+We can define the `fetch` effect with `regFx`. Framework-X will treat any function registered with `regFx` as an impure
+function, performing them lazily after all state effects are complete.
 
 ```js
 const createFetchFx = ({ fetch }) => 
