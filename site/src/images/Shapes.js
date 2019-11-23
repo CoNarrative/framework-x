@@ -2,6 +2,10 @@ import React from 'react'
 import {motion} from "framer-motion"
 import {whenTablet} from "../theme";
 
+const Transition = {
+  ease: 'linear', duration: 2, yoyo: Infinity
+}
+
 export const Shapes = () => (
   <svg css={{
     width: '40%',
@@ -21,17 +25,17 @@ export const Shapes = () => (
       </g>
       <path id="Path_5264-2" data-name="Path 5264" d="M7304.921,1875.2l-123.946-247.8H7706.6l-141.042,247.8Z"
             transform="translate(-7036 163)" fill="rgba(67,68,68,0.31)"/>
-      <motion.g id="Group_4430" style={{ x: -61, y: 415 }} animate={{y: 380}} transition={{ ease: 'linear', duration: 2, yoyo: Infinity}} >
-        <motion.g id="Group_4421" data-name="Group 4421" style={{ x: 486, y: 1206, rotate: 59 }}>
-          <path id="Path_5258" data-name="Path 5258" d="M105,0,42,64H0L64.309,0Z" transform="translate(26 25.996)"
-                fill="none" stroke="#fff" stroke-linejoin="round" stroke-width="1"/>
+      <motion.g id="Group_4430" style={{ x: -61, y: 415 }}>
+        <motion.g id="Group_4421" data-name="Group 4421" style={{ x: 416, y: 1248, rotate: 59 }} animate={{y: 1228}} transition={Transition}>
+          <motion.path id="Path_5258" data-name="Path 5258" d="M105,0,42,64H0L64.309,0Z" transform="translate(26 25.996)"
+                fill="none" stroke="#fff" stroke-linejoin="round" stroke-width="1" transition={{duration: 2, loop: Infinity}} initial={{ pathLength: 0, pathOffset: 1 }} animate={{ pathLength: 1, pathOffset: 0 }}/>
           <path id="Path_5259" data-name="Path 5259" d="M90,26,64,0,0,64,26,90Z" transform="translate(0 0)" fill="#fff"
                 stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-          <path id="Path_5260" data-name="Path 5260" d="M0,0H41L67,26H26Z" transform="translate(64 0)"
+          <motion.path id="Path_5260" data-name="Path 5260" d="M0,0H41L67,26H26Z" transform="translate(64 0)"
                 fill="rgba(255,255,255,0)" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"
-                stroke-width="1"/>
+                stroke-width="1" transition={{duration: 2, loop: Infinity}} initial={{ pathLength: 0, pathOffset: 1 }} animate={{ pathLength: 1, pathOffset: 0 }}/>
         </motion.g>
-        <g id="Group_4422" data-name="Group 4422" transform="translate(326.81 1368.25) rotate(31)">
+        <motion.g id="Group_4422" data-name="Group 4422" style={{ x: 280, y: 1400, rotate: 31 }} animate={{y: 1412}} transition={Transition}>
           <path id="Path_5258-2" data-name="Path 5258" d="M92.615,0,37.046,56.454H0L56.723,0Z"
                 transform="translate(22.933 22.93)" fill="#141515" stroke="#fff" stroke-linejoin="round"
                 stroke-width="1"/>
@@ -41,8 +45,8 @@ export const Shapes = () => (
           <path id="Path_5260-2" data-name="Path 5260" d="M0,0H36.164L59.1,22.933H22.933Z"
                 transform="translate(56.451 0)" fill="#141515" stroke="#fff" stroke-linecap="round"
                 stroke-linejoin="round" stroke-width="1"/>
-        </g>
-        <g id="Group_4423" data-name="Group 4423" transform="translate(582.331 1444.472) rotate(87)">
+        </motion.g>
+        <motion.g id="Group_4423" data-name="Group 4423" style={{ x: 500, y: 1460, rotate: 87}} animate={{y: 1448}} transition={{ease: 'linear', duration: 2, yoyo: Infinity, delay: 0.8}}>
           <path id="Path_5258-3" data-name="Path 5258" d="M71.89,0,28.756,43.821H0L44.03,0Z"
                 transform="translate(17.801 17.799)" fill="#141515" stroke="#fff" stroke-linejoin="round"
                 stroke-width="1"/>
@@ -51,7 +55,7 @@ export const Shapes = () => (
                 stroke-width="1"/>
           <path id="Path_5260-3" data-name="Path 5260" d="M0,0H28.071l17.8,17.8H17.8Z" transform="translate(43.819 0)"
                 fill="#141515" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
-        </g>
+        </motion.g>
         <g id="Group_4426" data-name="Group 4426" transform="translate(62.828 -125.564) rotate(19)">
           <path id="Path_5262" data-name="Path 5262" d="M52.15,0,104.3,100.25H0Z" transform="translate(616 1223.632)"
                 fill="#fff" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>

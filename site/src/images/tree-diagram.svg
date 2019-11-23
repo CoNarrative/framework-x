@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="186" height="142" viewBox="0 0 186 142">
+  <g id="tree-diagram" transform="translate(-7286 -4699)">
+    <path id="Path_5808" data-name="Path 5808" d="M7328.383,4445h122" transform="translate(-11.383 324.5)" fill="none" stroke="#141515" stroke-width="1"/>
+    <path id="Union_2" data-name="Union 2" d="M-331,1328v0h0v0Z" transform="translate(7660 3381)" fill="none" stroke="#141515" stroke-width="1"/>
+    <path id="animate-me" d="M-331.83,1375.461v0h0Z" transform="translate(7660.83 3454.539)" fill="none" stroke="#141515" stroke-width="1"/>
+    <g id="triangle" transform="translate(6943 4282)">
+      <g id="Rectangle_Copy_2" data-name="Rectangle Copy 2" transform="translate(343 478)" fill="#fff" stroke-miterlimit="10">
+        <path d="M 20.16666603088379 17.5 L 3.749611139297485 17.5 L 0.6828210353851318 15.80596351623535 L 9.156211853027344 0.7421585917472839 L 12.61110877990723 3.33333158493042 L 20.16666603088379 17.5 Z" stroke="none"/>
+        <path d="M 9.312422752380371 1.484317779541016 L 1.365638732910156 15.61193466186523 L 3.878513336181641 17 L 19.33333587646484 17 L 12.22222518920898 3.666668891906738 L 9.312422752380371 1.484317779541016 M 9 0 L 13 3 L 21 18 L 3.620689392089844 18 L 0 16 L 9 0 Z" stroke="none"/>
+      </g>
+      <path id="Path_890" data-name="Path 890" d="M153,37.618l3.538,2.206" transform="translate(206 455.652)" fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="1"/>
+      <g id="Rectangle_Copy_4" data-name="Rectangle Copy 4" transform="translate(343 478)" fill="#fff" stroke-miterlimit="10">
+        <path d="M 16.19098472595215 15.5 L 0.8549256324768066 15.5 L 8.974016189575195 1.066061735153198 L 16.19098472595215 15.5 Z" stroke="none"/>
+        <path d="M 8.948029518127441 2.13212776184082 L 1.709851264953613 15 L 15.38196468353271 15 L 8.948029518127441 2.13212776184082 M 9 0 L 17 16 L 0 16 L 9 0 Z" stroke="none"/>
+      </g>
+    </g>
+    <g id="square-3" transform="translate(7108 4343)">
+      <g id="Rectangle_Copy_2-2" data-name="Rectangle Copy 2" transform="translate(343 478)" fill="#2dcd8c" stroke-miterlimit="10">
+        <path d="M 20.5 19.5 L 3.842515230178833 19.5 L 0.610194981098175 15.92905616760254 L 6.970480918884277 4.401038646697998 L 16.80611228942871 0.6105627417564392 L 20.5 6.151394844055176 L 20.5 19.5 Z" stroke="none"/>
+        <path d="M 16.61223602294922 1.22113037109375 L 7.32026481628418 4.802089691162109 L 1.220390319824219 15.85811233520508 L 4.064340591430664 19 L 20 19 L 20 6.302775382995605 L 16.61223602294922 1.22113037109375 M 17 0 L 21 6 L 21 20 L 3.620689392089844 20 L 0 16 L 6.62069034576416 4 L 17 0 Z" stroke="none" fill="#141515"/>
+      </g>
+      <path id="Path_890-2" data-name="Path 890" d="M153.181,37.478l4.043,4.107" transform="translate(206 455.652)" fill="none" stroke="#141515" stroke-width="1"/>
+      <g id="Rectangle_Copy_4-2" data-name="Rectangle Copy 4" transform="translate(343 478)" fill="#38e49e" stroke="#141515" stroke-miterlimit="10" stroke-width="1">
+        <rect width="17" height="16" stroke="none"/>
+        <rect x="0.5" y="0.5" width="16" height="15" fill="none"/>
+      </g>
+    </g>
+    <g id="square-2" transform="translate(7108 4282)">
+      <g id="Rectangle_Copy_2-3" data-name="Rectangle Copy 2" transform="translate(343 478)" fill="#fff" stroke-miterlimit="10">
+        <path d="M 20.5 19.5 L 3.842515230178833 19.5 L 0.610194981098175 15.92905616760254 L 6.970480918884277 4.401038646697998 L 16.80611228942871 0.6105627417564392 L 20.5 6.151394844055176 L 20.5 19.5 Z" stroke="none"/>
+        <path d="M 16.61223602294922 1.22113037109375 L 7.32026481628418 4.802089691162109 L 1.220390319824219 15.85811233520508 L 4.064340591430664 19 L 20 19 L 20 6.302775382995605 L 16.61223602294922 1.22113037109375 M 17 0 L 21 6 L 21 20 L 3.620689392089844 20 L 0 16 L 6.62069034576416 4 L 17 0 Z" stroke="none"/>
+      </g>
+      <path id="Path_890-3" data-name="Path 890" d="M153.181,37.478l4.043,4.107" transform="translate(206 455.652)" fill="none" stroke="#141515" stroke-width="1"/>
+      <g id="Rectangle_Copy_4-3" data-name="Rectangle Copy 4" transform="translate(343 478)" fill="#fff" stroke="#141515" stroke-miterlimit="10" stroke-width="1">
+        <rect width="17" height="16" stroke="none"/>
+        <rect x="0.5" y="0.5" width="16" height="15" fill="none"/>
+      </g>
+    </g>
+    <g id="square-1" transform="translate(7108 4221)">
+      <g id="Rectangle_Copy_2-4" data-name="Rectangle Copy 2" transform="translate(343 478)" fill="#fff" stroke-miterlimit="10">
+        <path d="M 20.5 19.5 L 3.842515230178833 19.5 L 0.610194981098175 15.92905616760254 L 6.970480918884277 4.401038646697998 L 16.80611228942871 0.6105627417564392 L 20.5 6.151394844055176 L 20.5 19.5 Z" stroke="none"/>
+        <path d="M 16.61223602294922 1.22113037109375 L 7.32026481628418 4.802089691162109 L 1.220390319824219 15.85811233520508 L 4.064340591430664 19 L 20 19 L 20 6.302775382995605 L 16.61223602294922 1.22113037109375 M 17 0 L 21 6 L 21 20 L 3.620689392089844 20 L 0 16 L 6.62069034576416 4 L 17 0 Z" stroke="none"/>
+      </g>
+      <path id="Path_890-4" data-name="Path 890" d="M153.181,37.478l4.043,4.107" transform="translate(206 455.652)" fill="none" stroke="#141515" stroke-width="1"/>
+      <g id="Rectangle_Copy_4-4" data-name="Rectangle Copy 4" transform="translate(343 478)" fill="#fff" stroke="#141515" stroke-miterlimit="10" stroke-width="1">
+        <rect width="17" height="16" stroke="none"/>
+        <rect x="0.5" y="0.5" width="16" height="15" fill="none"/>
+      </g>
+    </g>
+  </g>
+</svg>
