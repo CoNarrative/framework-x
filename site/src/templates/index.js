@@ -1,3 +1,4 @@
+import { OutboundLink } from 'gatsby-plugin-google-analytics'
 import React from 'react'
 import MulletManFluid from '../components/image'
 import {DimensionalBox} from '../components/DimensionalBox'
@@ -76,33 +77,9 @@ const ContactUs = () => (
       <h1 css={{marginTop: 0, fontSize: '3rem', marginBottom: '0.8rem', display: 'flex'}}>Need a helping hand?</h1>
       <span css={{fontFamily: 'Basier Square Mono', fontSize: '1.04rem', marginBottom: 20, lineHeight: '1.6rem',}}>Please feel free to reach out to us at anytime to discuss our consulting services.</span>
       <div>
-        {/*<DimensionalBox handleHeight={true} rootCss={{*/}
-        {/*  padding: '16px 24px',*/}
-        {/*  alignItems: 'flex-end',*/}
-        {/*  [whenMobile]: {flexDirection: 'column', alignItems: 'stretch'}*/}
-        {/*}}>*/}
-        {/*  <div css={{*/}
-        {/*    marginRight: 24,*/}
-        {/*    flexGrow: 1,*/}
-        {/*    flexShrink: 1,*/}
-        {/*    display: 'flex',*/}
-        {/*    flexDirection: 'column',*/}
-        {/*    [whenMobile]: {marginRight: 0}*/}
-        {/*  }}>*/}
-        {/*    <Input placeholder={'name'} rootCss={{marginBottom: 12,}}/>*/}
-        {/*    <Input placeholder={'e-mail address'} rootCss={{marginBottom: 20}}/>*/}
-        {/*    <MultilineInput placeholder={'message'}/>*/}
-        {/*  </div>*/}
-        {/*  <Button rootCss={{*/}
-        {/*    width: 96,*/}
-        {/*    flexShrink: 1,*/}
-        {/*    minWidth: 64,*/}
-        {/*    [whenMobile]: {marginTop: 24, alignSelf: 'flex-end'}*/}
-        {/*  }}><img css={{height: 13,}} src={Enter}/></Button>*/}
-        {/*</DimensionalBox>*/}
-        <a href={'https://www.conarrative.com/'}>
+        <OutboundLink href={'https://www.conarrative.com/'} target={"_blank"}>
           <Button3D>Visit our website</Button3D>
-        </a>
+        </OutboundLink>
       </div>
     </div>
     <img css={{
@@ -155,16 +132,16 @@ const MainContent = ({starCount, downloadCount}) =>
               },
             }}>
               <span>License: MIT</span>
-              <a href={'https://github.com/CoNarrative/framework-x'}
+              <OutboundLink href={'https://github.com/CoNarrative/framework-x'}
                  target={'_blank'}
                  style={{color: 'inherit', textDecoration: 'inherit'}}>
                 +{starCount} stars
-              </a>
-              <a href={'https://www.npmjs.com/package/framework-x'}
+              </OutboundLink>
+              <OutboundLink href={'https://www.npmjs.com/package/framework-x'}
                  target={'_blank'}
                  style={{color: 'inherit', textDecoration: 'inherit'}}>
                 +{downloadCount} downloads
-              </a>
+              </OutboundLink>
             </div>
           </DimensionalBox>
         </div>

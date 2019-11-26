@@ -1,3 +1,4 @@
+import { OutboundLink } from 'gatsby-plugin-google-analytics'
 import React from 'react'
 import {Link} from 'gatsby'
 import styled from '@emotion/styled'
@@ -83,20 +84,22 @@ export class Navigation extends React.Component {
             <img style={{height: 36}} src={Logo} alt={'logo'}/>
           </Link>
           <div css={{display: 'none', [whenMobile]: {display: 'block'}}}>
-            <a href={'http://github.com/CoNarrative/framework-x'}
+            <OutboundLink href={'http://github.com/CoNarrative/framework-x'}
                target={'_blank'}>
               <img style={{width: 28}} src={Github}/>
-            </a>
+            </OutboundLink>
           </div>
         </div>
         <Container expanded={this.state.expanded}>
           <Navlink to={'/'} label={'Features'}/>
           <Navlink to={'/api'} label={'Documentation'}/>
           <Navlink to={'/learn'} rootCss={{[whenMobile]: {marginRight: '0 !important'}}} label={'Learn'}/>
-          <a css={{ [whenMobile]: {display:'none'}}} href={'http://github.com/CoNarrative/framework-x'}
-             target={'_blank'}>
-            <img src={Github}/>
-          </a>
+          <OutboundLink
+            css={{ [whenMobile]: { display: 'none' } }}
+            href={'http://github.com/CoNarrative/framework-x'}
+            target={'_blank'}>
+            <img src={Github} />
+          </OutboundLink>
         </Container>
       </div>
     )
