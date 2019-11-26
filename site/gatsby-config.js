@@ -1,8 +1,8 @@
 module.exports = {
   siteMetadata: {
-    title: `framework-x: Reasonable global state`,
-    description: `Side effects included`,
-    author: `@conarrative`,
+    title: `Framework-X`,
+    description: `Reasonable global state.`,
+    author: `@CoNarrative`,
   },
   plugins: [
     `gatsby-plugin-react-helmet`,
@@ -18,7 +18,7 @@ module.exports = {
       options: {
         trackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID,
         // Defines where to place the tracking script - `true` in the head and `false` in the body
-        // head: false,
+        head: false,
         // Setting this parameter is optional
         // anonymize: true,
         // Setting this parameter is also optional

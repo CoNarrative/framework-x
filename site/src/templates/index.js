@@ -219,7 +219,7 @@ const IndexPage = () => {
         height: 'calc(100vh - 64px)',
       },
     }}>
-      <SEO title="framework-x: Reasonable global state"/>
+      <SEO />
 
       <div css={{
         display: 'flex',
