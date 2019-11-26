@@ -2,6 +2,7 @@ import React from 'react'
 import {graphql} from 'gatsby'
 import RehypeReact from 'rehype-react'
 import Layout from '../components/layout'
+import SEO from '../components/seo'
 import {Highlight} from '../components/TextBackgroundHighlight'
 import {TableOfContents} from '../components/TableOfContents'
 import styled from '@emotion/styled'
@@ -193,6 +194,7 @@ export default class Template extends React.Component {
       }))
     return (
       <Layout showToc={true} tableOfContents={tableOfContents}>
+        <SEO />
         <Container>
           <TableOfContents tableOfContents={tableOfContents} rootCss={{[whenMobile]: {display: 'none'}}}/>
           <div>
