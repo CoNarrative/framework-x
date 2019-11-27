@@ -17,6 +17,13 @@ const UnfilledTransition = {
   delay: 1.2,
 }
 
+const FilledTransition = {
+  duration: 0.8,
+  delay: 2,
+}
+
+const LineDuration = 1.6
+
 export const TreeDiagram = () => (
   <svg
     css={{
@@ -29,7 +36,7 @@ export const TreeDiagram = () => (
     version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px"
     y="0px"
     viewBox="0 0 666.6 189" enable-background="new 0 0 666.6 189" xmlSpace="preserve">
-    <g id="filled-tri-01" transform="translate(6750 3062)">
+    <motion.g initial={DefaultInitial} animate={DefaultAnimate} transition={FilledTransition} style={{ x: 6750, y: 3062}} id="filled-tri-01">
       <g id="Rectangle_Copy_2" transform="translate(343 478)">
         <path fill="#2DCD8C" d="M-6786.5-3351.5h-17.4l-3.2-2.6l8.5-15.1l5.5,4.5L-6786.5-3351.5z"/>
         <path fill="#141515" d="M-6798.4-3368.4l-7.9,14.1l2.7,2.2h16.3l-6.1-12.4L-6798.4-3368.4 M-6798.6-3370l6,5l7,14h-18.4l-3.6-3
@@ -40,8 +47,9 @@ export const TreeDiagram = () => (
         <path fill="#38E49E" d="M-6791.4-3354.5h-15.3l8.1-14.4L-6791.4-3354.5z"/>
         <path fill="#141515" d="M-6798.7-3367.9l-7.2,12.9h13.7L-6798.7-3367.9 M-6798.6-3370l8,16h-17L-6798.6-3370z"/>
       </g>
-    </g>
-    <motion.g initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition} style={{ x: 6680, y: 2953}} id="white-sq-02" >
+    </motion.g>
+    <motion.g initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition}
+              style={{x: 6680, y: 2953}} id="white-sq-02">
       <g id="Rectangle_Copy_2-2" transform="translate(343 478)">
         <path fill="#E4E6EC" d="M-6809-3350.5h-16.7l-3.2-3.6l6.4-11.5l9.9-3.8l3.6,3.6L-6809-3350.5L-6809-3350.5z"/>
         <path fill="#141515" d="M-6812.7-3368.8l-9.4,3.6l-6.1,11.1l2.8,3.1h15.9v-14.6L-6812.7-3368.8 M-6812.5-3370l4,4v16h-17.4l-3.6-4
@@ -53,7 +61,8 @@ export const TreeDiagram = () => (
         <rect x="-6829" y="-3369.5" fill="none" stroke="#141515" stroke-miterlimit="10" width="16" height="15"/>
       </g>
     </motion.g>
-    <motion.g initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition} style={{ x: 6680, y: 2953}} id="white-sq-01">
+    <motion.g initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition}
+              style={{x: 6680, y: 2953}} id="white-sq-01">
       <g id="Rectangle_Copy_2-2_1_" transform="translate(343 478)">
         <path fill="#E4E6EC" d="M-6906-3350.5h-16.7l-3.2-3.6l6.4-11.5l9.9-3.8l3.6,3.6L-6906-3350.5L-6906-3350.5z"/>
         <path fill="#141515" d="M-6909.7-3368.8l-9.4,3.6l-6.1,11.1l2.8,3.1h15.9v-14.6L-6909.7-3368.8 M-6909.5-3370l4,4v16h-17.4l-3.6-4
@@ -65,7 +74,8 @@ export const TreeDiagram = () => (
         <rect x="-6926" y="-3369.5" fill="none" stroke="#141515" stroke-miterlimit="10" width="16" height="15"/>
       </g>
     </motion.g>
-    <motion.g initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition} style={{ x: 6737, y: 2916}} id="white-sq-03">
+    <motion.g initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition}
+              style={{x: 6737, y: 2916}} id="white-sq-03">
       <g id="Rectangle_Copy_2-3" transform="translate(343 478)">
         <path fill="#E4E6EC"
               d="M-6773.1-3374.5h-16.7l-3.2-3.6l6.4-11.5l9.9-3.8l3.6,3.6L-6773.1-3374.5L-6773.1-3374.5z"/>
@@ -78,7 +88,8 @@ export const TreeDiagram = () => (
         <rect x="-6793.1" y="-3393.5" fill="none" stroke="#141515" stroke-miterlimit="10" width="16" height="15"/>
       </g>
     </motion.g>
-    <motion.g initial={DefaultInitial} animate={DefaultAnimate} transition={{duration: 0.8, delay: 6.4}} style={{ x: 6737, y: 2991 }} id="filled-sq-02" transform="translate(6737 2991)">
+    <motion.g initial={DefaultInitial} animate={DefaultAnimate} transition={FilledTransition}
+              style={{x: 6737, y: 2991}} id="filled-sq-02" transform="translate(6737 2991)">
       <g id="Rectangle_Copy_2-4" transform="translate(343 478)">
         <path fill="#2DCD8C"
               d="M-6773.1-3388.5h-16.7l-3.2-3.6l6.4-11.5l9.9-3.8l3.6,3.6L-6773.1-3388.5L-6773.1-3388.5z"/>
@@ -91,7 +102,8 @@ export const TreeDiagram = () => (
         <rect x="-6793.1" y="-3407.5" fill="none" stroke="#141515" stroke-miterlimit="10" width="16" height="15"/>
       </g>
     </motion.g>
-    <motion.g initial={DefaultInitial} animate={DefaultAnimate} transition={{duration: 0.8, delay: 4}} style={{x: 6583, y: 3014}} id="filled-sq-01" transform="translate(6583 3014)">
+    <motion.g initial={DefaultInitial} animate={DefaultAnimate} transition={FilledTransition}
+              style={{x: 6583, y: 3014}} id="filled-sq-01" transform="translate(6583 3014)">
       <g id="Rectangle_Copy_2-5" transform="translate(343 478)">
         <path fill="#2DCD8C" d="M-6809-3350.5h-16.7l-3.2-3.6l6.4-11.5l9.9-3.8l3.6,3.6L-6809-3350.5L-6809-3350.5z"/>
         <path fill="#141515" d="M-6812.7-3368.8l-9.4,3.6l-6.1,11.1l2.8,3.1h15.9v-14.6L-6812.7-3368.8 M-6812.5-3370l4,4v16h-17.4l-3.6-4
@@ -103,10 +115,15 @@ export const TreeDiagram = () => (
         <rect x="-6829" y="-3369.5" fill="none" stroke="#141515" stroke-miterlimit="10" width="16" height="15"/>
       </g>
     </motion.g>
-    <motion.path initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition} id="Path_5808" fill="none" stroke="#141515" d="M34.5,70.5h48"/>
-    <motion.path initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition} id="Path_5833" fill="none" stroke="#141515" d="M131.5,70.5h48"/>
-    <motion.path initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition} id="Path_5833_1_" fill="none" stroke="#141515" d="M228.4,70.5h48"/>
-    <motion.g initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition} style={{ x: 6583, y: 2892}} id="white-tri-01">
+    <motion.path initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition} id="Path_5808"
+                 fill="none" stroke="#141515" d="M34.5,70.5h48"/>
+    <motion.path initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition} id="Path_5833"
+                 fill="none" stroke="#141515" d="M131.5,70.5h48"/>
+    <motion.path transition={{ duration: 0.6, ease: "linear", delay: 5.8}} initial={{strokeDashoffset: -50}} style={{strokeDasharray: "6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 280", }}
+                 animate={{strokeDashoffset: 0}} id="Path_5833_1_"
+                 fill="none" stroke="#38E49E" strokeWidth="2" strokeDasharray="6,4" d="M228.4,70.5h48"/>
+    <motion.g initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition}
+              style={{x: 6583, y: 2892}} id="white-tri-01">
       <g id="Rectangle_Copy_2-6" transform="translate(343 478)">
         <path fill="#E4E6EC" d="M-6808.3-3351.5h-17.4l-3.2-2.6l8.5-15.1l5.5,4.5L-6808.3-3351.5z"/>
         <path fill="#141515" d="M-6820.3-3368.4l-7.9,14.1l2.7,2.2h16.3l-6.1-12.4L-6820.3-3368.4 M-6820.5-3370l6,5l7,14h-18.4l-3.6-3
@@ -126,19 +143,22 @@ export const TreeDiagram = () => (
       </g>
       <circle id="Ellipse_12" fill="#FFFFFF" stroke="#141515" stroke-linejoin="round" cx="10.5" cy="71" r="10"/>
     </motion.g>
-    <path id="cir_x5F_to_x5F_filled-sq-01" fill="none" stroke="#38E49E" strokeWidth="2" strokeDasharray="6,4" d="M34.5,91
+    <motion.path transition={{ duration: 1, ease: "linear", delay: 3.2 }} initial={{strokeDashoffset: 284}} style={{strokeDasharray: "6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 284", }}
+          animate={{strokeDashoffset: 160}} id="cir_x5F_to_x5F_filled-sq-01" fill="none" stroke="#38E49E" strokeWidth="2" strokeDasharray="6,4" d="M34.5,91
 	34.5,131 82.5,131 "/>
-    <motion.path id="cir_x5F_to_x5F_filled-sq-01" fill="none" stroke="#fff" strokeWidth="2" strokeDasharray="6,4" d="M34.5,91
-	34.5,131 82.5,131 " transition={{duration: 1.6, delay: 2.4}} initial={{pathLength: 1, pathOffset: 0}} animate={{pathLength: 0, pathOffset: 1}}/>
-    <polyline id="cir_x5F_to_x5F_filled-tri" fill="none" stroke="#38E49E" stroke-width="2" stroke-dasharray="6,4" points="13,91
+    <motion.path transition={{ duration: 2.4, ease: "linear", delay: 8, }} initial={{strokeDashoffset: 379}} style={{strokeDasharray: "6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 379", }}
+                 animate={{strokeDashoffset: 28}} id="cir_x5F_to_x5F_filled-tri" fill="none" stroke="#38E49E" strokeWidth="2" strokeDasharray="6,4"
+              d="M13,91
 	13,179 276.4,179 "/>
-    <motion.path initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition} id="_x3C_Path_x3E_" fill="none" stroke="#141515" d="M34.5,50 34.5,10 82.5,10 "/>
-    <motion.path initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition} fill="none" stroke="#141515" d="M200.5,50 200.5,10 276.4,10 "/>
-    <path id="filled-sq01__x3E__filled-sq-02" fill="none" stroke="#38E49E" stroke-width="2" stroke-dasharray="6,4" d="
+    <motion.path initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition} id="_x3C_Path_x3E_"
+                 fill="none" stroke="#141515" d="M34.5,50 34.5,10 82.5,10 "/>
+    <motion.path initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition} fill="none"
+                 stroke="#141515" d="M200.5,50 200.5,10 276.4,10 "/>
+    <motion.path transition={{ duration: LineDuration, ease: "linear", delay: 4.2 }} initial={{strokeDashoffset: 246}} style={{strokeDasharray: "6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 246", }}
+          animate={{strokeDashoffset: 46}} id="filled-sq01__x3E__filled-sq-02" fill="none" stroke="#38E49E" strokeWidth="2" strokeDasharray="6,4" d="
 	M131.3,131 294.9,131 294.9,95 "/>
-	<motion.path id="filled-sq01__x3E__filled-sq-02" fill="none" stroke="#fff" strokeWidth="2" strokeDasharray="6,4" d="
-	M131.3,131 294.9,131 294.9,95 " transition={{duration: 1.6, delay: 4.8}} initial={{pathLength: 1, pathOffset: 0}} animate={{pathLength: 0, pathOffset: 1}}/>
-    <motion.g initial={{ y: -420 }} animate={{y: -477}} transition={{duration: 1.2}} style={{ x: -342, y: -477}} id="window" transform="translate(-342.672 -477.938)">
+    <motion.g initial={{y: -420}} animate={{y: -477}} transition={{duration: 1.2}} style={{x: -342, y: -477}}
+              id="window" transform="translate(-342.672 -477.938)">
       <g id="Rectangle_Copy_2_1_" transform="translate(343 478)">
         <path fill="#FFFFFF" d="M572.8,174.9H375.2l-3.7-3.3l4-155.1L569.2,14l3.6,3.3V174.9z"/>
         <path fill="#141515" d="M569,14.5l-193.1,2.4l-4,154.4l3.4,3.1h197V17.6L569,14.5 M569.4,13.5l3.9,3.6v158.3H375l-4-3.6L375,16
@@ -154,7 +174,7 @@ export const TreeDiagram = () => (
       <path id="Path_5841" fill="#E4E6EB" d="M787.5,590.3h66.3v51h-66.3V590.3z"/>
       <path id="Path_5842" fill="#E4E6EB" d="M867.1,590.3H895v51h-27.8v-51H867.1z"/>
       <path id="Path_5832" fill="#E4E6EB" d="M729.5,530h48.1v111.2h-48.1V530z"/>
-      <path id="active-box" fill="#38E49E" d="M787.5,530h108v17h-108V530z"/>
+      <motion.path initial={DefaultInitial} animate={DefaultAnimate} transition={FilledTransition} id="active-box" fill="#38E49E" d="M787.5,530h108v17h-108V530z"/>
       <rect id="Rectangle_58" x="713.6" y="491.5" fill="#141515" width="198" height="12"/>
       <path id="Path_5817" fill="#FFFFFF" d="M721.2,495.2c1.3,0,2.4,1.1,2.4,2.4s-1.1,2.4-2.4,2.4c-1.3,0-2.4-1.1-2.4-2.4l0,0
 		C718.8,496.2,719.9,495.2,721.2,495.2z"/>
@@ -170,7 +190,7 @@ export const TreeDiagram = () => (
 		z M806.5,496.5c-0.3,0-0.6,0.2-0.6,0.6l0,0c0-0.3-0.3-0.6-0.6-0.6l0,0c-0.3,0-0.6,0.2-0.6,0.6l0,0v-0.5h-0.4v3.4h0.5v-2.2
 		c0-0.5,0.2-0.8,0.4-0.8c0.3,0,0.4,0.2,0.4,0.6v2.4h0.5v-2.2c0-0.5,0.1-0.8,0.4-0.8c0.3,0,0.3,0.3,0.3,0.5v2.5h0.5v-2.4
 		C807.2,497,807.1,496.5,806.5,496.5L806.5,496.5z M809.7,500c0.7,0.1,1.3-0.4,1.4-1h-0.6c-0.1,0.4-0.5,0.6-0.9,0.5
-		c-0.6,0-1-0.4-1-1.1h2.4v-0.3c0.1-0.8-0.5-1.5-1.3-1.6c-0.1,0-0.1,0-0.2,0c-1,0-1.5,0.8-1.5,1.8c-0.1,0.9,0.5,1.6,1.3,1.7
+		c-0.6,0-1-0.4-1-1.1h2.4v-0.3c0.1-0.8-0.5-1.5-1.3-1.6c-0.1,0-0.1,0-0.2,0c-1,0-1.5,0.8-1.5,1.8c-0.1,0.9,0.5,5,1.3,1.7
 		C809.5,500,809.6,500,809.7,500L809.7,500z M808.7,498c0-0.5,0.3-0.9,0.8-1h0.1c0.5,0,0.9,0.3,0.9,0.8v0.1h-1.8V498z M812.5,500
 		h0.6l0.5-2.6l0,0l0.5,2.6h0.7l0.5-3.3v-0.1h-0.5l-0.3,2.6l0,0l-0.5-2.6h-0.6l-0.5,2.6l0,0l-0.3-2.6H812v0.1L812.5,500z M817.7,500
 		c1.1,0,1.5-0.8,1.5-1.8s-0.5-1.8-1.5-1.8s-1.5,0.8-1.5,1.8S816.6,500,817.7,500L817.7,500z M817.7,499.5c-0.7,0-1-0.5-1-1.3
@@ -179,8 +199,11 @@ export const TreeDiagram = () => (
 		H824.3z M825.6,498.1l1.4-1.4v-0.1h-0.7l-1.4,1.5l1.5,1.9h0.6v-0.1L825.6,498.1z M828.7,498.3h2v-0.5h-2V498.3z M832.1,500h0.6
 		l1-1.9l0,0l1,1.9h0.6v-0.1l-1.2-2.3l0,0l1.1-2.2v-0.1h-0.6l-1,1.9l0,0l-0.9-1.9h-0.6v0.1l1.2,2.2l0,0L832.1,500L832.1,500z"/>
     </motion.g>
-    <polyline fill="none" stroke="#38E49E" stroke-width="2" stroke-dasharray="6,4" points="320,179 356.7,179 356.7,60.6 436.9,60.6
-	"/>
+    <motion.path transition={{ duration: 2.2, ease: "linear", delay: 5.8, }} initial={{strokeDashoffset: 337}} style={{strokeDasharray: "6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 337", }}
+                 animate={{strokeDashoffset: 110}} id="newPath" fill="none" stroke="#38E49E" strokeWidth="2"
+                 d="M319.7,70.5 351.7,70.5 351.7,38.6 499.8,38.6 499.8,54.5 "/>
+    <motion.path transition={{ duration: 2.4, ease: "linear", delay: 10.4 }} initial={{strokeDashoffset: 369}} style={{strokeDasharray: "6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 369", }}
+                 animate={{strokeDashoffset: 74}} id="newPath1" fill="none" stroke="#38E49E" strokeWidth="2" strokeDasharray="6,4" d="M319.7,178.6 500.1,178.6 500.1,64.5 "/>
   </svg>
 )
 
