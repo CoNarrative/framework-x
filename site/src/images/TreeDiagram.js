@@ -36,7 +36,8 @@ export const TreeDiagram = () => (
     version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px"
     y="0px"
     viewBox="0 0 666.6 189" enable-background="new 0 0 666.6 189" xmlSpace="preserve">
-    <motion.g initial={DefaultInitial} animate={DefaultAnimate} transition={FilledTransition} style={{ x: 6750, y: 3062}} id="filled-tri-01">
+    <motion.g initial={DefaultInitial} animate={DefaultAnimate} transition={FilledTransition} style={{x: 6750, y: 3062}}
+              id="filled-tri-01">
       <g id="Rectangle_Copy_2" transform="translate(343 478)">
         <path fill="#2DCD8C" d="M-6786.5-3351.5h-17.4l-3.2-2.6l8.5-15.1l5.5,4.5L-6786.5-3351.5z"/>
         <path fill="#141515" d="M-6798.4-3368.4l-7.9,14.1l2.7,2.2h16.3l-6.1-12.4L-6798.4-3368.4 M-6798.6-3370l6,5l7,14h-18.4l-3.6-3
@@ -119,7 +120,8 @@ export const TreeDiagram = () => (
                  fill="none" stroke="#141515" d="M34.5,70.5h48"/>
     <motion.path initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition} id="Path_5833"
                  fill="none" stroke="#141515" d="M131.5,70.5h48"/>
-    <motion.path transition={{ duration: 0.6, ease: "linear", delay: 5.8}} initial={{strokeDashoffset: -50}} style={{strokeDasharray: "6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 280", }}
+    <motion.path transition={{duration: 0.6, ease: "linear", delay: 5.8}} initial={{strokeDashoffset: -50}}
+                 style={{strokeDasharray: "6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 280",}}
                  animate={{strokeDashoffset: 0}} id="Path_5833_1_"
                  fill="none" stroke="#38E49E" strokeWidth="2" strokeDasharray="6,4" d="M228.4,70.5h48"/>
     <motion.g initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition}
@@ -143,67 +145,77 @@ export const TreeDiagram = () => (
       </g>
       <circle id="Ellipse_12" fill="#FFFFFF" stroke="#141515" stroke-linejoin="round" cx="10.5" cy="71" r="10"/>
     </motion.g>
-    <motion.path transition={{ duration: 1, ease: "linear", delay: 3.2 }} initial={{strokeDashoffset: 284}} style={{strokeDasharray: "6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 284", }}
-          animate={{strokeDashoffset: 160}} id="cir_x5F_to_x5F_filled-sq-01" fill="none" stroke="#38E49E" strokeWidth="2" strokeDasharray="6,4" d="M34.5,91
+    <motion.path transition={{duration: 1, ease: "linear", delay: 3.2}} initial={{strokeDashoffset: 284}}
+                 style={{strokeDasharray: "6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 284",}}
+                 animate={{strokeDashoffset: 160}} id="cir_x5F_to_x5F_filled-sq-01" fill="none" stroke="#38E49E"
+                 strokeWidth="2" strokeDasharray="6,4" d="M34.5,91
 	34.5,131 82.5,131 "/>
-    <motion.path transition={{ duration: 2.4, ease: "linear", delay: 8, }} initial={{strokeDashoffset: 379}} style={{strokeDasharray: "6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 379", }}
-                 animate={{strokeDashoffset: 28}} id="cir_x5F_to_x5F_filled-tri" fill="none" stroke="#38E49E" strokeWidth="2" strokeDasharray="6,4"
-              d="M13,91
+    <motion.path transition={{duration: 2.4, ease: "linear", delay: 10.4,}} initial={{strokeDashoffset: -351}}
+                 style={{strokeDasharray: "6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 379",}}
+                 animate={{strokeDashoffset: 0}} id="cir_x5F_to_x5F_filled-tri" fill="none" stroke="#38E49E"
+                 strokeWidth="2" strokeDasharray="6,4"
+                 d="M13,91
 	13,179 276.4,179 "/>
     <motion.path initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition} id="_x3C_Path_x3E_"
                  fill="none" stroke="#141515" d="M34.5,50 34.5,10 82.5,10 "/>
     <motion.path initial={DefaultInitial} animate={DefaultAnimate} transition={UnfilledTransition} fill="none"
                  stroke="#141515" d="M200.5,50 200.5,10 276.4,10 "/>
-    <motion.path transition={{ duration: LineDuration, ease: "linear", delay: 4.2 }} initial={{strokeDashoffset: 246}} style={{strokeDasharray: "6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 246", }}
-          animate={{strokeDashoffset: 46}} id="filled-sq01__x3E__filled-sq-02" fill="none" stroke="#38E49E" strokeWidth="2" strokeDasharray="6,4" d="
+    <motion.path transition={{duration: LineDuration, ease: "linear", delay: 4.2}} initial={{strokeDashoffset: 246}}
+                 style={{strokeDasharray: "6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 246",}}
+                 animate={{strokeDashoffset: 46}} id="filled-sq01__x3E__filled-sq-02" fill="none" stroke="#38E49E"
+                 strokeWidth="2" strokeDasharray="6,4" d="
 	M131.3,131 294.9,131 294.9,95 "/>
-    <motion.g initial={{y: -420}} animate={{y: -477}} transition={{duration: 1.2}} style={{x: -342, y: -477}}
+    <motion.g initial={{y: -342}} animate={{y: -477}} transition={{duration: 1.2}} style={{x: -342, y: -477}}
               id="window" transform="translate(-342.672 -477.938)">
       <g id="Rectangle_Copy_2_1_" transform="translate(343 478)">
-        <path fill="#FFFFFF" d="M572.8,174.9H375.2l-3.7-3.3l4-155.1L569.2,14l3.6,3.3V174.9z"/>
-        <path fill="#141515" d="M569,14.5l-193.1,2.4l-4,154.4l3.4,3.1h197V17.6L569,14.5 M569.4,13.5l3.9,3.6v158.3H375l-4-3.6L375,16
-			L569.4,13.5z"/>
+        <path fill="#FFFFFF" d="M566,169.5H381.7l-3.5-3.1L382,21.7l180.7-2.3l3.4,3.1V169.5z"/>
+        <path fill="#141515" d="M562.5,19.9l-180.2,2.2l-3.7,144l3.2,2.9h183.8V22.7L562.5,19.9 M562.9,18.9l3.6,3.4V170h-185l-3.7-3.4
+			l3.7-145.4L562.9,18.9z"/>
       </g>
-      <path id="Path_890_1_" fill="none" stroke="#141515" d="M912,649.4l4.1,3.7"/>
+      <path id="Path_890_1_" fill="none" stroke="#141515" d="M905.5,644.2l3.8,3.5"/>
       <g id="Rectangle_Copy_4_1_" transform="translate(342.672 477.938)">
-        <rect x="371" y="13.5" fill="#FFFFFF" width="198" height="158"/>
-        <rect x="371.5" y="14" fill="none" stroke="#141515" stroke-miterlimit="10" width="197" height="157"/>
+        <rect x="377.8" y="18.9" fill="#FFFFFF" width="184.7" height="147.4"/>
+        <rect x="378.3" y="19.4" fill="none" stroke="#141515" stroke-miterlimit="10" width="183.8" height="146.5"/>
       </g>
-      <path id="Path_5829" fill="#E4E6EB" d="M715.1,503.5h195.6v17.1H715.1V503.5z"/>
-      <path id="Path_5840" fill="#E4E6EB" d="M787.5,556.3h108v24.8h-108V556.3z"/>
-      <path id="Path_5841" fill="#E4E6EB" d="M787.5,590.3h66.3v51h-66.3V590.3z"/>
-      <path id="Path_5842" fill="#E4E6EB" d="M867.1,590.3H895v51h-27.8v-51H867.1z"/>
-      <path id="Path_5832" fill="#E4E6EB" d="M729.5,530h48.1v111.2h-48.1V530z"/>
-      <motion.path initial={DefaultInitial} animate={DefaultAnimate} transition={FilledTransition} id="active-box" fill="#38E49E" d="M787.5,530h108v17h-108V530z"/>
-      <rect id="Rectangle_58" x="713.6" y="491.5" fill="#141515" width="198" height="12"/>
-      <path id="Path_5817" fill="#FFFFFF" d="M721.2,495.2c1.3,0,2.4,1.1,2.4,2.4s-1.1,2.4-2.4,2.4c-1.3,0-2.4-1.1-2.4-2.4l0,0
-		C718.8,496.2,719.9,495.2,721.2,495.2z"/>
-      <path id="Path_5816" fill="#FFFFFF" d="M728.5,495.2c1.3,0,2.4,1.1,2.4,2.4s-1.1,2.4-2.4,2.4c-1.3,0-2.4-1.1-2.4-2.4l0,0
-		C726.1,496.2,727.1,495.2,728.5,495.2z"/>
-      <path id="Path_5815" fill="#FFFFFF" d="M735.7,495.2c1.3,0,2.4,1.1,2.4,2.4s-1.1,2.4-2.4,2.4c-1.3,0-2.4-1.1-2.4-2.4l0,0
-		C733.3,496.2,734.4,495.2,735.7,495.2z"/>
-      <path id="Path_5814" fill="#FFFFFF" d="M792.2,500h0.6v-2h2v-0.5h-2v-1.6h2.3v-0.5h-2.8L792.2,500z M796.1,500h3.1v-0.5h-1.5v-1.2
-		c0-0.8,0.3-1.2,0.9-1.2h0.6v-0.5h-0.6c-0.4,0-0.8,0.2-0.9,0.6l0,0v-0.6h-1.4v0.5h0.9v2.5h-1L796.1,500z M801.4,500
-		c0.4,0,0.8-0.2,1.1-0.5l0,0v0.5h0.5v-2.3c0-0.7-0.5-1.2-1.2-1.2h-0.1c-0.6-0.1-1.2,0.4-1.3,1v0.1h0.5c0-0.3,0.3-0.6,0.8-0.6
-		c0.4-0.1,0.7,0.2,0.8,0.6v0.1v0.2h-0.8c-1,0-1.4,0.5-1.4,1.1s0.5,1.1,1.1,1.1C801.3,500.1,801.4,500.1,801.4,500L801.4,500z
-		 M801.5,499.6c-0.5,0-0.7-0.3-0.7-0.6c0-0.4,0.3-0.6,0.8-0.6h0.8v0.3C802.5,499.2,802.1,499.6,801.5,499.6L801.5,499.6L801.5,499.6
-		z M806.5,496.5c-0.3,0-0.6,0.2-0.6,0.6l0,0c0-0.3-0.3-0.6-0.6-0.6l0,0c-0.3,0-0.6,0.2-0.6,0.6l0,0v-0.5h-0.4v3.4h0.5v-2.2
-		c0-0.5,0.2-0.8,0.4-0.8c0.3,0,0.4,0.2,0.4,0.6v2.4h0.5v-2.2c0-0.5,0.1-0.8,0.4-0.8c0.3,0,0.3,0.3,0.3,0.5v2.5h0.5v-2.4
-		C807.2,497,807.1,496.5,806.5,496.5L806.5,496.5z M809.7,500c0.7,0.1,1.3-0.4,1.4-1h-0.6c-0.1,0.4-0.5,0.6-0.9,0.5
-		c-0.6,0-1-0.4-1-1.1h2.4v-0.3c0.1-0.8-0.5-1.5-1.3-1.6c-0.1,0-0.1,0-0.2,0c-1,0-1.5,0.8-1.5,1.8c-0.1,0.9,0.5,5,1.3,1.7
-		C809.5,500,809.6,500,809.7,500L809.7,500z M808.7,498c0-0.5,0.3-0.9,0.8-1h0.1c0.5,0,0.9,0.3,0.9,0.8v0.1h-1.8V498z M812.5,500
-		h0.6l0.5-2.6l0,0l0.5,2.6h0.7l0.5-3.3v-0.1h-0.5l-0.3,2.6l0,0l-0.5-2.6h-0.6l-0.5,2.6l0,0l-0.3-2.6H812v0.1L812.5,500z M817.7,500
-		c1.1,0,1.5-0.8,1.5-1.8s-0.5-1.8-1.5-1.8s-1.5,0.8-1.5,1.8S816.6,500,817.7,500L817.7,500z M817.7,499.5c-0.7,0-1-0.5-1-1.3
-		c0-0.7,0.3-1.3,1-1.3s1,0.5,1,1.3C818.6,499,818.3,499.5,817.7,499.5L817.7,499.5z M820.1,500h3.1v-0.5h-1.5v-1.2
-		c0-0.8,0.3-1.2,0.9-1.2h0.6v-0.5h-0.6c-0.4,0-0.8,0.2-0.9,0.6l0,0v-0.6h-1.4v0.5h0.9v2.5h-1L820.1,500z M824.3,495.1v4.9h0.6v-4.9
-		H824.3z M825.6,498.1l1.4-1.4v-0.1h-0.7l-1.4,1.5l1.5,1.9h0.6v-0.1L825.6,498.1z M828.7,498.3h2v-0.5h-2V498.3z M832.1,500h0.6
-		l1-1.9l0,0l1,1.9h0.6v-0.1l-1.2-2.3l0,0l1.1-2.2v-0.1h-0.6l-1,1.9l0,0l-0.9-1.9h-0.6v0.1l1.2,2.2l0,0L832.1,500L832.1,500z"/>
+      <path id="Path_5829" fill="#E4E6EB" d="M721.8,508.1h182.5v16H721.8V508.1z"/>
+      <path id="Path_5840" fill="#E4E6EB" d="M789.3,557.4h100.8v23.1H789.3V557.4z"/>
+      <path id="Path_5841" fill="#38E49E" d="M789.3,589.1h61.9v47.6h-61.9V589.1z"/>
+      <path id="Path_5842" fill="#E4E6EB" d="M863.6,589.1h26v47.6h-25.9L863.6,589.1L863.6,589.1z"/>
+      <path id="Path_5832" fill="#E4E6EB" d="M735.2,532.8h44.9v103.7h-44.9V532.8z"/>
+      <path id="active-box" fill="#38E49E" d="M789.3,532.8h100.8v15.9H789.3V532.8z"/>
+      <rect id="Rectangle_58" x="720.4" y="496.9" fill="#141515" width="184.7" height="11.2"/>
+      <path id="Path_5817" fill="#FFFFFF" d="M727.5,500.4c1.2,0,2.2,1,2.2,2.2c0,1.2-1,2.2-2.2,2.2c-1.2,0-2.2-1-2.2-2.2l0,0
+		C725.2,501.3,726.3,500.4,727.5,500.4z"/>
+      <path id="Path_5816" fill="#FFFFFF" d="M734.3,500.4c1.2,0,2.2,1,2.2,2.2c0,1.2-1,2.2-2.2,2.2c-1.2,0-2.2-1-2.2-2.2l0,0
+		C732.1,501.3,733,500.4,734.3,500.4z"/>
+      <path id="Path_5815" fill="#FFFFFF" d="M741,500.4c1.2,0,2.2,1,2.2,2.2c0,1.2-1,2.2-2.2,2.2c-1.2,0-2.2-1-2.2-2.2l0,0
+		C738.8,501.3,739.8,500.4,741,500.4z"/>
+      <path id="Path_5814" fill="#FFFFFF" d="M793.7,504.9h0.6V503h1.9v-0.5h-1.9V501h2.1v-0.5h-2.6L793.7,504.9z M797.4,504.9h2.9v-0.5
+		h-1.4v-1.1c0-0.7,0.3-1.1,0.8-1.1h0.6v-0.5h-0.6c-0.4,0-0.7,0.2-0.8,0.6l0,0v-0.6h-1.3v0.5h0.8v2.3h-0.9L797.4,504.9z M802.3,504.9
+		c0.4,0,0.7-0.2,1-0.5l0,0v0.5h0.5v-2.1c0-0.7-0.5-1.1-1.1-1.1h-0.1c-0.6-0.1-1.1,0.4-1.2,0.9v0.1h0.5c0-0.3,0.3-0.6,0.7-0.6
+		c0.4-0.1,0.7,0.2,0.7,0.6v0.1v0.2h-0.7c-0.9,0-1.3,0.5-1.3,1S801.7,504.9,802.3,504.9C802.2,504.9,802.3,504.9,802.3,504.9
+		L802.3,504.9z M802.4,504.5c-0.5,0-0.7-0.3-0.7-0.6c0-0.4,0.3-0.6,0.7-0.6h0.7v0.3C803.3,504.1,803,504.5,802.4,504.5L802.4,504.5
+		L802.4,504.5z M807.1,501.6c-0.3,0-0.6,0.2-0.6,0.6l0,0c0-0.3-0.3-0.6-0.6-0.6l0,0c-0.3,0-0.6,0.2-0.6,0.6l0,0v-0.5H805v3.2h0.5
+		v-2.1c0-0.5,0.2-0.7,0.4-0.7c0.3,0,0.4,0.2,0.4,0.6v2.2h0.5v-2.1c0-0.5,0.1-0.7,0.4-0.7c0.3,0,0.3,0.3,0.3,0.5v2.3h0.5v-2.2
+		C807.7,502.1,807.6,501.6,807.1,501.6L807.1,501.6z M810.1,504.9c0.7,0.1,1.2-0.4,1.3-0.9h-0.6c-0.1,0.4-0.5,0.6-0.8,0.5
+		c-0.6,0-0.9-0.4-0.9-1h2.2v-0.3c0.1-0.7-0.5-1.4-1.2-1.5c-0.1,0-0.1,0-0.2,0c-0.9,0-1.4,0.7-1.4,1.7c-0.1,0.8,0.5,1.5,1.2,1.6
+		C809.9,504.9,810,504.9,810.1,504.9L810.1,504.9z M809.1,503c0-0.5,0.3-0.8,0.7-0.9h0.1c0.5,0,0.8,0.3,0.8,0.7v0.1L809.1,503
+		L809.1,503z M812.7,504.9h0.6l0.5-2.4l0,0l0.5,2.4h0.7l0.5-3.1v-0.1h-0.5l-0.3,2.4l0,0l-0.5-2.4h-0.6l-0.5,2.4l0,0l-0.3-2.4h-0.6
+		v0.1L812.7,504.9z M817.5,504.9c1,0,1.4-0.7,1.4-1.7c0-0.9-0.5-1.7-1.4-1.7c-0.9,0-1.4,0.7-1.4,1.7
+		C816.1,504.1,816.5,504.9,817.5,504.9L817.5,504.9z M817.5,504.4c-0.7,0-0.9-0.5-0.9-1.2c0-0.7,0.3-1.2,0.9-1.2
+		c0.7,0,0.9,0.5,0.9,1.2C818.4,503.9,818.1,504.4,817.5,504.4L817.5,504.4z M819.8,504.9h2.9v-0.5h-1.4v-1.1c0-0.7,0.3-1.1,0.8-1.1
+		h0.6v-0.5h-0.6c-0.4,0-0.7,0.2-0.8,0.6l0,0v-0.6h-1.3v0.5h0.8v2.3h-0.9L819.8,504.9z M823.7,500.3v4.6h0.6v-4.6H823.7z
+		 M824.9,503.1l1.3-1.3v-0.1h-0.7l-1.3,1.4l1.4,1.8h0.6v-0.1L824.9,503.1z M827.8,503.3h1.9v-0.5h-1.9V503.3z M831,504.9h0.6
+		l0.9-1.8l0,0l0.9,1.8h0.6v-0.1l-1.1-2.1l0,0l1-2.1v-0.1h-0.6l-0.9,1.8l0,0l-0.8-1.8H831v0.1l1.1,2.1l0,0L831,504.9L831,504.9z"/>
     </motion.g>
-    <motion.path transition={{ duration: 2.2, ease: "linear", delay: 5.8, }} initial={{strokeDashoffset: 337}} style={{strokeDasharray: "6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 337", }}
+    <motion.path transition={{duration: 2.2, ease: "linear", delay: 5.8,}} initial={{strokeDashoffset: 337}}
+                 style={{strokeDasharray: "6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 337",}}
                  animate={{strokeDashoffset: 110}} id="newPath" fill="none" stroke="#38E49E" strokeWidth="2"
                  d="M319.7,70.5 351.7,70.5 351.7,38.6 499.8,38.6 499.8,54.5 "/>
-    <motion.path transition={{ duration: 2.4, ease: "linear", delay: 10.4 }} initial={{strokeDashoffset: 369}} style={{strokeDasharray: "6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 369", }}
-                 animate={{strokeDashoffset: 74}} id="newPath1" fill="none" stroke="#38E49E" strokeWidth="2" strokeDasharray="6,4" d="M319.7,178.6 500.1,178.6 500.1,64.5 "/>
+    <motion.path transition={{duration: 2.4, ease: "linear", delay: 8}} initial={{strokeDashoffset: -295}}
+                 style={{strokeDasharray: "6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 369",}}
+                 animate={{strokeDashoffset: 0}} id="newPath1" fill="none" stroke="#38E49E" strokeWidth="2"
+                 strokeDasharray="6,4" d="M319.7,178.6 500.1,178.6 500.1,64.5 "/>
   </svg>
 )
 
