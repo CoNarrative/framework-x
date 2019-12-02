@@ -2,7 +2,7 @@ module.exports = {
   siteMetadata: {
     title: `Framework-X`,
     description: `Reasonable global state.`,
-    author: `@CoNarrative`,
+    author: `@framework-x`,
   },
   plugins: [
     `gatsby-plugin-react-helmet`,
