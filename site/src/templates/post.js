@@ -142,7 +142,7 @@ const Container = styled.div({
 
     [whenTablet]: {
       maxWidth: 'calc(100vw - 64px)',
-      paddingTop: 64,
+      // paddingTop: 64,
     },
 
     [whenMobile]: {
@@ -193,10 +193,11 @@ export default class Template extends React.Component {
         innerHTML: x.value
       }))
     return (
-      <Layout showToc={true} tableOfContents={tableOfContents}>
+      <Layout showToc={false} tableOfContents={tableOfContents}
+      >
         <SEO />
         <Container>
-          <TableOfContents tableOfContents={tableOfContents} rootCss={{[whenMobile]: {display: 'none'}}}/>
+          {/*<TableOfContents tableOfContents={tableOfContents} rootCss={{[whenMobile]: {display: 'none'}}}/>*/}
           <div>
               {renderAst(htmlAst)}
             <Footer floating/>

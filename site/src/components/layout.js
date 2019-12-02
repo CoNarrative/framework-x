@@ -39,18 +39,18 @@ class Layout extends React.Component {
       <React.Fragment>
         {/*<Navigation siteTitle={data.site.siteMetadata.title}/>*/}
         <Navigation isHamburgerMenuExpanded={this.isHamburgerMenuExpanded}/>
-        <TableOfContents tableOfContents={tableOfContents} rootCss={{
-          display: 'none',
-          [whenMobile]: {
-            display: showToc ? 'flex' : 'none',
-            top: this.state.expanded ? 112 : 64,
-            right: 0,
-            left: 0,
-            paddingLeft: 0,
-            marginRight: 0,
-            width: 'unset',
-          },
-        }}/>
+        {/*<TableOfContents tableOfContents={tableOfContents} rootCss={{*/}
+        {/*  display: 'none',*/}
+        {/*  [whenMobile]: {*/}
+        {/*    display: showToc ? 'flex' : 'none',*/}
+        {/*    top: this.state.expanded ? 112 : 64,*/}
+        {/*    right: 0,*/}
+        {/*    left: 0,*/}
+        {/*    paddingLeft: 0,*/}
+        {/*    marginRight: 0,*/}
+        {/*    width: 'unset',*/}
+        {/*  },*/}
+        {/*}}/>*/}
         <div
           css={{
             margin: `0 auto`,
@@ -65,8 +65,8 @@ class Layout extends React.Component {
 
             [whenMobile]: {
               position: 'relative',
-              top: 112,
-              height: 'calc(100vh - 112px)',
+              // top: 112,
+              // height: 'calc(100vh - 112px)',
             },
 
             ...rootCss,

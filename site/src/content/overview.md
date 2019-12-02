@@ -7,15 +7,16 @@ path: /learn
 # Overview
 
 Framework-x shares much of its API and design with Clojurescript's
-[`re-frame`](https://github.com/Day8/re-frame), the
+[`re-frame`](https://github.com/Day8/re-frame), which was recently considered the
 [most expressive front-end framework to date](https://www.freecodecamp.org/news/a-realworld-comparison-of-front-end-frameworks-with-benchmarks-2019-update-4be0d3c78075/)
-. Its design overlaps with Redux, but diverges in ways that have enable referentially transparent events and side
-effects, colocation of state transformations and far-reaching consequences for simplicity, mental overhead, and
+. Its design overlaps with Redux, but diverges in ways that enable developers to express the happenings of an event with
+a single unit, `regEventFx`. Our experience has beenand far-reaching consequences for simplicity, mental overhead, and
 productivity.
 
 
 #### Key features:
-1. **Less code** 
+1. **Less code** Building the same app in Framework-X takes about 60% of the lines of code as frameworks like Redux,
+   Mob-X, Angular, and Vue. 
 2. **Algebraic effects** Respond to an event with a state change and an API call in 2 lines of code and maintain a
    purely functional codebase that's easy to follow and write automated tests against.
 3. **Single source of truth** Framework-X promotes this best practice by requiring developers do less to achieve it --
