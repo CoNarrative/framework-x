@@ -179,7 +179,7 @@ export const TreeDiagram = () => (
       </g>
       <path id="Path_5829" fill="#E4E6EB" d="M721.8,508.1h182.5v16H721.8V508.1z"/>
       <path id="Path_5840" fill="#E4E6EB" d="M789.3,557.4h100.8v23.1H789.3V557.4z"/>
-      <path id="Path_5841" fill="#38E49E" d="M789.3,589.1h61.9v47.6h-61.9V589.1z"/>
+      <path id="Path_5841" fill="#E4E6EB" d="M789.3,589.1h61.9v47.6h-61.9V589.1z"/>
       <path id="Path_5842" fill="#E4E6EB" d="M863.6,589.1h26v47.6h-25.9L863.6,589.1L863.6,589.1z"/>
       <path id="Path_5832" fill="#E4E6EB" d="M735.2,532.8h44.9v103.7h-44.9V532.8z"/>
       <path id="active-box" fill="#38E49E" d="M789.3,532.8h100.8v15.9H789.3V532.8z"/>
