@@ -7,6 +7,7 @@ import {whenTablet} from "../theme";
 import {whenMobile} from "../theme";
 import {TreeDiagram} from "../images/TreeDiagram";
 import {LessCodeDiagram} from "../images/LessCode";
+import {Tetris} from "../images/Tetris";
 
 const Wrapper = styled.div({
   height: 302,
@@ -76,8 +77,9 @@ export const Footer = ({floating}) => (
         '& > :last-child': {marginBottom: 0},
         [whenMobile]: {marginRight: 0, marginBottom: 80}
       }}>
-        <TreeDiagram/>
+        {/*<TreeDiagram/>*/}
         {/*<LessCodeDiagram/>*/}
+        <Tetris/>
         <Header>Resources</Header>
         <Navlink href={'https://github.com/CoNarrative/framework-x/'}>Github</Navlink>
         <Navlink to={'/api'}>Documentation</Navlink>

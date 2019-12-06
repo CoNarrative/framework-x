@@ -1,0 +1,379 @@
+<svg id="tetris-final" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="110" height="161" viewBox="0 0 110 161">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="Rectangle_129" data-name="Rectangle 129" width="97" height="157" transform="translate(9)"/>
+    </clipPath>
+  </defs>
+  <path id="Path_5857" d="M13.2,160.7.9,156,1,0,13.2,4Z" fill="#cacaca"/>
+  <g id="Group_4602">
+    <path id="Path_5855" d="M109,161l-12-4V0l12,4Z" fill="#cacaca"/>
+    <rect id="Rectangle_59" width="1" height="157" fill="#141515"/>
+    <path id="Path_5854" d="M1,156.3H96.6l11.1,4.4H13.4Z" fill="#cacaca"/>
+    <g id="Group_4601">
+      <rect id="Rectangle_60" width="1" height="157" transform="translate(96)" fill="#141515"/>
+      <rect id="Rectangle_62" width="1" height="157" transform="translate(109 4)" fill="#141515"/>
+      <rect id="Rectangle_61" width="97" height="1" transform="translate(0 156)" fill="#141515"/>
+      <rect id="Rectangle_63" width="97" height="1" transform="translate(13 160)" fill="#141515"/>
+      <path id="Path_5852" d="M.4,156.6l13,3.9" fill="none" stroke="#141515" stroke-width="1"/>
+      <path id="Path_5853" d="M96.5,156.5,109,160" fill="none" stroke="#141515" stroke-width="1"/>
+    </g>
+  </g>
+  <g id="Group_4610">
+    <g id="Group_4611" data-name="Group 4611">
+      <g id="Group_4604" transform="translate(-9)" clip-path="url(#clip-path)">
+        <g id="square-2-2" transform="translate(7293 3033)">
+          <g id="Rectangle_Copy_2-2" transform="translate(343 478)">
+            <path id="Path_5867" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#7ef9c7"/>
+            <path id="Path_5868" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#7ef9c7"/>
+          </g>
+          <path id="Path_890-2" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-2" transform="translate(343 478)">
+            <rect id="Rectangle_66" width="17" height="16" transform="translate(-7627 -3430)" fill="#7ef9c7"/>
+            <rect id="Rectangle_67" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-3" transform="translate(7293 3048)">
+          <g id="Rectangle_Copy_2-3" transform="translate(343 478)">
+            <path id="Path_5869" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#7ef9c7"/>
+            <path id="Path_5870" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#7ef9c7"/>
+          </g>
+          <path id="Path_890-3" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-3" transform="translate(343 478)">
+            <rect id="Rectangle_68" width="17" height="16" transform="translate(-7627 -3430)" fill="#7ef9c7"/>
+            <rect id="Rectangle_69" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-4" transform="translate(7293 3063)">
+          <g id="Rectangle_Copy_2-4" transform="translate(343 478)">
+            <path id="Path_5871" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#7ef9c7"/>
+            <path id="Path_5872" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#7ef9c7"/>
+          </g>
+          <path id="Path_890-4" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-4" transform="translate(343 478)">
+            <rect id="Rectangle_70" width="17" height="16" transform="translate(-7627 -3430)" fill="#7ef9c7"/>
+            <rect id="Rectangle_71" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-5" transform="translate(7293 3078)">
+          <g id="Rectangle_Copy_2-5" transform="translate(343 478)">
+            <path id="Path_5873" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#62c09a"/>
+            <path id="Path_5874" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#62c09a"/>
+          </g>
+          <path id="Path_890-5" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-5" transform="translate(343 478)">
+            <rect id="Rectangle_72" width="17" height="16" transform="translate(-7627 -3430)" fill="#62c09a"/>
+            <rect id="Rectangle_73" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-6" transform="translate(7293 3093)">
+          <g id="Rectangle_Copy_2-6" transform="translate(343 478)">
+            <path id="Path_5875" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#62c09a"/>
+            <path id="Path_5876" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#62c09a"/>
+          </g>
+          <path id="Path_890-6" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-6" transform="translate(343 478)">
+            <rect id="Rectangle_74" width="17" height="16" transform="translate(-7627 -3430)" fill="#62c09a"/>
+            <rect id="Rectangle_75" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-7" transform="translate(7309 3033)">
+          <g id="Rectangle_Copy_2-7" transform="translate(343 478)">
+            <path id="Path_5877" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#2dcd8c"/>
+            <path id="Path_5878" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#2dcd8c"/>
+          </g>
+          <path id="Path_890-7" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-7" transform="translate(343 478)">
+            <rect id="Rectangle_76" width="17" height="16" transform="translate(-7627 -3430)" fill="#2dcd8c"/>
+            <rect id="Rectangle_77" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-8" transform="translate(7325 3033)">
+          <g id="Rectangle_Copy_2-8" transform="translate(343 478)">
+            <path id="Path_5879" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#2dcd8c"/>
+            <path id="Path_5880" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#2dcd8c"/>
+          </g>
+          <path id="Path_890-8" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-8" transform="translate(343 478)">
+            <rect id="Rectangle_78" width="17" height="16" transform="translate(-7627 -3430)" fill="#2dcd8c"/>
+            <rect id="Rectangle_79" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-9" transform="translate(7341 3033)">
+          <g id="Rectangle_Copy_2-9" transform="translate(343 478)">
+            <path id="Path_5881" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#7ef9c7"/>
+            <path id="Path_5882" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#7ef9c7"/>
+          </g>
+          <path id="Path_890-9" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-9" transform="translate(343 478)">
+            <rect id="Rectangle_80" width="17" height="16" transform="translate(-7627 -3430)" fill="#7ef9c7"/>
+            <rect id="Rectangle_81" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-10" transform="translate(7357 3033)">
+          <g id="Rectangle_Copy_2-10" transform="translate(343 478)">
+            <path id="Path_5883" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#7ef9c7"/>
+            <path id="Path_5884" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#7ef9c7"/>
+          </g>
+          <path id="Path_890-10" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-10" transform="translate(343 478)">
+            <rect id="Rectangle_82" width="17" height="16" transform="translate(-7627 -3430)" fill="#7ef9c7"/>
+            <rect id="Rectangle_83" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-11" transform="translate(7309 3048)">
+          <g id="Rectangle_Copy_2-11" transform="translate(343 478)">
+            <path id="Path_5885" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#7ef9c7"/>
+            <path id="Path_5886" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#7ef9c7"/>
+          </g>
+          <path id="Path_890-11" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-11" transform="translate(343 478)">
+            <rect id="Rectangle_84" width="17" height="16" transform="translate(-7627 -3430)" fill="#7ef9c7"/>
+            <rect id="Rectangle_85" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-12" transform="translate(7325 3048)">
+          <g id="Rectangle_Copy_2-12" transform="translate(343 478)">
+            <path id="Path_5887" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#2dcd8c"/>
+            <path id="Path_5888" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#2dcd8c"/>
+          </g>
+          <path id="Path_890-12" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-12" transform="translate(343 478)">
+            <rect id="Rectangle_86" width="17" height="16" transform="translate(-7627 -3430)" fill="#2dcd8c"/>
+            <rect id="Rectangle_87" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-13" transform="translate(7341 3048)">
+          <g id="Rectangle_Copy_2-13" transform="translate(343 478)">
+            <path id="Path_5889" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#7ef9c7"/>
+            <path id="Path_5890" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#7ef9c7"/>
+          </g>
+          <path id="Path_890-13" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-13" transform="translate(343 478)">
+            <rect id="Rectangle_88" width="17" height="16" transform="translate(-7627 -3430)" fill="#7ef9c7"/>
+            <rect id="Rectangle_89" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-14" transform="translate(7357 3048)">
+          <g id="Rectangle_Copy_2-14" transform="translate(343 478)">
+            <path id="Path_5891" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#7ef9c7"/>
+            <path id="Path_5892" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#7ef9c7"/>
+          </g>
+          <path id="Path_890-14" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-14" transform="translate(343 478)">
+            <rect id="Rectangle_90" width="17" height="16" transform="translate(-7627 -3430)" fill="#7ef9c7"/>
+            <rect id="Rectangle_91" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-15" transform="translate(7309 3063)">
+          <g id="Rectangle_Copy_2-15" transform="translate(343 478)">
+            <path id="Path_5893" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#62c09a"/>
+            <path id="Path_5894" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#62c09a"/>
+          </g>
+          <path id="Path_890-15" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-15" transform="translate(343 478)">
+            <rect id="Rectangle_92" width="17" height="16" transform="translate(-7627 -3430)" fill="#62c09a"/>
+            <rect id="Rectangle_93" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-16" transform="translate(7309 3078)">
+          <g id="Rectangle_Copy_2-16" transform="translate(343 478)">
+            <path id="Path_5895" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#62c09a"/>
+            <path id="Path_5896" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#62c09a"/>
+          </g>
+          <path id="Path_890-16" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-16" transform="translate(343 478)">
+            <rect id="Rectangle_94" width="17" height="16" transform="translate(-7627 -3430)" fill="#62c09a"/>
+            <rect id="Rectangle_95" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-17" transform="translate(7325 3063)">
+          <g id="Rectangle_Copy_2-17" transform="translate(343 478)">
+            <path id="Path_5897" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#2dcd8c"/>
+            <path id="Path_5898" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#2dcd8c"/>
+          </g>
+          <path id="Path_890-17" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-17" transform="translate(343 478)">
+            <rect id="Rectangle_96" width="17" height="16" transform="translate(-7627 -3430)" fill="#2dcd8c"/>
+            <rect id="Rectangle_97" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-18" transform="translate(7309 3093)">
+          <g id="Rectangle_Copy_2-18" transform="translate(343 478)">
+            <path id="Path_5899" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#7ef9c7"/>
+            <path id="Path_5900" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#7ef9c7"/>
+          </g>
+          <path id="Path_890-18" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-18" transform="translate(343 478)">
+            <rect id="Rectangle_98" width="17" height="16" transform="translate(-7627 -3430)" fill="#7ef9c7"/>
+            <rect id="Rectangle_99" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-19" transform="translate(7341 3063)">
+          <g id="Rectangle_Copy_2-19" transform="translate(343 478)">
+            <path id="Path_5901" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#62c09a"/>
+            <path id="Path_5902" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#62c09a"/>
+          </g>
+          <path id="Path_890-19" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-19" transform="translate(343 478)">
+            <rect id="Rectangle_100" width="17" height="16" transform="translate(-7627 -3430)" fill="#62c09a"/>
+            <rect id="Rectangle_101" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-20" transform="translate(7325 3078)">
+          <g id="Rectangle_Copy_2-20" transform="translate(343 478)">
+            <path id="Path_5903" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#7ef9c7"/>
+            <path id="Path_5904" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#7ef9c7"/>
+          </g>
+          <path id="Path_890-20" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-20" transform="translate(343 478)">
+            <rect id="Rectangle_102" width="17" height="16" transform="translate(-7627 -3430)" fill="#7ef9c7"/>
+            <rect id="Rectangle_103" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-21" transform="translate(7325 3093)">
+          <g id="Rectangle_Copy_2-21" transform="translate(343 478)">
+            <path id="Path_5905" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#7ef9c7"/>
+            <path id="Path_5906" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#7ef9c7"/>
+          </g>
+          <path id="Path_890-21" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-21" transform="translate(343 478)">
+            <rect id="Rectangle_104" width="17" height="16" transform="translate(-7627 -3430)" fill="#7ef9c7"/>
+            <rect id="Rectangle_105" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-22" transform="translate(7341 3078)">
+          <g id="Rectangle_Copy_2-22" transform="translate(343 478)">
+            <path id="Path_5907" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#62c09a"/>
+            <path id="Path_5908" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#62c09a"/>
+          </g>
+          <path id="Path_890-22" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-22" transform="translate(343 478)">
+            <rect id="Rectangle_106" width="17" height="16" transform="translate(-7627 -3430)" fill="#62c09a"/>
+            <rect id="Rectangle_107" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-23" transform="translate(7341 3093)">
+          <g id="Rectangle_Copy_2-23" transform="translate(343 478)">
+            <path id="Path_5909" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#7ef9c7"/>
+            <path id="Path_5910" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#7ef9c7"/>
+          </g>
+          <path id="Path_890-23" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-23" transform="translate(343 478)">
+            <rect id="Rectangle_108" width="17" height="16" transform="translate(-7627 -3430)" fill="#7ef9c7"/>
+            <rect id="Rectangle_109" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-24" transform="translate(7357 3063)">
+          <g id="Rectangle_Copy_2-24" transform="translate(343 478)">
+            <path id="Path_5911" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#2dcd8c"/>
+            <path id="Path_5912" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#2dcd8c"/>
+          </g>
+          <path id="Path_890-24" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-24" transform="translate(343 478)">
+            <rect id="Rectangle_110" width="17" height="16" transform="translate(-7627 -3430)" fill="#2dcd8c"/>
+            <rect id="Rectangle_111" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-26" transform="translate(7357 3078)">
+          <g id="Rectangle_Copy_2-26" transform="translate(343 478)">
+            <path id="Path_5915" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#62c09a"/>
+            <path id="Path_5916" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#62c09a"/>
+          </g>
+          <path id="Path_890-26" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-26" transform="translate(343 478)">
+            <rect id="Rectangle_114" width="17" height="16" transform="translate(-7627 -3430)" fill="#62c09a"/>
+            <rect id="Rectangle_115" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-27" transform="translate(7357 3093)">
+          <g id="Rectangle_Copy_2-27" transform="translate(343 478)">
+            <path id="Path_5917" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#62c09a"/>
+            <path id="Path_5918" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#62c09a"/>
+          </g>
+          <path id="Path_890-27" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-27" transform="translate(343 478)">
+            <rect id="Rectangle_116" width="17" height="16" transform="translate(-7627 -3430)" fill="#62c09a"/>
+            <rect id="Rectangle_117" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-30_2_" transform="translate(7373 3063)">
+          <g id="Rectangle_Copy_2-30_2_" transform="translate(343 478)">
+            <path id="Path_5923_2_" d="M-7606.5-3470.52h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#62c09a"/>
+            <path id="Path_5924_2_" d="M-7610.2-3488.82l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#141515"/>
+          </g>
+          <path id="Path_890-30_2_" d="M-7267.8-2996.93l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-30_2_" transform="translate(343 478)">
+            <rect id="Rectangle_122_2_" width="17" height="16" transform="translate(-7627 -3490.02)" fill="#62c09a"/>
+            <rect id="Rectangle_123_2_" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3489.52)"/>
+          </g>
+        </g>
+        <g id="square-2-30_1_" transform="translate(7373 3063)">
+          <g id="Rectangle_Copy_2-30_1_" transform="translate(343 478)">
+            <path id="Path_5923_1_" d="M-7606.5-3455.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#62c09a"/>
+            <path id="Path_5924_1_" d="M-7610.2-3473.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#141515"/>
+          </g>
+          <path id="Path_890-30_1_" d="M-7267.8-2981.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-30_1_" transform="translate(343 478)">
+            <rect id="Rectangle_122_1_" width="17" height="16" transform="translate(-7627 -3475)" fill="#62c09a"/>
+            <rect id="Rectangle_123_1_" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3474.5)"/>
+          </g>
+        </g>
+        <g id="square-2-31_1_" transform="translate(7373 3078)">
+          <g id="Rectangle_Copy_2-31_1_" transform="translate(343 478)">
+            <path id="Path_5925_1_" d="M-7606.5-3455.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#62c09a"/>
+            <path id="Path_5926_1_" d="M-7610.2-3473.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#141515"/>
+          </g>
+          <path id="Path_890-31_1_" d="M-7267.8-2981.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-31_1_" transform="translate(343 478)">
+            <rect id="Rectangle_124_1_" width="17" height="16" transform="translate(-7627 -3475)" fill="#62c09a"/>
+            <rect id="Rectangle_125_1_" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3474.5)"/>
+          </g>
+        </g>
+        <g id="square-2-32_1_" transform="translate(7373 3093)">
+          <g id="Rectangle_Copy_2-32_1_" transform="translate(343 478)">
+            <path id="Path_5927_1_" d="M-7606.5-3455.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#62c09a"/>
+            <path id="Path_5928_1_" d="M-7610.2-3473.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#141515"/>
+          </g>
+          <path id="Path_890-32_1_" d="M-7267.8-2981.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-32_1_" transform="translate(343 478)">
+            <rect id="Rectangle_126_1_" width="17" height="16" transform="translate(-7627 -3475)" fill="#62c09a"/>
+            <rect id="Rectangle_127_1_" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3474.5)"/>
+          </g>
+        </g>
+        <g id="square-2-30" transform="translate(7373 3063)">
+          <g id="Rectangle_Copy_2-30" transform="translate(343 478)">
+            <path id="Path_5923" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#2dcd8c"/>
+            <path id="Path_5924" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#141515"/>
+          </g>
+          <path id="Path_890-30" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-30" transform="translate(343 478)">
+            <rect id="Rectangle_122" width="17" height="16" transform="translate(-7627 -3430)" fill="#2dcd8c"/>
+            <rect id="Rectangle_123" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-31" transform="translate(7373 3078)">
+          <g id="Rectangle_Copy_2-31" transform="translate(343 478)">
+            <path id="Path_5925" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#2dcd8c"/>
+            <path id="Path_5926" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#141515"/>
+          </g>
+          <path id="Path_890-31" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-31" transform="translate(343 478)">
+            <rect id="Rectangle_124" width="17" height="16" transform="translate(-7627 -3430)" fill="#2dcd8c"/>
+            <rect id="Rectangle_125" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+        <g id="square-2-32" transform="translate(7373 3093)">
+          <g id="Rectangle_Copy_2-32" transform="translate(343 478)">
+            <path id="Path_5927" d="M-7606.5-3410.5h-16.7l-3.2-3.6,6.4-11.5,9.9-3.8,3.6,3.6v15.3Z" fill="#2dcd8c"/>
+            <path id="Path_5928" d="M-7610.2-3428.8l-9.4,3.6-6.1,11.1,2.8,3.1h15.9v-14.6l-3.2-3.2m.2-1.2,4,4v16h-17.4l-3.6-4,6.6-12Z" fill="#141515"/>
+          </g>
+          <path id="Path_890-32" d="M-7267.8-2936.9l4.4,4.2" fill="none" stroke="#141515" stroke-width="1"/>
+          <g id="Rectangle_Copy_4-32" transform="translate(343 478)">
+            <rect id="Rectangle_126" width="17" height="16" transform="translate(-7627 -3430)" fill="#2dcd8c"/>
+            <rect id="Rectangle_127" width="16" height="15" stroke-width="1" fill="none" stroke="#141515" stroke-miterlimit="10" transform="translate(-7626.5 -3429.5)"/>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

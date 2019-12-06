@@ -1,21 +1,21 @@
 import React from 'react'
 import MulletManFluid from '../components/image'
-import { DimensionalBox } from '../components/DimensionalBox'
-import { Highlight } from '../components/TextBackgroundHighlight'
+import {DimensionalBox} from '../components/DimensionalBox'
+import {Highlight} from '../components/TextBackgroundHighlight'
 import CircleBackdrop from '../images/circle-backdrop.svg'
 import HelpDesk from '../images/help-desk.svg'
-import { Input, MultilineInput } from '../components/Input'
-import { Button, Button3D } from '../components/Button'
+import {Input, MultilineInput} from '../components/Input'
+import {Button, Button3D} from '../components/Button'
 import Enter from '../assets/icons/enter.svg'
-import { Link } from 'gatsby'
+import {Link} from 'gatsby'
 import Layout from '../components/layout'
 import SEO from '../components/seo'
-import { Footer } from '../components/Footer'
+import {Footer} from '../components/Footer'
 import * as axios from 'axios'
-import { whenMobile, whenTablet } from '../theme'
+import {whenMobile, whenTablet} from '../theme'
 import MulletMan from '../assets/icons/mascot.svg'
 import * as theme from '../theme'
-import { Shapes } from '../images/Shapes'
+import {Shapes} from '../images/Shapes'
 
 
 const MulletManMain = () =>
@@ -30,10 +30,10 @@ const MulletManMain = () =>
       marginRight: 0,
     }
   }}>
-    <img src={MulletMan} />
+    <img src={MulletMan}/>
   </div>
 
-export const Banner = ({ children, rootCss, wrapCss }) => (
+export const Banner = ({children, rootCss, wrapCss}) => (
   <div css={{
     display: 'flex',
     justifyContent: 'center',
@@ -57,18 +57,18 @@ export const Banner = ({ children, rootCss, wrapCss }) => (
 )
 
 const Features = () => (
-  <Banner rootCss={{ backgroundColor: theme.black, color: 'white' }} wrapCss={{
-    [whenTablet]: { flexDirection: 'column', },
-    [whenMobile]: { paddingLeft: 24, paddingRight: 24, }
+  <Banner rootCss={{backgroundColor: theme.black, color: 'white'}} wrapCss={{
+    [whenTablet]: {flexDirection: 'column',},
+    [whenMobile]: {paddingLeft: 24, paddingRight: 24,}
   }}>
-    <Shapes />
+    <Shapes/>
     <div css={{
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'flex-start',
       flexShrink: 1,
       maxWidth: 540,
-      [whenTablet]: { marginTop: 40, }
+      [whenTablet]: {marginTop: 40,}
     }}>
       <h1 css={{
         marginTop: 0,
@@ -83,7 +83,7 @@ const Features = () => (
         marginBottom: 20,
         lineHeight: '1.6rem',
         color: '#CBD2E4',
-        '& > li': { marginBottom: 12, }
+        '& > li': {marginBottom: 12,}
       }}>
         <li>Less code</li>
         <li>Spreadsheet programming</li>
@@ -91,15 +91,15 @@ const Features = () => (
         <li>Algebraic effects</li>
       </ol>
       <Link to={'/learn'}>
-        <Button3D light rootCss={{ width: 132 }}>Learn more</Button3D>
+        <Button3D light rootCss={{width: 132}}>Learn more</Button3D>
       </Link>
     </div>
   </Banner>
 )
 const Additive = () => (
-  <Banner rootCss={{ backgroundColor: '#FFFFFF', color: theme.black }} wrapCss={{
-    [whenTablet]: { flexDirection: 'column', },
-    [whenMobile]: { paddingLeft: 24, paddingRight: 24, }
+  <Banner rootCss={{backgroundColor: '#FFFFFF', color: theme.black}} wrapCss={{
+    [whenTablet]: {flexDirection: 'column',},
+    [whenMobile]: {paddingLeft: 24, paddingRight: 24,}
   }}>
     <div>text or img</div>
     <div>text or img</div>
@@ -107,12 +107,12 @@ const Additive = () => (
 )
 
 const ContactUs = () => (
-  <Banner rootCss={{ backgroundColor: '#E4E6EB' }} wrapCss={{
-    [whenTablet]: { flexDirection: 'column-reverse', },
-    [whenMobile]: { paddingLeft: 24, paddingRight: 24, }
+  <Banner rootCss={{backgroundColor: '#E4E6EB'}} wrapCss={{
+    [whenTablet]: {flexDirection: 'column-reverse',},
+    [whenMobile]: {paddingLeft: 24, paddingRight: 24,}
   }}>
     <div
-      css={{ display: 'flex', flexDirection: 'column', flexShrink: 1, maxWidth: 540, }}>
+      css={{display: 'flex', flexDirection: 'column', flexShrink: 1, maxWidth: 540,}}>
       <h1 css={{
         marginTop: 0,
         fontSize: '3rem',
@@ -159,22 +159,22 @@ const ContactUs = () => (
       width: '40%',
       maxHeight: 360,
       marginLeft: 80,
-      [whenTablet]: { marginLeft: 0, marginBottom: 64, width: '70%', minWidth: 280 }
-    }} src={HelpDesk} />
+      [whenTablet]: {marginLeft: 0, marginBottom: 64, width: '70%', minWidth: 280}
+    }} src={HelpDesk}/>
   </Banner>
 
 )
 
-const MainContent = ({ starCount, downloadCount }) =>
+const MainContent = ({starCount, downloadCount}) =>
   <div css={{
     display: 'flex',
     maxWidth: 960,
     alignSelf: 'center',
     paddingBottom: '4rem',
-    [whenMobile]: { flexDirection: 'column', padding: '0 24px', paddingBottom: '3rem' }
+    [whenMobile]: {flexDirection: 'column', padding: '0 24px', paddingBottom: '3rem'}
   }}>
-    <MulletManMain />
-    <div css={{ display: 'flex', flexDirection: 'column' }}>
+    <MulletManMain/>
+    <div css={{display: 'flex', flexDirection: 'column'}}>
       <h1 css={{
         fontSize: '3rem',
         marginBottom: '0.8rem',
@@ -182,7 +182,7 @@ const MainContent = ({ starCount, downloadCount }) =>
         flexWrap: 'wrap',
         marginTop: 0
       }}>
-        Reasonable <Highlight rootCss={{ marginLeft: 10 }}>global state.</Highlight>
+        Reasonable <Highlight rootCss={{marginLeft: 10}}>global state.</Highlight>
       </h1>
       <div css={{
         marginBottom: '1.45rem',
@@ -195,41 +195,41 @@ const MainContent = ({ starCount, downloadCount }) =>
         effects they entail -- a state change, an
         asynchronous API call, the invocation of a custom function, or another event.
       </div>
-      <div css={{ display: 'flex', [whenMobile]: { flexDirection: 'column' } }}>
-        <div css={{ alignSelf: 'flex-start', [whenMobile]: { width: '100%' } }}>
-          <DimensionalBox handleHeight={true} rootCss={{ alignItems: 'center' }}>
+      <div css={{display: 'flex', [whenMobile]: {flexDirection: 'column'}}}>
+        <div css={{alignSelf: 'flex-start', [whenMobile]: {width: '100%'}}}>
+          <DimensionalBox handleHeight={true} rootCss={{alignItems: 'center'}}>
             <div css={{
               display: 'flex',
               justifyContent: 'center',
               width: 520,
               paddingTop: 9,
               paddingBottom: 9,
-              '& > :not(:last-child)': { marginRight: 64 },
+              '& > :not(:last-child)': {marginRight: 64},
               [whenMobile]: {
                 flexDirection: 'column',
                 width: '100%',
                 paddingLeft: 24,
                 paddingTop: 16,
                 paddingBottom: 16,
-                '& > :not(:last-child)': { marginRight: 0, marginBottom: 12 },
+                '& > :not(:last-child)': {marginRight: 0, marginBottom: 12},
               },
             }}>
               <span>License: MIT</span>
               <a href={'https://github.com/CoNarrative/framework-x'}
                  target={'_blank'}
-                 style={{ color: 'inherit', textDecoration: 'inherit' }}>
+                 style={{color: 'inherit', textDecoration: 'inherit'}}>
                 +{starCount} stars
               </a>
               <a href={'https://www.npmjs.com/package/framework-x'}
                  target={'_blank'}
-                 style={{ color: 'inherit', textDecoration: 'inherit' }}>
+                 style={{color: 'inherit', textDecoration: 'inherit'}}>
                 +{downloadCount} downloads
               </a>
             </div>
           </DimensionalBox>
         </div>
         <Link to={'/api'}
-              css={{ marginLeft: 32, [whenMobile]: { marginLeft: 0, marginTop: 24 } }}>
+              css={{marginLeft: 32, [whenMobile]: {marginLeft: 0, marginTop: 24}}}>
           <Button3D>Go to documentation</Button3D>
         </Link>
       </div>
@@ -248,21 +248,21 @@ const getGithubStarCount = async () => {
   const headers = {
     'Authorization': `token ${GITHUB_TOKEN}`,
   }
-  const res = await axios({ url: ghRepoUrl, headers })
+  const res = await axios({url: ghRepoUrl, headers})
 
-  const { stargazers_count } = res.data
+  const {stargazers_count} = res.data
   return stargazers_count
 }
 
 class MainContentAsyncStuff extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { starCount: '--', downloadCount: '--' }
+    this.state = {starCount: '--', downloadCount: '--'}
   }
 
   UNSAFE_componentWillMount() {
     Promise.all([getNPMDownloadCount(), getGithubStarCount()]).then(([a, b]) => {
-      this.setState({ starCount: b, downloadCount: a })
+      this.setState({starCount: b, downloadCount: a})
     })
   }
 
@@ -280,57 +280,59 @@ const IndexPage = () => {
         height: 'calc(100vh - 64px)',
       },
     }}>
-      <SEO title="framework-x: Reasonable global state" />
+      {/*<SEO title="framework-x: Reasonable global state"/>*/}
 
-      <div css={{
-        display: 'flex',
-        width: '100%',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        height: '100%',
-        flexShrink: 0,
-        backgroundImage: 'url(' + CircleBackdrop + ')',
-        backgroundSize: 'cover',
+      {/*<div css={{*/}
+      {/*  display: 'flex',*/}
+      {/*  width: '100%',*/}
+      {/*  flexDirection: 'column',*/}
+      {/*  justifyContent: 'center',*/}
+      {/*  height: '100%',*/}
+      {/*  flexShrink: 0,*/}
+      {/*  backgroundImage: 'url(' + CircleBackdrop + ')',*/}
+      {/*  backgroundSize: 'cover',*/}
 
-        [whenMobile]: {
-          height: 'unset',
-        }
-      }}>
-        <MainContentAsyncStuff />
-      </div>
-      {[{
-        title: 'Add without breaking',
-        blurb:'',
-      },
-        { title: '40% less code',
-          blurb:'XXXXXXX XXXXXXXXXXX XXXXXXXXX'
-        },
-        { title: 'temp',
-          blurb:''
-        }
-      ].map(({ title,blurb }, i) =>
-        <Banner
-          rootCss={i % 2 !== 0 ?
-            {
-              backgroundColor: '#FFFFFF', color: theme.black,
-              flexDirection: 'row-reverse'
-            } :
-            { color: '#FFFFFF', backgroundColor: theme.black }
-          }
-          wrapCss={Object.assign({}, i % 2 !== 0 ? { flexDirection: 'row-reverse' } : {},
-            {
-              [whenTablet]: { flexDirection: 'column', },
-              [whenMobile]: { paddingLeft: 24, paddingRight: 24, }
-            })}>
-          <div>
-          <h1>{title}</h1>
-            {blurb}
-          </div>
-          <div>text or img</div>
-        </Banner>)}
-      <Features />
-      <ContactUs />
-      <Footer />
+      {/*  [whenMobile]: {*/}
+      {/*    height: 'unset',*/}
+      {/*  }*/}
+      {/*}}>*/}
+      {/*  <MainContentAsyncStuff/>*/}
+      {/*</div>*/}
+      {/*{[{*/}
+      {/*  title: 'Add without breaking',*/}
+      {/*  blurb: '',*/}
+      {/*},*/}
+      {/*  {*/}
+      {/*    title: '40% less code',*/}
+      {/*    blurb: 'XXXXXXX XXXXXXXXXXX XXXXXXXXX'*/}
+      {/*  },*/}
+      {/*  {*/}
+      {/*    title: 'temp',*/}
+      {/*    blurb: ''*/}
+      {/*  }*/}
+      {/*].map(({title, blurb}, i) =>*/}
+      {/*  <Banner*/}
+      {/*    rootCss={i % 2 !== 0 ?*/}
+      {/*      {*/}
+      {/*        backgroundColor: '#FFFFFF', color: theme.black,*/}
+      {/*        flexDirection: 'row-reverse'*/}
+      {/*      } :*/}
+      {/*      {color: '#FFFFFF', backgroundColor: theme.black}*/}
+      {/*    }*/}
+      {/*    wrapCss={Object.assign({}, i % 2 !== 0 ? {flexDirection: 'row-reverse'} : {},*/}
+      {/*      {*/}
+      {/*        [whenTablet]: {flexDirection: 'column',},*/}
+      {/*        [whenMobile]: {paddingLeft: 24, paddingRight: 24,}*/}
+      {/*      })}>*/}
+      {/*    <div>*/}
+      {/*      <h1>{title}</h1>*/}
+      {/*      {blurb}*/}
+      {/*    </div>*/}
+      {/*    <div>text or img</div>*/}
+      {/*  </Banner>)}*/}
+      {/*<Features/>*/}
+      {/*<ContactUs/>*/}
+      <Footer/>
 
     </Layout>
   )

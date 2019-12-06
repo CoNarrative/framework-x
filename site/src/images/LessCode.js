@@ -2,27 +2,10 @@ import React from 'react'
 import {motion} from "framer-motion"
 import {whenTablet} from "../theme";
 
-const DefaultInitial = {
-  scale: 0,
-  pathLength: 0
-}
+const LineDuration = 0.8
 
-const DefaultAnimate = {
-  scale: 1,
-  pathLength: 1
-}
-
-const UnfilledTransition = {
-  duration: 0.8,
-  delay: 1.2,
-}
-
-const FilledTransition = {
-  duration: 0.8,
-  delay: 2,
-}
-
-const LineDuration = 1.6
+var animCountFX = 1
+var animCountOther = 1
 
 export const LessCodeDiagram = () => (
   <svg
@@ -46,7 +29,7 @@ export const LessCodeDiagram = () => (
         <path id="Path_890" fill="none" stroke="#141515" d="M670.9,739.3l6.7,6.2"/>
         <g id="Rectangle_Copy_4" transform="translate(343 478)">
           <rect fill="#FFFFFF" width="328" height="262"/>
-          <rect x="0.5" y="0.5" fill="none" stroke="#141515" stroke-miterlimit="10" width="327" height="261"/>
+          <rect x="0.5" y="0.5" fill="none" stroke="#141515" strokeMiterlimit="10" width="327" height="261"/>
         </g>
         <rect id="Rectangle_58" x="343" y="478" fill="#141515" width="328" height="20"/>
         <path id="Path_5817" fill="#FFFFFF" d="M355,484c2.2,0,4,1.8,4,4s-1.8,4-4,4s-4-1.8-4-4S352.8,484,355,484z"/>
@@ -78,7 +61,7 @@ export const LessCodeDiagram = () => (
         <path id="Path_890-2" fill="none" stroke="#141515" d="M670.9,739.3l6.7,6.2"/>
         <g id="Rectangle_Copy_4-2" transform="translate(343 478)">
           <rect fill="#FFFFFF" width="328" height="262"/>
-          <rect x="0.5" y="0.5" fill="none" stroke="#141515" stroke-miterlimit="10" width="327" height="261"/>
+          <rect x="0.5" y="0.5" fill="none" stroke="#141515" strokeMiterlimit="10" width="327" height="261"/>
         </g>
         <g id="Group_4595" transform="translate(0 17)">
         </g>
@@ -116,22 +99,37 @@ export const LessCodeDiagram = () => (
 		c0,0.8,0.6,1.5,1.4,1.6l1.1,0.2c0.6,0.1,0.9,0.4,0.9,0.8c0,0.5-0.5,0.8-1.3,0.8s-1.4-0.4-1.4-1.1h-0.9c0,1.1,1,2,2.1,2
 		C7216.4,3667.1,7216.4,3667.1,7216.5,3667.1z"/>
     </g>
-    <g id="Group_4598" transform="translate(0 17)">
-      <path id="Path_5821" fill="#2DCD8C" d="M19,35h245v12H19V35z"/>
-      <path id="Path_5822" fill="#2DCD8C" d="M45,59h123v12H45V59z"/>
-      <path id="Path_5823" fill="#2DCD8C" d="M45,82h175v12H45V82z"/>
-      <path id="Path_5824" fill="#2DCD8C" d="M19,106h57v12H19V106z"/>
+    <g id={"framework-x"} transform="translate(0 17)">
+      <motion.path initial={{scaleX: 0}} animate={{scaleX: 1}}
+                   transition={{duration: LineDuration, delay: animCountFX++ * LineDuration}} style={{originX: 0}}
+                   id="Path_5821" fill="#2DCD8C" d="M19,35h245v12H19V35z"/>
+      <motion.path initial={{scaleX: 0}} animate={{scaleX: 1}}
+                   transition={{duration: LineDuration, delay: animCountFX++ * LineDuration}} style={{originX: 0}}
+                   id="Path_5822" fill="#2DCD8C" d="M45,59h123v12H45V59z"/>
+      <motion.path initial={{scaleX: 0}} animate={{scaleX: 1}}
+                   transition={{duration: LineDuration, delay: animCountFX++ * LineDuration}} style={{originX: 0}}
+                   id="Path_5823" fill="#2DCD8C" d="M45,82h175v12H45V82z"/>
+      <motion.path initial={{scaleX: 0}} animate={{scaleX: 1}}
+                   transition={{duration: LineDuration, delay: animCountFX++ * LineDuration}} style={{originX: 0}}
+                   id="Path_5824" fill="#2DCD8C" d="M19,106h57v12H19V106z"/>
     </g>
-    <g>
-      <path id="Path_5821-2" fill="#E4E6EB" d="M382,52h245v12H382V52z"/>
-      <path id="Path_5822-2" fill="#E4E6EB" d="M408,76h123v12H408V76z"/>
-      <path id="Path_5823-2" fill="#E4E6EB" d="M408,99h175v12H408V99z"/>
-      <path id="Path_5824-2" fill="#E4E6EB" d="M382,123h57v12h-57V123z"/>
-      <path id="Path_5825" fill="#E4E6EB" d="M382,147h240.7v12H382V147z"/>
-      <path id="Path_5826" fill="#E4E6EB" d="M411,171h163v12H411V171z"/>
-      <path id="Path_5827" fill="#E4E6EB" d="M411,194h182v12H411V194z"/>
-      <path id="Path_5828" fill="#E4E6EB" d="M411,218h104v12H411V218z"/>
+    <g id={"other-frameworks"}>
+      <motion.path initial={{scaleX: 0}} animate={{scaleX: 1}}
+                   transition={{duration: LineDuration, delay: animCountOther++ * LineDuration}} style={{originX: 0}} id="Path_5821-2" fill="#E4E6EB" d="M382,52h245v12H382V52z"/>
+      <motion.path initial={{scaleX: 0}} animate={{scaleX: 1}}
+                   transition={{duration: LineDuration, delay: animCountOther++ * LineDuration}} style={{originX: 0}} id="Path_5822-2" fill="#E4E6EB" d="M408,76h123v12H408V76z"/>
+      <motion.path initial={{scaleX: 0}} animate={{scaleX: 1}}
+                   transition={{duration: LineDuration, delay: animCountOther++ * LineDuration}} style={{originX: 0}} id="Path_5823-2" fill="#E4E6EB" d="M408,99h175v12H408V99z"/>
+      <motion.path initial={{scaleX: 0}} animate={{scaleX: 1}}
+                   transition={{duration: LineDuration, delay: animCountOther++ * LineDuration}} style={{originX: 0}} id="Path_5824-2" fill="#E4E6EB" d="M382,123h57v12h-57V123z"/>
+      <motion.path initial={{scaleX: 0}} animate={{scaleX: 1}}
+                   transition={{duration: LineDuration, delay: animCountOther++ * LineDuration}} style={{originX: 0}} id="Path_5825" fill="#E4E6EB" d="M382,147h240.7v12H382V147z"/>
+      <motion.path initial={{scaleX: 0}} animate={{scaleX: 1}}
+                   transition={{duration: LineDuration, delay: animCountOther++ * LineDuration}} style={{originX: 0}} id="Path_5826" fill="#E4E6EB" d="M411,171h163v12H411V171z"/>
+      <motion.path initial={{scaleX: 0}} animate={{scaleX: 1}}
+                   transition={{duration: LineDuration, delay: animCountOther++ * LineDuration}} style={{originX: 0}} id="Path_5827" fill="#E4E6EB" d="M411,194h182v12H411V194z"/>
+      <motion.path initial={{scaleX: 0}} animate={{scaleX: 1}}
+                   transition={{duration: LineDuration, delay: animCountOther++ * LineDuration}} style={{originX: 0}} id="Path_5828" fill="#E4E6EB" d="M411,218h104v12H411V218z"/>
     </g>
   </svg>
 )
-
