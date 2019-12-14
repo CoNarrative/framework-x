@@ -19,6 +19,7 @@
     "redux": "^4.0.4"
   },
   "dependencies": {
+    "babel-core": "^6.26.3",
     "react": "^16.11.0"
   },
   "devDependencies": {

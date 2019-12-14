@@ -74,7 +74,7 @@ export const reduceEventEffectsRedux = (env, acc, event) => {
   }
 
   eventHandlers.forEach((handler) => {
-    const effects = handler({ ...acc.state }, args)
+    const effects = handler(Object.assign({}, acc.state, args))
     if (!effects) {
       return
     }
