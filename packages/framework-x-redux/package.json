@@ -1,7 +1,7 @@
 {
   "name": "framework-x-redux",
   "description": "A bridge from Redux to framework-x.",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "license": "MIT",
   "files": [
     "dist"
