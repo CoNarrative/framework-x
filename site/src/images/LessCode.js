@@ -7,18 +7,14 @@ const LineDuration = 0.8
 var animCountFX = 1
 var animCountOther = 1
 
-export const LessCodeDiagram = () => (
+export const LessCodeDiagram = ({width, minWidth, maxHeight}) => (
   <svg
     css={{
-      width: '420px',
-      minWidth: 600,
-      maxHeight: 360,
-      marginLeft: 80,
-      [whenTablet]: {marginLeft: 0, marginBottom: 64, width: '70%', minWidth: 280}
+      width: width,
+      minWidth: minWidth,
+      maxHeight: maxHeight,
     }}
-    version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px"
-    y="0px"
-    viewBox="0 0 698 268" enable-background="new 0 0 698 268" xmlSpace="preserve">
+    viewBox="0 0 698 268">
     <g id="Group_4610" transform="translate(-6647 -3653)">
       <g id="Group_4594" transform="translate(6304 3175)">
         <g id="Rectangle_Copy_2" transform="translate(343 478)">
@@ -106,7 +102,7 @@ export const LessCodeDiagram = () => (
       <motion.path initial={{scaleX: 0}} animate={{scaleX: 1}}
                    transition={{duration: LineDuration, delay: animCountFX++ * LineDuration}} style={{originX: 0}}
                    id="Path_5822" fill="#2DCD8C" d="M45,59h123v12H45V59z"/>
-      <motion.path initial={{scaleX: 0}} animate={{scaleX: 1}}
+      <motion.path  initial={{scaleX: 0}} animate={{scaleX: 1}}
                    transition={{duration: LineDuration, delay: animCountFX++ * LineDuration}} style={{originX: 0}}
                    id="Path_5823" fill="#2DCD8C" d="M45,82h175v12H45V82z"/>
       <motion.path initial={{scaleX: 0}} animate={{scaleX: 1}}

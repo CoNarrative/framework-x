@@ -1,4 +1,5 @@
 import React from 'react'
+import styled from '@emotion/styled'
 import MulletManFluid from '../components/image'
 import {DimensionalBox} from '../components/DimensionalBox'
 import {Highlight} from '../components/TextBackgroundHighlight'
@@ -16,7 +17,10 @@ import {whenMobile, whenTablet} from '../theme'
 import MulletMan from '../assets/icons/mascot.svg'
 import * as theme from '../theme'
 import {Shapes} from '../images/Shapes'
-
+import {TreeDiagram} from '../images/TreeDiagram'
+import {LessCodeDiagram} from '../images/LessCode'
+import {Tetris} from '../images/Tetris'
+import handleViewport from 'react-in-viewport'
 
 const MulletManMain = () =>
   <div css={{
@@ -96,15 +100,70 @@ const Features = () => (
     </div>
   </Banner>
 )
-const Additive = () => (
-  <Banner rootCss={{backgroundColor: '#FFFFFF', color: theme.black}} wrapCss={{
-    [whenTablet]: {flexDirection: 'column',},
-    [whenMobile]: {paddingLeft: 24, paddingRight: 24,}
-  }}>
-    <div>text or img</div>
-    <div>text or img</div>
-  </Banner>
-)
+
+const AnimationBlock = styled.div({
+  minHeight: 900,
+  height: '100vh',
+  width: 1020,
+  display: 'flex',
+  position: 'relative',
+  justifyContent: 'center',
+  alignItems: 'center',
+  alignSelf: 'center',
+  flexShrink: 0,
+})
+
+class AnimationDescriptionBlock extends React.Component {
+  animateOnce = () => {
+    const {inViewport, enterCount} = this.props
+
+    if (enterCount === 0) {
+      return {
+        opacity: inViewport ? 1 : 0,
+        top: inViewport ? 108 : 64,
+      }
+    } else {
+      return {
+        opacity: 1,
+        top: 108,
+      }
+    }
+  }
+  render() {
+    const {header, description, rootCss, forwardedRef} = this.props
+
+    return (
+      <div
+        ref={forwardedRef}
+        css={{
+          width: 520,
+          height: 'auto',
+          backgroundColor: '#C1ECE1',
+          color: '#141515',
+          border: '1px solid #141515',
+          paddingTop: 28,
+          paddingBottom: 32,
+          paddingLeft: 40,
+          paddingRight: 40,
+          position: 'absolute',
+          transition: 'all 1000ms ease',
+          ...rootCss,
+        }}
+        style={this.animateOnce()}>
+        <div css={{fontFamily: theme.defaultFontFamily, fontSize: 24, fontWeight: 900, marginBottom: 12}}>{header}</div>
+        <div
+          css={{
+            fontFamily: theme.altFontFamily,
+            fontSize: 16,
+            fontWeight: 400,
+            lineHeight: '22.8px'
+          }}>{description}</div>
+      </div>
+    )
+  }
+}
+
+const AnimationDescription = handleViewport(AnimationDescriptionBlock, {}, {disconnectOnLeave: true})
 
 const ContactUs = () => (
   <Banner rootCss={{backgroundColor: '#E4E6EB'}} wrapCss={{
@@ -162,7 +221,6 @@ const ContactUs = () => (
       [whenTablet]: {marginLeft: 0, marginBottom: 64, width: '70%', minWidth: 280}
     }} src={HelpDesk}/>
   </Banner>
-
 )
 
 const MainContent = ({starCount, downloadCount}) =>
@@ -280,58 +338,44 @@ const IndexPage = () => {
         height: 'calc(100vh - 64px)',
       },
     }}>
-      {/*<SEO title="framework-x: Reasonable global state"/>*/}
+      <SEO title="framework-x: Reasonable global state"/>
 
-      {/*<div css={{*/}
-      {/*  display: 'flex',*/}
-      {/*  width: '100%',*/}
-      {/*  flexDirection: 'column',*/}
-      {/*  justifyContent: 'center',*/}
-      {/*  height: '100%',*/}
-      {/*  flexShrink: 0,*/}
-      {/*  backgroundImage: 'url(' + CircleBackdrop + ')',*/}
-      {/*  backgroundSize: 'cover',*/}
+      <div css={{
+        display: 'flex',
+        width: '100%',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        height: '100%',
+        flexShrink: 0,
+        backgroundImage: 'url(' + CircleBackdrop + ')',
+        backgroundSize: 'cover',
 
-      {/*  [whenMobile]: {*/}
-      {/*    height: 'unset',*/}
-      {/*  }*/}
-      {/*}}>*/}
-      {/*  <MainContentAsyncStuff/>*/}
-      {/*</div>*/}
-      {/*{[{*/}
-      {/*  title: 'Add without breaking',*/}
-      {/*  blurb: '',*/}
-      {/*},*/}
-      {/*  {*/}
-      {/*    title: '40% less code',*/}
-      {/*    blurb: 'XXXXXXX XXXXXXXXXXX XXXXXXXXX'*/}
-      {/*  },*/}
-      {/*  {*/}
-      {/*    title: 'temp',*/}
-      {/*    blurb: ''*/}
-      {/*  }*/}
-      {/*].map(({title, blurb}, i) =>*/}
-      {/*  <Banner*/}
-      {/*    rootCss={i % 2 !== 0 ?*/}
-      {/*      {*/}
-      {/*        backgroundColor: '#FFFFFF', color: theme.black,*/}
-      {/*        flexDirection: 'row-reverse'*/}
-      {/*      } :*/}
-      {/*      {color: '#FFFFFF', backgroundColor: theme.black}*/}
-      {/*    }*/}
-      {/*    wrapCss={Object.assign({}, i % 2 !== 0 ? {flexDirection: 'row-reverse'} : {},*/}
-      {/*      {*/}
-      {/*        [whenTablet]: {flexDirection: 'column',},*/}
-      {/*        [whenMobile]: {paddingLeft: 24, paddingRight: 24,}*/}
-      {/*      })}>*/}
-      {/*    <div>*/}
-      {/*      <h1>{title}</h1>*/}
-      {/*      {blurb}*/}
-      {/*    </div>*/}
-      {/*    <div>text or img</div>*/}
-      {/*  </Banner>)}*/}
-      {/*<Features/>*/}
-      {/*<ContactUs/>*/}
+        [whenMobile]: {
+          height: 'unset',
+        }
+      }}>
+        <MainContentAsyncStuff/>
+      </div>
+      <Features/>
+      <AnimationBlock css={{paddingTop: 180}}>
+        <AnimationDescription header={'Add without breaking.'}
+                              description={'Nam at vulputate elit. Maecenas a sodales nulla. Ut tempor elit at nibh aliquet lobortis. Aliquam imperdiet viverra felis, vel facilisis mi imperdiet sit amet. In erat purus, cursus sit amet arcu.'}
+                              rootCss={{left: '50%', marginLeft: -728}}/>
+        <TreeDiagram onEnterViewport={() => console.log('enter')} onLeaveViewport={() => console.log('leave')}  width={'100%'} maxHeight={400}/>
+      </AnimationBlock>
+      <AnimationBlock css={{paddingTop: 140}}>
+        <AnimationDescription header={'40% less code!'}
+                              description={'Nam at vulputate elit. Maecenas a sodales nulla. Ut tempor elit at nibh aliquet lobortis. Aliquam imperdiet viverra felis, vel facilisis mi imperdiet sit amet. In erat purus, cursus sit amet arcu.'}
+                              rootCss={{right: '50%', marginRight: -728}}/>
+        <LessCodeDiagram width={'100%'} maxHeight={400}/>
+      </AnimationBlock>
+      <AnimationBlock css={{paddingTop: 140, justifyContent: 'flex-start'}}>
+        <AnimationDescription header={'We play Tetris better.'}
+                              description={'Nam at vulputate elit. Maecenas a sodales nulla. Ut tempor elit at nibh aliquet lobortis. Aliquam imperdiet viverra felis, vel facilisis mi imperdiet sit amet. In erat purus, cursus sit amet arcu.'}
+                              rootCss={{left: '50%', marginLeft: -728}}/>
+        <Tetris width={320}/>
+      </AnimationBlock>
+      <ContactUs/>
       <Footer/>
 
     </Layout>
