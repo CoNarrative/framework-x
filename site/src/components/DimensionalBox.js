@@ -1,10 +1,10 @@
-import React from "react"
+import React from 'react'
 import ReactDOM from 'react-dom'
 import {jsx} from '@emotion/core'
 import styled from '@emotion/styled'
 import * as theme from '../theme'
-import ReactResizeDetector from 'react-resize-detector';
-
+import ReactResizeDetector from 'react-resize-detector'
+import {bool, number, string} from 'prop-types'
 
 const Svg = styled.svg({
   position: 'absolute',
@@ -77,18 +77,29 @@ export class DimensionalBox extends React.Component {
     this.setState({height: height + 7})
     this.setState({width: width})
   }
+
   render() {
     let {rootCss, width, maxWidth, color, children, handleHeight} = this.props
     let fixedWidth = width
 
     return (
-      <ReactResizeDetector handleWidth handleHeight={handleHeight} onResize={this.onResize} render={({ width, height }) => (
-        <Box rootCss={rootCss} width={fixedWidth} maxWidth={maxWidth} ref={(divElement) => this.divElement = divElement}>
-          <SvgBox width={fixedWidth ? fixedWidth : this.state.width + 7} height={this.state.height} color={color}/>
-          {children}
-        </Box>
-      )}>
+      <ReactResizeDetector handleWidth handleHeight={handleHeight} onResize={this.onResize}
+                           render={({width, height}) => (
+                             <Box rootCss={rootCss} width={fixedWidth} maxWidth={maxWidth}
+                                  ref={(divElement) => this.divElement = divElement}>
+                               <SvgBox width={fixedWidth ? fixedWidth : this.state.width + 7} height={this.state.height}
+                                       color={color}/>
+                               {children}
+                             </Box>
+                           )}>
       </ReactResizeDetector>
-    );
+    )
   }
+}
+
+DimensionalBox.propTypes = {
+  width: number,
+  maxWidth: string,
+  handleHeight: bool,
+  color: string,
 }

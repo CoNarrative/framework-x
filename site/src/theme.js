@@ -9,6 +9,9 @@ export const red = '#E75D57'
 export const lightBlue = '#EBF2F9'
 export const darkBlue = '#6B9DD0'
 
+export const defaultFontFamily = "'Animosa', 'Segoe UI', Helvetica, Arial, sans-serif"
+export const altFontFamily = "'Basier Square Mono', 'Segoe UI', Helvetica, Arial, sans-serif"
+
 export const whenSmallScreen = '@media only screen and (max-width: 1200px)'
 export const whenTablet = '@media only screen and (max-width: 960px)'
 export const whenMobile = '@media only screen and (max-width: 600px)'
