@@ -21,14 +21,14 @@ export class TetrisBlock extends React.Component {
     lottie.loadAnimation({
       container: tetrisFX,
       renderer: 'svg',
-      loop: false,
+      loop: true,
       autoplay: false,
       path: 'https://assets7.lottiefiles.com/packages/lf20_tGrQQh.json'
     })
     lottie.loadAnimation({
       container: tetrisOther,
       renderer: 'svg',
-      loop: false,
+      loop: true,
       autoplay: false,
       path: 'https://assets3.lottiefiles.com/packages/lf20_3Yu8R4.json'
     })
