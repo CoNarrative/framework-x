@@ -349,7 +349,7 @@ const IndexPage = () => {
         <MainContentAsyncStuff/>
       </div>
       <Features/>
-      <AnimationBlock css={{paddingTop: 180}}>
+      <AnimationBlock css={{paddingTop: 80}}>
         <AnimationDescription header={'Add without breaking.'}
                               description={'Nam at vulputate elit. Maecenas a sodales nulla. Ut tempor elit at nibh aliquet lobortis. Aliquam imperdiet viverra felis, vel facilisis mi imperdiet sit amet. In erat purus, cursus sit amet arcu.'}
                               rootCss={{left: -80, [theme.whenTablet]: {left: 0, marginLeft: 40}, [theme.whenMobile]: {marginLeft: 20, marginRight: 20}}}/>
@@ -362,7 +362,7 @@ const IndexPage = () => {
                               rootCss={{right: -80, [theme.whenTablet]: {right: 0, marginRight: 40}, [theme.whenMobile]: {marginLeft: 20, marginRight: 20}}}/>
         <LessCodeDiagram width={'100%'} maxHeight={400}/>
       </AnimationBlock>
-      <AnimationBlock css={{paddingTop: 140, justifyContent: 'flex-start', [theme.whenMobile]: {paddingTop: 280}}}>
+      <AnimationBlock css={{paddingTop: 240, justifyContent: 'flex-start', [theme.whenMobile]: {paddingTop: 280}}}>
         <AnimationDescription header={'We play Tetris better.'}
                               description={'Nam at vulputate elit. Maecenas a sodales nulla. Ut tempor elit at nibh aliquet lobortis. Aliquam imperdiet viverra felis, vel facilisis mi imperdiet sit amet. In erat purus, cursus sit amet arcu.'}
                               rootCss={{left: -80, [theme.whenTablet]: {left: 0, marginLeft: 40}, [theme.whenMobile]: {marginLeft: 20, marginRight: 20}}}/>
