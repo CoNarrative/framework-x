@@ -1,6 +1,7 @@
 import React from 'react'
 import {motion, useAnimation} from 'framer-motion'
 import handleViewport from 'react-in-viewport'
+import * as theme from '../theme'
 
 const DefaultInitial = {
   scale: 0,
@@ -69,6 +70,13 @@ function TreeDiagramBlock({width, minWidth, maxHeight, forwardedRef, inViewport,
         minWidth: minWidth,
         maxHeight: maxHeight,
         marginRight: -140,
+        [theme.whenTablet]: {
+          marginRight: -100,
+        },
+        [theme.whenMobile]: {
+          marginRight: -64,
+          width: '120%',
+        }
       }}
       ref={forwardedRef}
       style={animateOnce({

@@ -60,6 +60,7 @@ class Layout extends React.Component {
             display: 'flex',
             flexDirection: 'column',
             overflow: 'auto',
+            overflowX: 'hidden',
             position: 'relative',
             top: 64,
 

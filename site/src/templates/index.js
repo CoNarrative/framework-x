@@ -72,13 +72,16 @@ const Features = () => (
       alignItems: 'flex-start',
       flexShrink: 1,
       maxWidth: 540,
-      [whenTablet]: {marginTop: 40,}
+      [whenTablet]: {marginTop: 0},
     }}>
       <h1 css={{
         marginTop: 0,
-        fontSize: '3rem',
+        fontSize: '2.4rem',
         marginBottom: '1.2rem',
-        display: 'flex'
+        display: 'flex',
+        [theme.whenMobile]: {
+          fontSize: '2rem',
+        },
       }}>Key features</h1>
       <ol css={{
         fontFamily: 'Basier Square Mono',
@@ -87,15 +90,19 @@ const Features = () => (
         marginBottom: 20,
         lineHeight: '1.6rem',
         color: '#CBD2E4',
-        '& > li': {marginBottom: 12,}
+        '& > li': {marginBottom: 12,},
+        [theme.whenMobile]: {
+          fontSize: '0.88rem',
+          lineHeight: '1.2rem'
+        },
       }}>
         <li>Less code</li>
         <li>Spreadsheet programming</li>
         <li>Single source of truth</li>
         <li>Algebraic effects</li>
       </ol>
-      <Link to={'/learn'}>
-        <Button3D light rootCss={{width: 132}}>Learn more</Button3D>
+      <Link to={'/learn'} css={{width: '100%'}}>
+        <Button3D light rootCss={{width: '100%'}}>Learn more</Button3D>
       </Link>
     </div>
   </Banner>
@@ -111,6 +118,11 @@ const AnimationBlock = styled.div({
   alignItems: 'center',
   alignSelf: 'center',
   flexShrink: 0,
+  [theme.whenTablet]: {
+    width: '100%',
+    paddingLeft: 20,
+    paddingRight: 20,
+  }
 })
 
 class AnimationDescriptionBlock extends React.Component {
@@ -129,6 +141,7 @@ class AnimationDescriptionBlock extends React.Component {
       }
     }
   }
+
   render() {
     const {header, description, rootCss, forwardedRef} = this.props
 
@@ -136,7 +149,7 @@ class AnimationDescriptionBlock extends React.Component {
       <div
         ref={forwardedRef}
         css={{
-          width: 520,
+          maxWidth: 520,
           height: 'auto',
           backgroundColor: '#C1ECE1',
           color: '#141515',
@@ -147,6 +160,8 @@ class AnimationDescriptionBlock extends React.Component {
           paddingRight: 40,
           position: 'absolute',
           transition: 'all 1000ms ease',
+          marginRight: 40,
+          marginLeft: 40,
           ...rootCss,
         }}
         style={this.animateOnce()}>
@@ -209,8 +224,8 @@ const ContactUs = () => (
         {/*    [whenMobile]: {marginTop: 24, alignSelf: 'flex-end'}*/}
         {/*  }}><img css={{height: 13,}} src={Enter}/></Button>*/}
         {/*</DimensionalBox>*/}
-        <a href={'https://www.conarrative.com/'}>
-          <Button3D>Visit our website</Button3D>
+        <a href={'https://www.conarrative.com/'} css={{[theme.whenMobile]: {width: '100%'}}}>
+          <Button3D rootCss={{[theme.whenMobile]: {width: '100%'}}}>Visit our website</Button3D>
         </a>
       </div>
     </div>
@@ -287,8 +302,8 @@ const MainContent = ({starCount, downloadCount}) =>
           </DimensionalBox>
         </div>
         <Link to={'/api'}
-              css={{marginLeft: 32, [whenMobile]: {marginLeft: 0, marginTop: 24}}}>
-          <Button3D>Go to documentation</Button3D>
+              css={{marginLeft: 32, [whenMobile]: {marginLeft: 0, marginTop: 24, [theme.whenMobile]: {width: '100%'}}}}>
+          <Button3D rootCss={{[theme.whenMobile]: {width: '100%'}}}>Go to documentation</Button3D>
         </Link>
       </div>
     </div>
@@ -360,20 +375,21 @@ const IndexPage = () => {
       <AnimationBlock css={{paddingTop: 180}}>
         <AnimationDescription header={'Add without breaking.'}
                               description={'Nam at vulputate elit. Maecenas a sodales nulla. Ut tempor elit at nibh aliquet lobortis. Aliquam imperdiet viverra felis, vel facilisis mi imperdiet sit amet. In erat purus, cursus sit amet arcu.'}
-                              rootCss={{left: '50%', marginLeft: -728}}/>
-        <TreeDiagram onEnterViewport={() => console.log('enter')} onLeaveViewport={() => console.log('leave')}  width={'100%'} maxHeight={400}/>
+                              rootCss={{left: -80, [theme.whenTablet]: {left: 0, marginLeft: 40}, [theme.whenMobile]: {marginLeft: 20, marginRight: 20}}}/>
+        <TreeDiagram onEnterViewport={() => console.log('enter')} onLeaveViewport={() => console.log('leave')}
+                     width={'100%'} maxHeight={400}/>
       </AnimationBlock>
-      <AnimationBlock css={{paddingTop: 140}}>
+      <AnimationBlock css={{paddingTop: 140, [theme.whenMobile]: {paddingTop: 180}}}>
         <AnimationDescription header={'40% less code!'}
                               description={'Nam at vulputate elit. Maecenas a sodales nulla. Ut tempor elit at nibh aliquet lobortis. Aliquam imperdiet viverra felis, vel facilisis mi imperdiet sit amet. In erat purus, cursus sit amet arcu.'}
-                              rootCss={{right: '50%', marginRight: -728}}/>
+                              rootCss={{right: -80, [theme.whenTablet]: {right: 0, marginRight: 40}, [theme.whenMobile]: {marginLeft: 20, marginRight: 20}}}/>
         <LessCodeDiagram width={'100%'} maxHeight={400}/>
       </AnimationBlock>
-      <AnimationBlock css={{paddingTop: 140, justifyContent: 'flex-start'}}>
+      <AnimationBlock css={{paddingTop: 140, justifyContent: 'flex-start', [theme.whenMobile]: {paddingTop: 280}}}>
         <AnimationDescription header={'We play Tetris better.'}
                               description={'Nam at vulputate elit. Maecenas a sodales nulla. Ut tempor elit at nibh aliquet lobortis. Aliquam imperdiet viverra felis, vel facilisis mi imperdiet sit amet. In erat purus, cursus sit amet arcu.'}
-                              rootCss={{left: '50%', marginLeft: -728}}/>
-        <Tetris width={320}/>
+                              rootCss={{left: -80, [theme.whenTablet]: {left: 0, marginLeft: 40}, [theme.whenMobile]: {marginLeft: 20, marginRight: 20}}}/>
+        <Tetris/>
       </AnimationBlock>
       <ContactUs/>
       <Footer/>

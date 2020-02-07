@@ -1,6 +1,6 @@
 import React from 'react'
 import {motion} from "framer-motion"
-import {whenTablet} from "../theme";
+import {whenMobile, whenTablet} from '../theme'
 
 const Transition = {
   ease: 'linear', duration: 2, yoyo: Infinity
@@ -11,7 +11,8 @@ export const Shapes = () => (
     width: '40%',
     maxHeight: 360,
     marginLeft: 80,
-    [whenTablet]: {marginLeft: 0, marginBottom: 64, width: '70%', minWidth: 280}
+    [whenTablet]: {marginLeft: 0, marginBottom: 64, width: '70%', minWidth: 280},
+    [whenMobile]: {marginBottom: 20,}
   }} xmlns="http://www.w3.org/2000/svg" width="525.625" height="490.007" viewBox="0 0 525.625 490.007">
     <g id="Group_4592" data-name="Group 4592" transform="translate(-144.975 -1620.493)">
       <g id="Group_4429" data-name="Group 4429" transform="translate(21 298)">
