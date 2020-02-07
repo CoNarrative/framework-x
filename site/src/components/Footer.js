@@ -1,3 +1,4 @@
+import { OutboundLink } from 'gatsby-plugin-google-analytics'
 import React from 'react'
 import {Link} from 'gatsby'
 import styled from '@emotion/styled'
@@ -33,16 +34,20 @@ const Header = styled.div({
 
 const Navlink = ({children, to, href}) => (
   <React.Fragment>
-    {href ? <a href={href} css={{
-        fontSize: '1rem',
-        fontWeight: 600,
-        textDecoration: 'none',
-        color: theme.black,
-        marginLeft: 12,
-        marginBottom: 12,
-        letterSpacing: '-0.014rem',
-      }}>{children}</a> :
-      <Link to={to} css={{
+    {href
+     ? <OutboundLink
+       href={href}
+       target={'_blank'}
+       css={{
+         fontSize: '1rem',
+         fontWeight: 600,
+         textDecoration: 'none',
+         color: theme.black,
+         marginLeft: 12,
+         marginBottom: 12,
+         letterSpacing: '-0.014rem',
+       }}>{children}</OutboundLink>
+     : <Link to={to} css={{
         fontSize: '1rem',
         fontWeight: 600,
         textDecoration: 'none',
