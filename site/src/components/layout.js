@@ -64,6 +64,8 @@ class Layout extends React.Component {
             position: 'relative',
             top: 64,
 
+            '& > *': {flexShrink: 0},
+
             [whenMobile]: {
               position: 'relative',
               // top: 112,
