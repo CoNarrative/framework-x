@@ -1,4 +1,4 @@
-import { OutboundLink } from 'gatsby-plugin-google-analytics'
+import {OutboundLink} from 'gatsby-plugin-google-analytics'
 import React from 'react'
 import styled from '@emotion/styled'
 import MulletManFluid from '../components/image'
@@ -14,7 +14,6 @@ import Layout from '../components/layout'
 import SEO from '../components/seo'
 import {Footer} from '../components/Footer'
 import * as axios from 'axios'
-import {whenMobile, whenTablet} from '../theme'
 import MulletMan from '../assets/icons/mascot.svg'
 import * as theme from '../theme'
 import {Shapes} from '../images/Shapes'
@@ -25,9 +24,10 @@ import handleViewport from 'react-in-viewport'
 
 const MulletManMain = () =>
   <div css={{
-    width: '60%',
+    width: 200,
+    minWidth: 120,
     marginRight: '2.4rem',
-    [whenMobile]: {
+    [theme.whenMobile]: {
       alignSelf: 'center',
       marginTop: 40,
       width: '30%',
@@ -63,8 +63,8 @@ export const Banner = ({children, rootCss, wrapCss}) => (
 
 const Features = () => (
   <Banner rootCss={{backgroundColor: theme.black, color: 'white'}} wrapCss={{
-    [whenTablet]: {flexDirection: 'column',},
-    [whenMobile]: {paddingLeft: 24, paddingRight: 24,}
+    [theme.whenTablet]: {flexDirection: 'column',},
+    [theme.whenMobile]: {paddingLeft: 24, paddingRight: 24,}
   }}>
     <Shapes/>
     <div css={{
@@ -73,7 +73,8 @@ const Features = () => (
       alignItems: 'flex-start',
       flexShrink: 1,
       maxWidth: 540,
-      [whenTablet]: {marginTop: 0},
+      marginRight: 120,
+      [theme.whenTablet]: {marginTop: 0, marginRight: 0},
     }}>
       <h1 css={{
         marginTop: 0,
@@ -109,21 +110,53 @@ const Features = () => (
   </Banner>
 )
 
-const AnimationBlock = styled.div({
-  minHeight: 900,
-  height: '100vh',
-  width: 1020,
+const AnimationBlock = ({children}) => (
+  <div css={{
+    minHeight: 900,
+    height: 'calc(100vh - 64px)',
+    width: 1020,
+    flexShrink: 0,
+    alignSelf: 'center',
+    display: 'flex',
+    alignItems: 'center',
+    [theme.whenTablet]: {
+      width: '100%',
+      paddingLeft: 20,
+      paddingRight: 20,
+    },
+    [theme.whenMobile]: {
+      minHeight: 680
+    }
+  }}>
+    <div css={{
+      maxHeight: 720,
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      position: 'relative',
+      justifyContent: 'center',
+      alignItems: 'center',
+      flexDirection: 'column',
+
+      // '& > :last-child': {
+      //   position: 'absolute',
+      //   bottom: 0,
+      // },
+
+      [theme.whenMobile]: {
+        maxHeight: 548,
+      }
+    }}>
+      {children}
+    </div>
+  </div>
+)
+
+const Animation = styled.div({
+  flexGrow: 1,
   display: 'flex',
-  position: 'relative',
-  justifyContent: 'center',
   alignItems: 'center',
-  alignSelf: 'center',
-  flexShrink: 0,
-  [theme.whenTablet]: {
-    width: '100%',
-    paddingLeft: 20,
-    paddingRight: 20,
-  }
+  width: '100%',
 })
 
 class AnimationDescriptionBlock extends React.Component {
@@ -133,12 +166,12 @@ class AnimationDescriptionBlock extends React.Component {
     if (enterCount === 0) {
       return {
         opacity: inViewport ? 1 : 0,
-        top: inViewport ? 108 : 64,
+        top: inViewport ? 40 : 0,
       }
     } else {
       return {
         opacity: 1,
-        top: 108,
+        top: 0,
       }
     }
   }
@@ -159,10 +192,9 @@ class AnimationDescriptionBlock extends React.Component {
           paddingBottom: 32,
           paddingLeft: 40,
           paddingRight: 40,
-          position: 'absolute',
           transition: 'all 1000ms ease',
-          marginRight: 40,
-          marginLeft: 40,
+          position: 'relative',
+          justifySelf: 'flex-start',
           ...rootCss,
         }}
         style={this.animateOnce()}>
@@ -183,8 +215,8 @@ const AnimationDescription = handleViewport(AnimationDescriptionBlock, {}, {disc
 
 const ContactUs = () => (
   <Banner rootCss={{backgroundColor: '#E4E6EB'}} wrapCss={{
-    [whenTablet]: {flexDirection: 'column-reverse',},
-    [whenMobile]: {paddingLeft: 24, paddingRight: 24,}
+    [theme.whenTablet]: {flexDirection: 'column-reverse',},
+    [theme.whenMobile]: {paddingLeft: 24, paddingRight: 24,}
   }}>
     <div
       css={{display: 'flex', flexDirection: 'column', flexShrink: 1, maxWidth: 540,}}>
@@ -201,8 +233,8 @@ const ContactUs = () => (
         lineHeight: '1.6rem',
       }}>Please feel free to reach out to us at anytime to discuss our consulting services.</span>
       <div>
-        <a href={'https://www.conarrative.com/'}>
-          <Button3D>Visit our website</Button3D>
+        <a href={'https://www.conarrative.com/'} css={{[theme.whenMobile]: {width: '100%'}}}>
+          <Button3D css={{[theme.whenMobile]: {width: '100%'}}}>Visit our website</Button3D>
         </a>
       </div>
     </div>
@@ -210,7 +242,7 @@ const ContactUs = () => (
       width: '40%',
       maxHeight: 360,
       marginLeft: 80,
-      [whenTablet]: {marginLeft: 0, marginBottom: 64, width: '70%', minWidth: 280}
+      [theme.whenTablet]: {marginLeft: 0, marginBottom: 64, width: '70%', minWidth: 280}
     }} src={HelpDesk}/>
   </Banner>
 )
@@ -221,7 +253,8 @@ const MainContent = ({starCount, downloadCount}) =>
     maxWidth: 960,
     alignSelf: 'center',
     paddingBottom: '4rem',
-    [whenMobile]: {flexDirection: 'column', padding: '0 24px', paddingBottom: '3rem'}
+    [theme.whenTablet]: {paddingLeft: 48, paddingRight: 48  },
+    [theme.whenMobile]: {flexDirection: 'column', padding: '0 24px', paddingBottom: '3rem'}
   }}>
     <MulletManMain/>
     <div css={{display: 'flex', flexDirection: 'column'}}>
@@ -245,17 +278,17 @@ const MainContent = ({starCount, downloadCount}) =>
         effects they entail -- a state change, an
         asynchronous API call, the invocation of a custom function, or another event.
       </div>
-      <div css={{display: 'flex', [whenMobile]: {flexDirection: 'column'}}}>
-        <div css={{alignSelf: 'flex-start', [whenMobile]: {width: '100%'}}}>
+      <div css={{display: 'flex', flexWrap: 'wrap', [theme.whenMobile]: {flexDirection: 'column'}}}>
+        <div css={{alignSelf: 'flex-start', marginRight: 32, marginBottom: 24, [theme.whenMobile]: {width: '100%'}}}>
           <DimensionalBox handleHeight={true} rootCss={{alignItems: 'center'}}>
             <div css={{
               display: 'flex',
               justifyContent: 'center',
-              width: 520,
+              width: 480,
               paddingTop: 9,
               paddingBottom: 9,
               '& > :not(:last-child)': {marginRight: 64},
-              [whenMobile]: {
+              [theme.whenMobile]: {
                 flexDirection: 'column',
                 width: '100%',
                 paddingLeft: 24,
@@ -266,20 +299,20 @@ const MainContent = ({starCount, downloadCount}) =>
             }}>
               <span>License: MIT</span>
               <OutboundLink href={'https://github.com/CoNarrative/framework-x'}
-                 target={'_blank'}
-                 style={{color: 'inherit', textDecoration: 'inherit'}}>
+                            target={'_blank'}
+                            style={{color: 'inherit', textDecoration: 'inherit'}}>
                 +{starCount} stars
               </OutboundLink>
               <OutboundLink href={'https://www.npmjs.com/package/framework-x'}
-                 target={'_blank'}
-                 style={{color: 'inherit', textDecoration: 'inherit'}}>
+                            target={'_blank'}
+                            style={{color: 'inherit', textDecoration: 'inherit'}}>
                 +{downloadCount} downloads
               </OutboundLink>
             </div>
           </DimensionalBox>
         </div>
         <Link to={'/api'}
-              css={{marginLeft: 32, [whenMobile]: {marginLeft: 0, marginTop: 24, [theme.whenMobile]: {width: '100%'}}}}>
+              css={{[theme.whenMobile]: {marginLeft: 0, [theme.whenMobile]: {width: '100%'}}}}>
           <Button3D rootCss={{[theme.whenMobile]: {width: '100%'}}}>Go to documentation</Button3D>
         </Link>
       </div>
@@ -324,13 +357,13 @@ class MainContentAsyncStuff extends React.Component {
 const IndexPage = () => {
   return (
     <Layout rootCss={{
-      [whenMobile]: {
+      [theme.whenMobile]: {
         position: 'relative',
         top: 64,
         height: 'calc(100vh - 64px)',
       },
     }}>
-      <SEO />
+      <SEO/>
 
       <div css={{
         display: 'flex',
@@ -342,35 +375,50 @@ const IndexPage = () => {
         backgroundImage: 'url(' + CircleBackdrop + ')',
         backgroundSize: 'cover',
 
-        [whenMobile]: {
+        [theme.whenMobile]: {
           height: 'unset',
         }
       }}>
         <MainContentAsyncStuff/>
       </div>
       <Features/>
-      <AnimationBlock css={{paddingTop: 80}}>
+      <AnimationBlock>
         <AnimationDescription header={'Add without breaking.'}
-                              description={'Nam at vulputate elit. Maecenas a sodales nulla. Ut tempor elit at nibh aliquet lobortis. Aliquam imperdiet viverra felis, vel facilisis mi imperdiet sit amet. In erat purus, cursus sit amet arcu.'}
-                              rootCss={{left: -80, [theme.whenTablet]: {left: 0, marginLeft: 40}, [theme.whenMobile]: {marginLeft: 20, marginRight: 20}}}/>
-        <TreeDiagram onEnterViewport={() => console.log('enter')} onLeaveViewport={() => console.log('leave')}
-                     width={'100%'} maxHeight={400}/>
+                              description={'Nam at vulputate elit. Maecenas a sodales nulla. Ut tempor elit at nibh aliquet lobortis.'}
+                              rootCss={{
+                                justifySelf: 'flex-start',
+                                [theme.whenTablet]: {left: 0, marginLeft: 40},
+                                [theme.whenMobile]: {marginLeft: 20, marginRight: 20, paddingLeft: 24, paddingRight: 24, paddingTop: 20, paddingBottom: 24}
+                              }}/>
+
+        <Animation>
+          <TreeDiagram width={'140%'} maxHeight={354}/>
+        </Animation>
       </AnimationBlock>
-      <AnimationBlock css={{paddingTop: 140, [theme.whenMobile]: {paddingTop: 180}}}>
+      <AnimationBlock>
         <AnimationDescription header={'40% less code!'}
                               description={'Nam at vulputate elit. Maecenas a sodales nulla. Ut tempor elit at nibh aliquet lobortis. Aliquam imperdiet viverra felis, vel facilisis mi imperdiet sit amet. In erat purus, cursus sit amet arcu.'}
-                              rootCss={{right: -80, [theme.whenTablet]: {right: 0, marginRight: 40}, [theme.whenMobile]: {marginLeft: 20, marginRight: 20}}}/>
-        <LessCodeDiagram width={'100%'} maxHeight={400}/>
+                              rootCss={{
+                                [theme.whenTablet]: {right: 0, marginRight: 40},
+                                [theme.whenMobile]: {marginLeft: 20, marginRight: 20, paddingLeft: 24, paddingRight: 24, paddingTop: 20, paddingBottom: 24}
+                              }}/>
+        <Animation>
+          <LessCodeDiagram width={'100%'} maxHeight={360}/>
+        </Animation>
       </AnimationBlock>
-      <AnimationBlock css={{paddingTop: 240, justifyContent: 'flex-start', [theme.whenMobile]: {paddingTop: 280}}}>
+      <AnimationBlock>
         <AnimationDescription header={'We play Tetris better.'}
                               description={'Nam at vulputate elit. Maecenas a sodales nulla. Ut tempor elit at nibh aliquet lobortis. Aliquam imperdiet viverra felis, vel facilisis mi imperdiet sit amet. In erat purus, cursus sit amet arcu.'}
-                              rootCss={{left: -80, [theme.whenTablet]: {left: 0, marginLeft: 40}, [theme.whenMobile]: {marginLeft: 20, marginRight: 20}}}/>
-        <Tetris/>
+                              rootCss={{
+                                [theme.whenTablet]: {left: 0, marginLeft: 40},
+                                [theme.whenMobile]: {marginLeft: 20, marginRight: 20, paddingLeft: 24, paddingRight: 24, paddingTop: 20, paddingBottom: 24}
+                              }}/>
+        <Animation>
+          <Tetris/>
+        </Animation>
       </AnimationBlock>
       <ContactUs/>
       <Footer/>
-
     </Layout>
   )
 }

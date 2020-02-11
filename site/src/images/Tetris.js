@@ -46,9 +46,12 @@ export class TetrisBlock extends React.Component {
           width: '100%',
           justifyContent: 'center',
           '& > div:first-of-type': {marginRight: 64},
+          [theme.whenMobile]: {
+            maxHeight: 200
+          },
         }}>
-        <div id={'tetris-fx'} css={{flexGrow: 1, maxWidth: 320}}/>
-        <div id={'tetris-other'} css={{flexGrow: 1, maxWidth: 320}}/>
+        <div id={'tetris-fx'} css={{flexGrow: 1, maxWidth: 300}}/>
+        <div id={'tetris-other'} css={{flexGrow: 1, maxWidth: 300}}/>
       </div>
     )
   }
