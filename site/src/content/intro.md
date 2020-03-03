@@ -1,5 +1,5 @@
 ---
-path: /intro
+path: /learn
 ---
 
 # Framework-X: Reasonable global state for React

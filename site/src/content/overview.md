@@ -1,8 +1,6 @@
 ---
-path: /learn
+path: /overview
 ---
-
-###### Table of Contents
 
 # Overview
 
@@ -320,6 +318,3 @@ const myDispatch = (...args) => {
 }
 regFx('dispatch', myDispatch)
 ```
-
-`regFx('db', (whatever) => setState(whatever))`
-
