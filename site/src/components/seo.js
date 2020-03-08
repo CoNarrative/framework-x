@@ -48,6 +48,10 @@ function SEO({ lang, meta, }) {
           content: description,
         },
         {
+          property: 'og:image',
+          content: 'https://framework-x.io/static/ae739f81f2cd5cf63986798fb5a54bdc/2a4de/mullet-man1.png'
+        },
+        {
           property: `og:type`,
           content: `website`,
         },
@@ -57,7 +61,7 @@ function SEO({ lang, meta, }) {
         },
         {
           name: 'twitter:image',
-          content: 'https://framework-x.io/static/mascot-f5d34dd4865facfe15723d99bcc94bba.svg'
+          content: 'https://framework-x.io/static/ae739f81f2cd5cf63986798fb5a54bdc/2a4de/mullet-man1.png'
         },
         {
           name: `twitter:creator`,
