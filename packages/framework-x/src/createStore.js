@@ -121,7 +121,7 @@ export const reduceEventEffects = (env, acc, event) => {
                 }]
         });
     eventHandlers.forEach((handler) => {
-        const effects = handler(Object.assign({}, acc.state), args);
+        const effects = handler(Object.assign(Object.assign({}, acc.state), { eventName: type }), args);
         if (!effects) {
             return;
         }

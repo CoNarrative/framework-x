@@ -162,7 +162,7 @@ export const reduceEventEffects = <E extends Required<EnvWith<'state' | 'eventFx
   })
 
   eventHandlers.forEach((handler) => {
-    const effects = handler({ ...acc.state }, args)
+    const effects = handler({ ...acc.state, eventName: type }, args)
     if (!effects) {
       return
     }
