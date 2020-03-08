@@ -56,6 +56,10 @@ function SEO({ lang, meta, }) {
           content: `summary`,
         },
         {
+          name: 'twitter:image',
+          content: 'https://framework-x.io/static/mascot-f5d34dd4865facfe15723d99bcc94bba.svg'
+        },
+        {
           name: `twitter:creator`,
           content: author,
         },

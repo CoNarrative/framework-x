@@ -400,7 +400,7 @@ const IndexPage = () => {
         <AnimationDescription header={'Write 40% less code.'}
                               description={
                                 'With Framework-X, you can write the same app in 40% fewer lines of code than Redux, Angular, or other Javascript frameworks. '
-                              + 'More expressive code can promote faster development, increased productivity, and clearer communication to us of what it means.'}
+                              + 'More expressive code can promote faster development, increased productivity, and clearer communication.'}
                               rootCss={{
                                 [theme.whenTablet]: {right: 0, marginRight: 40},
                                 [theme.whenMobile]: {marginLeft: 20, marginRight: 20, paddingLeft: 24, paddingRight: 24, paddingTop: 20, paddingBottom: 24}
