@@ -1,7 +1,7 @@
 module.exports = {
   siteMetadata: {
     title: `Framework-X`,
-    description: `Reasonable global state.`,
+    description: `A reasonable programming framework.`,
     author: `@framework-x`,
   },
   plugins: [

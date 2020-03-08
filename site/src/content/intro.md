@@ -2,7 +2,7 @@
 path: /learn
 ---
 
-# Framework-X: Reasonable global state for React
+# Framework-X: A reasonable programming framework.
 
 Framework-X is a Javascript framework that separates code from its execution, allowing the representation of programmer intent to exist independently of when, where and how it's performed.
 

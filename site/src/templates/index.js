@@ -99,9 +99,8 @@ const Features = () => (
         },
       }}>
         <li>Less code</li>
-        <li>Spreadsheet programming</li>
         <li>Single source of truth</li>
-        <li>Algebraic effects</li>
+        <li>Executable effect descriptions</li>
       </ol>
       <Link to={'/learn'} css={{width: '100%'}}>
         <Button3D light rootCss={{width: '100%'}}>Learn more</Button3D>
@@ -265,7 +264,7 @@ const MainContent = ({starCount, downloadCount}) =>
         flexWrap: 'wrap',
         marginTop: 0
       }}>
-        Reasonable <Highlight rootCss={{marginLeft: 10}}>global state.</Highlight>
+        A Reasonable <Highlight rootCss={{marginLeft: 10}}>Programming Framework.</Highlight>
       </h1>
       <div css={{
         marginBottom: '1.45rem',
@@ -311,9 +310,9 @@ const MainContent = ({starCount, downloadCount}) =>
             </div>
           </DimensionalBox>
         </div>
-        <Link to={'/api'}
+        <Link to={'/learn'}
               css={{[theme.whenMobile]: {marginLeft: 0, [theme.whenMobile]: {width: '100%'}}}}>
-          <Button3D rootCss={{[theme.whenMobile]: {width: '100%'}}}>Go to documentation</Button3D>
+          <Button3D rootCss={{[theme.whenMobile]: {width: '100%'}}}>Learn more</Button3D>
         </Link>
       </div>
     </div>
@@ -384,7 +383,9 @@ const IndexPage = () => {
       <Features/>
       <AnimationBlock>
         <AnimationDescription header={'Add without breaking.'}
-                              description={'Nam at vulputate elit. Maecenas a sodales nulla. Ut tempor elit at nibh aliquet lobortis.'}
+                              description={
+                                            'When you want to add a new feature, you shouldn\'t need to modify existing ones. '
+                                           + 'Framework-X apps reflect this in code. Each feature has its own area. They can be extended without modifying working code.'}
                               rootCss={{
                                 justifySelf: 'flex-start',
                                 [theme.whenTablet]: {left: 0, marginLeft: 40},
@@ -396,8 +397,10 @@ const IndexPage = () => {
         </Animation>
       </AnimationBlock>
       <AnimationBlock>
-        <AnimationDescription header={'40% less code!'}
-                              description={'Nam at vulputate elit. Maecenas a sodales nulla. Ut tempor elit at nibh aliquet lobortis. Aliquam imperdiet viverra felis, vel facilisis mi imperdiet sit amet. In erat purus, cursus sit amet arcu.'}
+        <AnimationDescription header={'Write 40% less code.'}
+                              description={
+                                'With Framework-X, you can write the same app in 40% fewer lines of code than Redux, Angular, or other Javascript frameworks. '
+                              + 'More expressive code can promote faster development, increased productivity, and clearer communication to us of what it means.'}
                               rootCss={{
                                 [theme.whenTablet]: {right: 0, marginRight: 40},
                                 [theme.whenMobile]: {marginLeft: 20, marginRight: 20, paddingLeft: 24, paddingRight: 24, paddingTop: 20, paddingBottom: 24}
@@ -407,8 +410,11 @@ const IndexPage = () => {
         </Animation>
       </AnimationBlock>
       <AnimationBlock>
-        <AnimationDescription header={'We play Tetris better.'}
-                              description={'Nam at vulputate elit. Maecenas a sodales nulla. Ut tempor elit at nibh aliquet lobortis. Aliquam imperdiet viverra felis, vel facilisis mi imperdiet sit amet. In erat purus, cursus sit amet arcu.'}
+        <AnimationDescription header={'Use fundamental building blocks.'}
+                              description={
+                                 'Framework-X lets you build complex software from a few essential pieces.'
+                                           + 'Their power comes from the relationships between them and how easy they are to combine. '
+                                           }
                               rootCss={{
                                 [theme.whenTablet]: {left: 0, marginLeft: 40},
                                 [theme.whenMobile]: {marginLeft: 20, marginRight: 20, paddingLeft: 24, paddingRight: 24, paddingTop: 20, paddingBottom: 24}
