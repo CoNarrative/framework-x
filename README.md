@@ -22,83 +22,81 @@ npm i framework-x
 
 
 
-## Example
+## Example: State changes + side effects
+
+> View the complete code [here](https://github.com/CoNarrative/framework-x/tree/master/examples/todomvc).
 
 ```js
-// Create a Framework-X store
-import { createStore } from 'framework-x'
+import * as R from 'ramda'
+import { fx } from '../fx'
+import { regEventFx, regFx } from '../store'
+import { updateIn } from '../util'
 
-const { dispatch, regEventFx, regFx, getState } = createStore()
-
-// Define our application's events 
 const evt = {
   INITIALIZE_DB: 'initialize-db',
-  TOGGLE: 'toggle'
+
+  ADD_TODO: 'todo/add',
+  SET_TODO_TEXT: 'todo/set-text',
+
+  SHOW_NOTIFICATION: 'notification/show',
+  HIDE_NOTIFICATION: 'notification/hide',
 }
 
-
-// Define effect helpers
-const fx = {
-  db: (newStateOrReducer) => ['db', newStateOrReducer],
-  log: (args) => ['log', args]
-}
-
-
-// Define a side effect handler
-//
-// Registers a side effect called `'log'`
-regFx('log', (env, args) => console.log('[log-effect]', args))
-
-
-// Define event handlers
-//
-// Registers an event handler / `eventFx` for the `'initialize-db'` event 
-// Returns a `'db'` effect that will set the global `db` state to the event's payload
-regEventFx(evt.INITIALIZE_DB, (_, state) => [fx.db(state)])
-
-
-// Define an event handler function and register it to handle the `'toggle'` event.
-// Reads the `toggled` value from the current global state (`db`)
-const toggle = ({ db }) =>  {
-  const current = db.toggled
-  const next = !db.toggled
-  
+// Initialize the global state atom 
+regEventFx(evt.INITIALIZE_DB, (_, state = {}) => {
   return [
-    fx.db({ toggled: next }),
-    fx.log({ previous: current, current: next })
+    fx.db(state)
   ]
-}
+})
 
-regEventFx(evt.TOGGLE, toggle)
-
-// Define our initial state
-const initialState = { toggled: false }
-
-// `toggle` handler test
-// 
-// Calls the toggle handler with our initial state
-// Returns the effects for when the global state value is `{toggled: false}`
-expect(toggle(initialState)).toEqual([
-  // By default, Framework-X interprets this as "set the global state to `{toggled: true}`"
-  ['db', { toggled: true }], 
-  // Framework-X will call the function we registered for 'log' with these arguments
-  ['log', { previous: false, current: true }] 
+// Adding a todo
+// Three things:
+// 1. Add it to the state
+// 2. Clear the todo input text
+// 3. Show a notification that says "Todo added" for two seconds
+regEventFx(evt.ADD_TODO, ({ db }, { id, text, done = false }) => [
+  fx.db(updateIn(['todos'], R.append({ id, text, done }))),
+  fx.dispatch(evt.SET_TODO_TEXT, ''),
+  fx.notification({
+    type: 'success',
+    message: 'Todo added.',
+    duration: 2000
+  })
 ])
 
+// Setting the todo text. 
+// Affects the `db`/global state
+// Associates `db.newTodoText` with SET_TODO_TEXT event's value
+regEventFx(evt.SET_TODO_TEXT, (_, value) => [
+  fx.db( R.assoc('newTodoText', value))
+])
 
-// Dispatching events
-//
-// Send the `'initialize-db`' event to our Framework-X store with our initial state
-dispatch(evt.INITIALIZE_DB, initialState)
-// Send the `'toggle'` event to our Framework-X store
-dispatch(evt.TOGGLE)
+// Notification side effect definition
+// `ADD_TODO` only returns a description of this so it remains a pure function even though this isn't. 
+regFx('notification', (env, { type, message, duration = 900 }) => {
+  // Get the `dispatch` function from the Framework-X environment
+  // All other registered `fx` effects are here too if you need them
+  const { fx: { dispatch } } = env
 
-// Effects:
-// 1. Console prints: 
-// `[log-effect] { previous: false, current: true }`
+  const id = type + '/' + performance.now()
 
-// 2. Current global state is `{toggled: true}`
-expect(getState()).toEqual({ toggled: true})
+  // Show the notification 
+  dispatch(env, [evt.SHOW_NOTIFICATION, { id, type, message }])
+
+  // Hide it after X ms
+  setTimeout(() => dispatch(env, [evt.HIDE_NOTIFICATION, { id }]), duration)
+
+})
+
+// Showing a notification: add it to the state (views can subscribe, react to changes)
+regEventFx(evt.SHOW_NOTIFICATION, ({ db },  { id, type, message, timeout }) => [
+  fx.db(updateIn(['notifications'], R.append({ id, type, message, timeout })))
+])
+
+// Hiding a notification: Remove it from the state
+regEventFx(evt.HIDE_NOTIFICATION, ({ db }, { id }) => [
+  fx.db(updateIn(['notifications'], R.reject(R.propEq('id', id))))
+])
 ```
 
 
