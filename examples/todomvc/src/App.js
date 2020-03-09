@@ -2,6 +2,7 @@ import { createSub, component } from 'framework-x'
 import * as R from 'ramda'
 import React from 'react'
 import { evt } from './eventTypes'
+import { Notifications } from './notifications/components/Notification'
 import { NewTodoTextInput, VisibleTodosList } from './todos/components/TodosList'
 import { VisibilityFilters } from './todos/components/VisibilityFilters'
 import { getAllTodosCount, getDoneCount, getNotDoneCount } from './todos/selectors'
@@ -68,12 +69,15 @@ const MainSection = component('MainSection', createSub({
 
 
 export const App = () => (
-  <div  className={'todoapp'}>
-    <header className={'header'}>
-      <h1>todos</h1>
-      <NewTodoTextInput />
-    </header>
-    <MainSection/>
-    {/*<Notifications />*/}
+  <div>
+    <div className={'todoapp'}>
+      <header className={'header'}>
+        <h1>todos</h1>
+        <NewTodoTextInput />
+      </header>
+      <MainSection />
+    </div>
+    <Notifications />
   </div>
 )
+

@@ -28,6 +28,8 @@ body {
   min-width: 230px;
   max-width: 550px;
   margin: 0 auto;
+  width:100vw;
+  height:100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-weight: 300;

@@ -51,7 +51,7 @@ regEventFx(evt.ADD_TODO, ({ db }, { id, text, done = false }) => {
     fx.notification({
       type: 'success',
       message: 'Todo added.',
-      duration: 5000
+      duration: 2000
     })
   ]
 })
@@ -61,7 +61,7 @@ regEventFx(evt.REMOVE_TODO, ({ db }, id) => {
     fx.notification({
       type: 'success',
       message: 'Todo removed.',
-      duration: 5000
+      duration: 2500
     })
   ]
 })
@@ -72,7 +72,7 @@ regEventFx(evt.START_EDIT_TODO, ({ db }, id) => {
     fx.notification({
       type: 'success',
       message: 'Editing.',
-      duration: 5000
+      duration: 2500
     })
   ]
 })
@@ -93,7 +93,7 @@ regEventFx(evt.SAVE_EDIT_TODO, ({ db }, _) => {
     fx.notification({
       type: 'success',
       message: 'Edit saved.',
-      duration: 5000
+      duration: 2500
     })
   ]
 })
@@ -142,7 +142,7 @@ regEventFx(evt.BEGIN_REMOVE_TODOS, (_, toRemove) => {
       message: `Removing ${n} ${R.all(R.prop('done'), toRemove)
                                 ? 'completed'
                                 : ''} todo${n === 1 ? '' : 's'}`,
-      duration: 1300
+      duration: 2500
     })
   ]
 })
@@ -155,7 +155,7 @@ regEventFx(evt.TODOS_REMOVED, (_, removed) => {
       message: `${n} ${R.all(R.prop('done'), removed)
                        ? 'completed'
                        : ''} todo${n === 1 ? ' was' : 's were'}  removed.`,
-      duration: 1300
+      duration: 2500
     })
   ]
 })
@@ -165,8 +165,8 @@ regEventFx(evt.TODO_STATUS_CHANGED, ({ db }, id) => {
   return [
     fx.notification(
       R.zipObj(['type', 'message', 'duration'],
-        isDone ? ['success', 'Great job!', 3000]
-               : ['success', 'Todo not done', 3000]
+        isDone ? ['success', 'Great job!', 2500]
+               : ['success', 'Todo not done', 2500]
       )
     )
   ]
