@@ -2,7 +2,7 @@ import React from 'react'
 import { evt } from '../eventTypes'
 import { dispatch } from '../store'
 
-export const Link = ({ to, href = null,className, onClick, children }) =>
+export const Link = ({ to, href = "",className, onClick, children }) =>
   <a {...{className, href}} onClick={e => {
     e.preventDefault()
     if (onClick) return onClick(e)
