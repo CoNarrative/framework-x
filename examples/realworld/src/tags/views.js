@@ -7,6 +7,7 @@ import { dispatch } from '../store'
 
 const Tag = ({ tag }) =>
   <a className="tag-default tag-pill"
+     href={""}
      onClick={e => {
        e.preventDefault()
        dispatch(evt.APPLY_TAG_FILTER, tag)
