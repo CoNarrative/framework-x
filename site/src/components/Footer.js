@@ -72,7 +72,7 @@ export const Footer = ({floating}) => (
   }}>
     <div css={{[whenTablet]: {marginTop: 48, alignSelf: 'flex-start', position: 'absolute', left: 32, bottom: 32}}}>
       {/*<div css={{fontFamily: '', color: theme.darkGrey, fontSize: '1rem', marginBottom: 8,}}>Built with...</div>*/}
-      <div css={{fontFamily: 'Basier Square Mono', fontSize: '1rem'}}>@2019 CoNarrative Inc.</div>
+      <div css={{fontFamily: 'Basier Square Mono', fontSize: '1rem'}}>@2020 CoNarrative Inc.</div>
     </div>
     <div css={{display: 'flex', [whenTablet]: {paddingBottom: 144,}, [whenMobile]: {flexDirection: 'column',}}}>
       <div css={{
