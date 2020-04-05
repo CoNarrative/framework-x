@@ -51,7 +51,12 @@ export const createRouter = ({ routes, history, basename }) => {
     const route = routes.find(({ id: tid }) => tid === id)
     if (!route) throw new Error(`No route named "${id}"`)
     const { path } = route
-    const url = compile(path)(params)
+    let url
+    try {
+      url = compile(path)(params)
+    } catch (e) {
+      console.warn(e)
+    }
     const pathname = basename ? `${basename}${url}` : url
     history[verb]({
       pathname,
@@ -77,7 +82,7 @@ export const createRouter = ({ routes, history, basename }) => {
           pathname = pathname.substring(basename.length)
         }
         const match = matchFirst(routes, pathname)
-        onRouteChanged({ location, match: match || { id: 'not-found' }, type,
+        onRouteChanged({ location, match: match || { route:{id: 'not-found'} }, type,
           search: querystring.parse(location.search)
         })
       }
