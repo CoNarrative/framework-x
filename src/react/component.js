@@ -76,10 +76,16 @@ const connectFn = (name, config, renderFn) => {
         // This permits higher-order composition of selectors (selectors that return subs for instance)
         let depth = 0
         let newExtractedProps = subscribe
-        do {
-          newExtractedProps = newExtractedProps(appState, this.props)
-          depth++
-        } while (depth < 12 && typeof (newExtractedProps) === 'function')
+        try {
+          do {
+            newExtractedProps = newExtractedProps(appState, this.props)
+            depth++
+          } while (depth < 12 && typeof (newExtractedProps) === 'function')
+        } catch (err) {
+          console.error(`Subscription error in fx component "${name}"`)
+          throw err
+          // throw new Error(`Subscription error in fx component "${name}"`, err)
+        }
         didExtractedPropsChange = !shallowEqual(this._sub.extractedProps, newExtractedProps)
         this._sub.extractedProps = newExtractedProps
       }
