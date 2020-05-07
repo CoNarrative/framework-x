@@ -21,6 +21,10 @@ yarn-debug.log*
 yarn-error.log*
 /.idea/
 site/.idea/
+*.d.ts
+*.d.ts.map
+packages/framework-x/src/*.js
+!packages/framework-x/src/types.d.ts
 !/examples/todomvc/.env
 !/examples/realworld/.env
 !/packages/framework-x-redux/todomvc/.env

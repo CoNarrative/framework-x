@@ -11,17 +11,6 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 import React, { Component } from 'react';
 import { Context, subs } from './context';
 import { shallowEqual } from '../util';
@@ -101,7 +90,7 @@ var connectFn = function (name, config, renderFn) {
                         didExtractedPropsChange: didExtractedPropsChange
                     });
                     // @ts-ignore
-                    return React.createElement(SyntheticComponentBasedOnRenderFunction, __assign({}, _this._sub.merged));
+                    return <SyntheticComponentBasedOnRenderFunction {..._this._sub.merged}/>;
                 };
                 return _this;
             }
@@ -120,7 +109,9 @@ var connectFn = function (name, config, renderFn) {
                 subs[name].splice(i, 1);
             };
             ComponentSubscriptionWrapper.prototype.render = function () {
-                return (React.createElement(Context.Consumer, null, this.innerConsumerRender));
+                return (<Context.Consumer>
+          {this.innerConsumerRender}
+        </Context.Consumer>);
             };
             return ComponentSubscriptionWrapper;
         }(Component)),
@@ -160,11 +151,13 @@ export var component = function (name, mapStateOrConfigBag, renderFn) {
                 }
                 Pure.prototype.render = function () {
                     var _this = this;
-                    return (React.createElement(Context.Consumer, null, function (_a) {
+                    return (<Context.Consumer>
+            {function (_a) {
                         var dispatch = _a.dispatch;
                         // @ts-ignore
                         return renderFn(Object.assign({ dispatch: dispatch }, _this.props));
-                    }));
+                    }}
+          </Context.Consumer>);
                 };
                 return Pure;
             }(React.PureComponent)),

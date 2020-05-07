@@ -11,17 +11,6 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 var __rest = (this && this.__rest) || function (s, e) {
     var t = {};
     for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
@@ -63,12 +52,14 @@ var Subscribe = /** @class */ (function (_super) {
             var appState = _a.appState, dispatch = _a.dispatch;
             // @ts-ignore
             var _b = _this.props, otherProps = _b.otherProps, selector = _b.selector;
-            return (React.createElement(Prevent, __assign({ dispatch: dispatch }, selector(appState, otherProps), otherProps, { _children: _this._children })));
+            return (<Prevent dispatch={dispatch} {...selector(appState, otherProps)} {...otherProps} _children={_this._children}/>);
         };
         return _this;
     }
     Subscribe.prototype.render = function () {
-        return (React.createElement(Context.Consumer, null, this.prevent));
+        return (<Context.Consumer>
+        {this.prevent}
+      </Context.Consumer>);
     };
     return Subscribe;
 }(Component));
@@ -81,7 +72,9 @@ export { Subscribe };
 export var connect = function (selector) { return function (WrappedComponent) {
     var ConnectedComponent = function (props) {
         // @ts-ignore
-        return React.createElement(Subscribe, { selector: selector, otherProps: getNonChildProps(props) }, function (injectedProps) { return React.createElement(WrappedComponent, __assign({}, props, injectedProps)); });
+        return <Subscribe selector={selector} otherProps={getNonChildProps(props)}>
+      {function (injectedProps) { return <WrappedComponent {...props} {...injectedProps}/>; }}
+    </Subscribe>;
     };
     ConnectedComponent.displayName = "FxConnect(" + (WrappedComponent.displayName ||
         WrappedComponent.name || '-') + ")";

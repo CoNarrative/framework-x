@@ -1,6 +1,10 @@
 // import { memoize } from './util'
 import pathToRegexp from 'path-to-regexp'
-import querystring from 'query-string'
+import querystring, { ParsedQuery } from 'query-string'
+import type { History } from 'history'
+
+
+export type Route = Readonly<{ id: string, path: string } & { [k: string]: any }>
 
 const memoize = fn => fn
 
@@ -16,7 +20,7 @@ const toRegex = memoize(
 const compile = memoize(path => pathToRegexp.compile(path))
 
 const matchAgainstPattern = ({ path }) => uri => {
-  const { pattern, keys } = toRegex(path, keys)
+  const { pattern, keys } = toRegex(path)
   const match = pattern.exec(uri)
   if (!match) return null
   const params = Object.create(null)
@@ -37,7 +41,11 @@ const matches = (routes, uri) =>
     .filter(({ params }) => params)
 const matchFirst = (routes, uri) => matches(routes, uri)[0] // todo: implement short-circuit
 
-export const createRouter = ({ routes, history, basename }) => {
+export const createRouter = ({ routes, history, basename }: {
+  routes: Readonly<Route[]>,
+  history: History,
+  basename?: string
+}) => {
   /* force pre-compile to fail-fast */
   routes.forEach((route) => {
     if (!route) throw new Error('Empty route')
@@ -47,7 +55,7 @@ export const createRouter = ({ routes, history, basename }) => {
     toRegex(path)
   })
 
-  const makeRouteMethod = verb => (id, params, query) => {
+  const makeRouteMethod = (verb: 'push' | 'replace') => (id, params, query) => {
     const route = routes.find(({ id: tid }) => tid === id)
     if (!route) throw new Error(`No route named "${id}"`)
     const { path } = route
@@ -66,7 +74,12 @@ export const createRouter = ({ routes, history, basename }) => {
   return ({
     replaceNamedRoute,
     pushNamedRoute,
-    listen(onRouteChanged) {
+    listen(onRouteChanged: (args: {
+      location: string,
+      match: string,
+      type: string,
+      search: ParsedQuery
+    }) => any) {
       if (!onRouteChanged) throw new Error('You must provide a callback for the router.')
       const respondToHistory = (location, type) => {
         let pathname = location.pathname
@@ -77,7 +90,8 @@ export const createRouter = ({ routes, history, basename }) => {
           pathname = pathname.substring(basename.length)
         }
         const match = matchFirst(routes, pathname)
-        onRouteChanged({ location, match: match || { id: 'not-found' }, type,
+        onRouteChanged({
+          location, match: match || { id: 'not-found' }, type,
           search: querystring.parse(location.search)
         })
       }

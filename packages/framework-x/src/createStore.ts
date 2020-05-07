@@ -12,7 +12,7 @@ import {
   EnvWith,
   EventVector,
   ErrorEffect,
-} from "./index"
+} from "./types"
 import { FxError } from "./FxError"
 
 
@@ -263,7 +263,7 @@ export const createFxDescriptors = <Fx extends { [k: string]: (...args: any) => 
   return Object.entries(fx).reduce((a, [k, _]) => {
     a[k] = (x) => [k, x]
     return a
-  }, {}) as { [K in keyof Fx]: (...args: Parameters<Fx[K]>[1]) => [K, Parameters<Fx[K]>[1]] }
+  }, {}) as { [K in keyof Fx]: (args: Parameters<Fx[K]>[1]) => [ReturnType<Fx[K]>[0], Parameters<Fx[K]>[1]] }
 }
 
 export const defaultEnv = (): DefaultEnv => ({
@@ -329,6 +329,12 @@ export const mergeEnv = <E>(args?: E extends IEnv ? E : never) => {
   }
 }
 
+type Fn<T,R> = (x:T)=>R
+const  makeDefaultFx = <Db>()=> ({
+  db: (newStateOrReducer: Db | Fn<Db,Db>) => {
+  }
+})
+
 export const createStore = <E>(args?: E extends IEnv ? E : never) => {
   const env = mergeEnv(args)
 
@@ -357,8 +363,9 @@ export const createStore = <E>(args?: E extends IEnv ? E : never) => {
       env.fx[type] = fn
     },
     regEventFx: (
-      eventName: EventName,
-      fn: (state: Env['state'], args: any) => EffectDescription<Env['fx']>
+      eventName: string,
+      fn: (ctx: Env['state'], args: any) => [string, ...any[]][]
+        | undefined | []
     ) => {
       checkType('regEventFx', eventName)
       env.eventFx[eventName] = [...env.eventFx[eventName] || [], fn]

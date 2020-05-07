@@ -1,3 +1,6 @@
+export type { Selector } from 'reselect'
+import type {createSelector as cs} from "reselect"
+
 const hasOwn = Object.prototype.hasOwnProperty
 export const memoize = (fn) => {
   let cache = {}
@@ -120,6 +123,7 @@ export function defaultMemoize(func) {
       lastResult = func.apply(null, arguments)
     }
 
+    // @ts-ignore
     lastArgs = args
     return lastResult
   }
@@ -170,6 +174,7 @@ export function createSelectorCreator(memoize, ...memoizeOptions) {
 
       for (let i = 0; i < length; i++) {
         // apply arguments instead of spreading and mutate a local list of params for performance.
+        // @ts-ignore
         params.push(dependencies[i].apply(null, arguments))
       }
 
@@ -221,7 +226,7 @@ const mapKeys = (keyMapper, obj) =>
 export const createSub = obj => createStructuredSelector(
   mapKeys(key => key.startsWith('get') ? caseFirst(key.substr(3)) : key, obj))
 
-export const derive = (...args) => {
+export const derive: typeof cs = (...args) => {
   if (typeof (args[0]) === 'string') {
     const sel = createSelector.apply(null, args.slice(1))
     sel.selectorName = args[0]

@@ -37,7 +37,9 @@ var Provider = /** @class */ (function (_super) {
                 dispatch: this.value.dispatch
             };
         }
-        return (React.createElement(Context.Provider, { value: this.value }, this.props.children));
+        return (<Context.Provider value={this.value}>
+        {this.props.children}
+      </Context.Provider>);
     };
     Provider.propTypes = {
         getState: PropTypes.func.isRequired,

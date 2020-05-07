@@ -128,7 +128,9 @@ const startListenToReduxDevtools = ctx =>
   typeof window !== 'undefined'
   && window.addEventListener('message', makeReduxDevtoolsHandler(ctx))
 
+// @ts-ignore
 const extension = typeof window !== 'undefined' && (window.__REDUX_DEVTOOLS_EXTENSION__ ||
+  // @ts-ignore
                                                     window.devToolsExtension)
 
 export default extension ? init : noExtensionFallbackMiddleware

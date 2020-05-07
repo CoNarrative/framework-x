@@ -1,10 +1,10 @@
 // declare module "framework-x" {
 
 
-type Tail<T extends any[]> = ((...t: T) => void) extends ((x: any, ...u: infer U) => void) ? U : never;
-type Rest  <T extends any[],U=unknown> = T extends [any,...any[]] ? U:never
-type TailParameters<T extends (...args: any) => any> = T extends (x: any, args: infer P) => any ? P : never;
-type AnyKV = { [k: string]: any }
+export type Tail<T extends any[]> = ((...t: T) => void) extends ((x: any, ...u: infer U) => void) ? U : never;
+export type Rest  <T extends any[],U=unknown> = T extends [any,...any[]] ? U:never
+export type TailParameters<T extends (...args: any) => any> = T extends (x: any, args: infer P) => any ? P : never;
+export type AnyKV = { [k: string]: any }
 
 export type DbListener<State extends any> = (db: State['db']) => void
 
@@ -61,7 +61,7 @@ export type  DefaultFxMap = {
   notifyEventListeners: any
 }
 
-type Accum<E extends any> = {
+export type Accum<E extends any> = {
   state: E['state'],
   reductions: any[],
   stack: EffectTuple<E>[],
@@ -109,7 +109,7 @@ export declare interface Environment<State extends StateMap,
   eventListeners?: Array<(type: MapValue<EvtMap, keyof EvtMap>, data?: any) => void>
 }
 
-type MapValue<M, K extends keyof M> = M[K]
+export type MapValue<M, K extends keyof M> = M[K]
 
 export interface IEnv {
   state?: AnyKV

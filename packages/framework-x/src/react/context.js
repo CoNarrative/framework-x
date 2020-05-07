@@ -1,13 +1,11 @@
-import { createContext } from 'react'
-
+import { createContext } from 'react';
+// @ts-ignore
 if (typeof window !== 'undefined' && window._frameworkXContext) {
-  throw new Error('You have multiple Framework-X contexts in this app, which will cause nothing but trouble.')
+    throw new Error('You have multiple Framework-X contexts in this app, which will cause nothing but trouble.');
 }
-
-export const Context = createContext()
-
+export var Context = createContext(undefined);
 if (typeof window !== 'undefined') {
-  window._frameworkXContext = Context
+    // @ts-ignore
+    window._frameworkXContext = Context;
 }
-
-export const subs = {}
+export var subs = {};
