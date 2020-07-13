@@ -18,7 +18,7 @@ module.exports = {
       options: {
         // You can add multiple tracking ids and a pageview event will be fired for all of them.
         trackingIds: [
-          "UA-136106092-2", // Google Analytics / GA
+          "UA-172548912-1", // Google Analytics / GA
         ],
         // This object gets passed directly to the gtag config command
         // This config will be shared across all trackingIds
@@ -31,10 +31,6 @@ module.exports = {
         pluginConfig: {
           // Puts tracking script in the head instead of the body
           head: true,
-          // Setting this parameter is also optional
-          respectDNT: true,
-          // Avoids sending pageview hits from custom paths
-          exclude: ["/preview/**", "/do-not-track/me/too/"],
         },
       },
     },
