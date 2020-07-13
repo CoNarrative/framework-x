@@ -9,8 +9,12 @@ module.exports = {
       resolve: `gatsby-plugin-google-gtag`,
       options: {
         trackingIds: [
-          "UA-172548912-1", // Google Analytics / GA
+          "UA-136106092-2", // Google Analytics / GA
         ],
+        gtagConfig: {
+          anonymize_ip: true,
+          cookie_expires: 0,
+        },
         pluginConfig: {
           head: true,
         },
